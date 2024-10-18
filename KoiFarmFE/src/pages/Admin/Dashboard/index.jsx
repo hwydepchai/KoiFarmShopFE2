@@ -3,10 +3,12 @@ import React from "react";
 import { Container, Row, Col, Navbar, Nav, Card } from "react-bootstrap";
 import { Link, Route, Routes } from "react-router-dom";
 import DashboardContent from "./dashboard";
-import KoiFishList from "./koifish";
-import OrderList from "./order";
+import KoiFishList from "./KoiManage/koifish";
+import KoiFishDetails from "./KoiManage/koidetails";
+import OrderList from "./OrderManage/order";
 import Settings from "./setting";
-import CartList from "./cart";
+import CartList from "./CartManage/cart";
+import AccountList from "./account";
 
 const Dashboard = () => {
   return (
@@ -22,6 +24,9 @@ const Dashboard = () => {
                 <Nav className="flex-column">
                   <Nav.Link as={Link} to="/dashboard">
                     Dashboard
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/dashboard/account">
+                    Account
                   </Nav.Link>
                   <Nav.Link as={Link} to="/dashboard/koifish">
                     Koi Fish
@@ -49,7 +54,9 @@ const Dashboard = () => {
                     path="/"
                     element={<DashboardContent />}
                   />
-                  <Route path="/koifish" element={<KoiFishList />} />
+                  <Route path="/account" element={<AccountList />} />
+                  <Route path="/koifish/*" element={<KoiFishList />} />
+                  <Route path="/koi/:id" element={<KoiFishDetails />} />
                   <Route path="/order" element={<OrderList />} />
                   <Route path="/cart" element={<CartList />} />
                   <Route path="/settings" element={<Settings />} />

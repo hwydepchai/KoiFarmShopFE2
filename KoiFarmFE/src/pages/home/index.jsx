@@ -1,15 +1,15 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import KoiFishDetails from "../koiFish";
-import banner from './koi_banner.jpg'
-import './home.css'
+import KoiFishDetails from "../Admin/Dashboard/KoiManage/koidetails";
+import banner from "./koi_banner.jpg";
+import "./home.css";
 
 function HomePage() {
   const [koiList, setKoiList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     fetch("https://localhost:7229/api/KoiFish") // Fetch list of Koi from API
       .then((response) => response.json())

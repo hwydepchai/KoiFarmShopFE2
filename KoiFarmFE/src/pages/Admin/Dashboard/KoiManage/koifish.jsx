@@ -29,20 +29,26 @@ function KoiFishList() {
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
-            <th scope="col">Species</th>
+            <th scope="col">ID</th>
             <th scope="col">Origin</th>
-            <th scope="col">Price</th>
+            <th scope="col">Gender</th>
+            <th scope="col">Species</th>
+            <th scope="col">Size</th>
+            <th scope="col">Status</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
           {koiList.map((koi) => (
             <tr key={koi.id}>
-              <td>{koi.species}</td>
+              <td>{koi.id}</td>
               <td>{koi.origin}</td>
-              <td>$150</td>
+              <td>{koi.gender}</td>
+              <td>{koi.species}</td>
+              <td>{koi.size}</td>
+              <td>{koi.status}</td>
               <td>
-                <Link to={`/koi/${koi.id}`} className="btn btn-primary btn-sm">
+                <Link to={`/dashboard/koi/${koi.id}`} className="btn btn-primary btn-sm">
                   View Details
                 </Link>
               </td>
