@@ -2,16 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import KoiFishDetails from "../koiFish";
+import banner from './koi_banner.jpg'
+import './home.css'
 
 function HomePage() {
   const [koiList, setKoiList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const openDetailHandler = (orchid) => {
-    
-  };
-
+  
   useEffect(() => {
     fetch("https://localhost:7229/api/KoiFish") // Fetch list of Koi from API
       .then((response) => response.json())
@@ -29,7 +27,7 @@ function HomePage() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="container">
+    <div className="homepage-container">
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div className="container-fluid">
@@ -80,9 +78,8 @@ function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="hero bg-light text-center py-5 mb-4">
-        <img src="koi_banner.jpg" alt="Koi Pond" className="img-fluid mb-3" />
-        <h2 className="mb-3">Find Your Perfect Koi</h2>
+      <div className="hero text-center py-5 mb-4">
+        <h2 className="mb-3">Looking for Koi</h2>
         <p>Explore our collection of premium koi fish and pond accessories.</p>
       </div>
 
@@ -117,11 +114,6 @@ function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="footer text-center py-4">
-        <p>© 2024 Koi Farm Shop. All rights reserved.</p>
-      </footer>
     </div>
   );
 }

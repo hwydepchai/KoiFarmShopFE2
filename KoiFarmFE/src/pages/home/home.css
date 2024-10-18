@@ -1,0 +1,24 @@
+.homepage-container {
+    background-color: rgb(236,231,224);
+    width: 100%;
+    margin: 0;
+}
+
+.hero {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    border: 2px solid black;
+    padding: 25px;
+    width: 100%;
+    height: 480px;
+    color: rgb(192,87,70);
+    background-color: black;
+    background-repeat: no-repeat;
+    background-size: 80% 480px;
+    background-position-x: right;
+    background-position-y: 24px;
+    background-image: url(./koi_banner.jpg);
+}
+
+.hero p, h2 {
+    text-align: left;
+}
