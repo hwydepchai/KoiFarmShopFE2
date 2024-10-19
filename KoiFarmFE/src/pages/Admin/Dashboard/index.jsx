@@ -8,7 +8,7 @@ import KoiFishDetails from "./KoiManage/koidetails";
 import OrderList from "./OrderManage/order";
 import Settings from "./setting";
 import CartList from "./CartManage/cart";
-import AccountList from "./account";
+import AccountList from "./AccountManage/account";
 
 const Dashboard = () => {
   return (

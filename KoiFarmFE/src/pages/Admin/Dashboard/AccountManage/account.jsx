@@ -8,6 +8,7 @@ function AccountList() {
   const [accounts, setAccounts] = useState({ active: [], deleted: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [newAccount, setNewAccount] = useState({ email: "", password: "" });
 
   useEffect(() => {
     fetchAccounts();
@@ -38,6 +39,17 @@ function AccountList() {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+  const createAccount = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post("https://localhost:7229/api/Accounts", newAccount);
+      setNewAccount({ email: "", password: "" });
+      fetchAccounts(); // Refresh the list
+    } catch (error) {
+      console.error("Error creating account:", error);
+    }
+  };
 
   // Helper function to render tables for both active and deleted accounts
   const AccountTable = ({ accounts, title }) => (
@@ -74,15 +86,15 @@ function AccountList() {
                     onClick={() => deleteAccount(account.id)}
                     className="btn"
                   >
-                    ❌
+                    ▼
                   </button>
                 )}
                 {account.isDeleted && (
                   <button
-                    onClick={() => toggleAccountStatus(account.id, false)} // Undelete account
+                    onClick={() => toggleAccountStatus(account.id, false)} // Undeleted account
                     className="btn"
                   >
-                    ✅
+                    ▲
                   </button>
                 )}
               </td>

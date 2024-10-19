@@ -1,6 +1,6 @@
 
 // import React from 'react'
-import AuthenTemplate from "../../components/authen-template";
+import AuthenTemplate from "../../../components/authen-template";
 import { Button, Form, Input } from "antd";
 import axios from "axios";
 import { useEffect } from "react";
