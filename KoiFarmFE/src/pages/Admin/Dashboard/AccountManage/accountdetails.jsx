@@ -49,7 +49,6 @@ function AccountDetails() {
     <div className="container my-4">
       <h2 className="text-center mb-4">Account Details</h2>
       <div className="d-flex justify-content-around">
-
         {/* General Information Section */}
         <div className="card mb-4 flex-grow-1">
           <div className="card-header">
@@ -100,6 +99,11 @@ function AccountDetails() {
             <p className="card-text">
               <strong>Last Modified:</strong>{" "}
               {new Date(accountDetails.modifiedDate).toLocaleDateString()}
+            </p>
+            <p className="card-text">
+              <strong>
+                <button className="btn bg-light border">View Cart</button>
+              </strong>{" "}
             </p>
           </div>
         </div>

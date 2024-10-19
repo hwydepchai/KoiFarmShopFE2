@@ -48,7 +48,6 @@ const CartTable = ({ carts, title }) => {
               <th>Created Date</th>
               <th>Modified Date</th>
               <th></th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -62,9 +61,6 @@ const CartTable = ({ carts, title }) => {
                 <td>{cart.status}</td>
                 <td>{new Date(cart.createdDate).toLocaleString()}</td>
                 <td>{new Date(cart.modifiedDate).toLocaleString()}</td>
-                <td>
-                  <button>Purchase</button>
-                </td>
                 <td>
                   <Link
                     to={`/dashboard/cart/${cart.id}`}

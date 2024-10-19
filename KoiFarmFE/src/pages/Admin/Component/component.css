@@ -1,14 +1,12 @@
 .Header {
     text-align: center;
     gap: 24px;
-    border: solid;
     top: 0;
 }
 
 .Header .start-stuff,
 .middle-stuff,
 .end-stuff {
-    border: solid;
     flex: 1;
 }
 
