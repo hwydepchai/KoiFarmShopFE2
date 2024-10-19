@@ -2,21 +2,25 @@
 import React from "react";
 import { Container, Row, Col, Navbar, Nav, Card } from "react-bootstrap";
 import { Link, Route, Routes } from "react-router-dom";
+import Header from "../Component/Header";
 import DashboardContent from "./dashboard";
+import AccountList from "./AccountManage/account";
 import KoiFishList from "./KoiManage/koifish";
 import KoiFishDetails from "./KoiManage/koidetails";
 import OrderList from "./OrderManage/order";
 import Settings from "./setting";
 import CartList from "./CartManage/cart";
-import AccountList from "./AccountManage/account";
+import AccountDetails from "./AccountManage/accountdetails";
+import CartDetails from "./CartManage/cartdetails";
+import Footer from "../Component/Footer";
 
 const Dashboard = () => {
   return (
     <div>
+      <Header />
       <Container fluid>
         <Row className="mt-4 justify-content-between">
           <Col md={2}>
-
             {/* Sidebar */}
             <Card>
               <Card.Body>
@@ -50,15 +54,14 @@ const Dashboard = () => {
             <Card>
               <Card.Body>
                 <Routes>
-                  <Route
-                    path="/"
-                    element={<DashboardContent />}
-                  />
-                  <Route path="/account" element={<AccountList />} />
+                  <Route path="/" element={<DashboardContent />} />
+                  <Route path="/account/*" element={<AccountList />} />
+                  <Route path="/account/:id" element={<AccountDetails />} />
                   <Route path="/koifish/*" element={<KoiFishList />} />
-                  <Route path="/koi/:id" element={<KoiFishDetails />} />
+                  <Route path="/koifish/:id" element={<KoiFishDetails />} />
                   <Route path="/order" element={<OrderList />} />
-                  <Route path="/cart" element={<CartList />} />
+                  <Route path="/cart/*" element={<CartList />} />
+                  <Route path="/cart/:id" element={<CartDetails />} />
                   <Route path="/settings" element={<Settings />} />
                 </Routes>
               </Card.Body>
@@ -66,6 +69,7 @@ const Dashboard = () => {
           </Col>
         </Row>
       </Container>
+      <Footer />
     </div>
   );
 };

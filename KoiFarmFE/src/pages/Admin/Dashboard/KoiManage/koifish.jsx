@@ -48,7 +48,7 @@ function KoiFishList() {
               <td>{koi.size}</td>
               <td>{koi.status}</td>
               <td>
-                <Link to={`/dashboard/koi/${koi.id}`} className="btn btn-primary btn-sm">
+                <Link to={`/dashboard/koifish/${koi.id}`} className="btn btn-primary btn-sm">
                   View Details
                 </Link>
               </td>

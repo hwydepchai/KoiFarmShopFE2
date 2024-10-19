@@ -76,7 +76,7 @@ function AccountList() {
               <td>{account.status}</td>
               <td>
                 <Link
-                  to={`/account/${account.id}`}
+                  to={`/dashboard/account/${account.id}`}
                   className="btn btn-primary btn-sm"
                 >
                   View Details

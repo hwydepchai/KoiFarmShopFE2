@@ -9,7 +9,7 @@ function KoiFishDetails() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`https://localhost:7229/api/KoiFish/${id}`) // Fetch specific Koi fish details from the API
+    fetch(`https://localhost:7229/api/KoiFish/${id}`) 
       .then((response) => response.json())
       .then((data) => {
         setKoiDetails(data);

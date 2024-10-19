@@ -67,7 +67,7 @@ const CartTable = ({ carts, title }) => {
                 </td>
                 <td>
                   <Link
-                    to={`/cart-details/${cart.id}`}
+                    to={`/dashboard/cart/${cart.id}`}
                     className="btn btn-info"
                   >
                     View Details

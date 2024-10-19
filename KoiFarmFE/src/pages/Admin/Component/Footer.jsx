@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
+import './component.css'
 
 function Footer() {
   return (
-    <div>Footer</div>
+    <div className='Footer'>idk</div>
   )
 }
 

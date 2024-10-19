@@ -1,0 +1,25 @@
+.Header {
+    text-align: center;
+    gap: 24px;
+    border: solid;
+    top: 0;
+}
+
+.Header .start-stuff,
+.middle-stuff,
+.end-stuff {
+    border: solid;
+    flex: 1;
+}
+
+.Header .start-stuff {
+    height: 4rem;
+    text-align: center;
+    align-items: center;
+}
+
+.Footer {
+    position: fixed;
+    bottom: 0;
+    border: solid;
+}
