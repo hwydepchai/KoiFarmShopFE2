@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import "./account.css";
 
 function AccountList() {
   const [accounts, setAccounts] = useState({ active: [], deleted: [] });
@@ -63,7 +64,8 @@ function AccountList() {
             <th>Email</th>
             <th>Phone</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th>Details</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -81,12 +83,17 @@ function AccountList() {
                 >
                   View Details
                 </Link>
+              </td>
+              <td>
                 {!account.isDeleted && (
                   <button
                     onClick={() => deleteAccount(account.id)}
                     className="btn"
                   >
-                    ▼
+                    <label className="switch">
+                      <input type="checkbox"></input>
+                      <span className="slider"></span>
+                    </label>
                   </button>
                 )}
                 {account.isDeleted && (
@@ -94,7 +101,10 @@ function AccountList() {
                     onClick={() => toggleAccountStatus(account.id, false)} // Undeleted account
                     className="btn"
                   >
-                    ▲
+                    <label className="switch">
+                      <input type="checkbox" checked></input>
+                      <span className="slider"></span>
+                    </label>
                   </button>
                 )}
               </td>
