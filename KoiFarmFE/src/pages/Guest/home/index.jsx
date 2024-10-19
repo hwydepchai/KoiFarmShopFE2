@@ -60,7 +60,7 @@ function HomePage() {
                       <p>
                         <strong>Price:</strong> $150
                       </p>
-                      <Link to={`/koi/${koi.id}`} className="btn btn-primary">
+                      <Link to={`/koifish/${koi.id}`} className="btn btn-primary">
                         View Details
                       </Link>
                     </div>

@@ -1,30 +1,32 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
+import { Link } from "react-router-dom";
 import { Navbar, Nav } from "react-bootstrap";
+import "./component.css";
 
 const Header = () => {
   return (
-    <Navbar className="nav d-flex justify-content-between">
-      <Navbar.Brand href="#home">
-        <h3 className="text-light">Koi Farm Shop</h3>
+    <Navbar className="nav-bar d-flex justify-content-between">
+      <Navbar.Brand href="#home" className="brand">
+        <h3 className="">Koi Farm Shop</h3>
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto">
-          <Nav.Link href="#home">
-            <p>Home</p>
+        <Nav className="d-flex">
+          <Nav.Link as={Link} to="/category">
+            Category
           </Nav.Link>
-          <Nav.Link href="#koi-fish">
-            <p>Koi Fish</p>
+          <Nav.Link as={Link} to="/koifish">
+            Koi Fish
           </Nav.Link>
-          <Nav.Link href="#consign">
-            <p>Consign</p>
+          <Nav.Link as={Link} to="/order">
+            Order
           </Nav.Link>
-          <Nav.Link href="#sell">
-            <p>Sell</p>
+          <Nav.Link as={Link} to="/cart">
+            Cart
           </Nav.Link>
-          <Nav.Link href="#user-center">
-            <p>User Center</p>
+          <Nav.Link as={Link} to="/user">
+            User Settings
           </Nav.Link>
         </Nav>
       </Navbar.Collapse>
