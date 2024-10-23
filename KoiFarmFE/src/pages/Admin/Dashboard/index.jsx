@@ -13,6 +13,7 @@ import CartList from "./CartManage/cart";
 import AccountDetails from "./AccountManage/accountdetails";
 import CartDetails from "./CartManage/cartdetails";
 import Footer from "../Component/Footer";
+import AddKoi from "./KoiManage/koiadd";
 
 const Dashboard = () => {
   return (
@@ -59,6 +60,7 @@ const Dashboard = () => {
                   <Route path="/account/:id" element={<AccountDetails />} />
                   <Route path="/koifish/*" element={<KoiFishList />} />
                   <Route path="/koifish/:id" element={<KoiFishDetails />} />
+                  <Route path="/koifish/create" element={<AddKoi />} />
                   <Route path="/order" element={<OrderList />} />
                   <Route path="/cart/*" element={<CartList />} />
                   <Route path="/cart/:id" element={<CartDetails />} />

@@ -48,7 +48,10 @@ function KoiFishList() {
               <td>{koi.size}</td>
               <td>{koi.status}</td>
               <td>
-                <Link to={`/dashboard/koifish/${koi.id}`} className="btn btn-primary btn-sm">
+                <Link
+                  to={`/dashboard/koifish/${koi.id}`}
+                  className="btn btn-primary btn-sm"
+                >
                   View Details
                 </Link>
               </td>
@@ -56,6 +59,9 @@ function KoiFishList() {
           ))}
         </tbody>
       </table>
+      <Link className="btn btn-success mt-3" to={`/dashboard/koifish/create`}>
+        Add
+      </Link>
     </div>
   );
 }

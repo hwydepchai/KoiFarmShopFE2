@@ -26,7 +26,7 @@ const Header = () => {
             Cart
           </Nav.Link>
           <Nav.Link as={Link} to="/user">
-            User Settings
+            <button>User</button>
           </Nav.Link>
         </Nav>
       </Navbar.Collapse>
