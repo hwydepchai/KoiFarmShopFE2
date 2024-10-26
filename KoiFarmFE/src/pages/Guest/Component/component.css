@@ -1,7 +1,46 @@
-.nav-bar {
-    
-}
-
-.brand {
-    color: black;
-}
+/* Koi Theme Colors */
+.nav-bar.koi-theme {
+    background-color: #ff7f50;
+    border-bottom: 3px solid #f5f5f5;
+    padding: 4px 18px;
+  }
+  
+  .brand h3 {
+    font-weight: bold;
+    color: #f5f5f5;
+  }
+  
+  /* Show dropdown menu on hover */
+  .dropdown-hover:hover .dropdown-menu {
+    display: block !important;
+  }
+  
+  .navbar-nav .dropdown-menu {
+    background-color: #f5f5f5;
+  }
+  
+  .navbar-nav .dropdown-menu a {
+    color: #ff7f50 !important;
+  }
+  
+  .navbar-nav .dropdown-menu a:hover {
+    background-color: #ff6347;
+    color: #fff !important;
+  }
+  
+  /* User Button Styling */
+  .user-button {
+    color: #f5f5f5;
+    border-color: #f5f5f5;
+  }
+  
+  .user-button:hover {
+    background-color: #f5f5f5;
+    color: #ff7f50;
+  }
+  
+  /* Align user button to the right */
+  .ms-auto {
+    margin-left: auto !important;
+  }
+  

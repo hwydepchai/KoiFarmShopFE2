@@ -16,19 +16,21 @@ function LoginPage() {
   const onFinish = async ({ email, password }) => {
     try {
       const response = await axios.post(api, { email, password });
-      console.log(response.data); // handle success
+      const userData = response.data;
+  
+      // Save user data in localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+  
       navigate("/home");
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        console.error("Bad request:", error.response.data); // handle 400 error
-        alert(
-          "Invalid login credentials. Please check your email and password."
-        );
+        alert("Invalid login credentials. Please check your email and password.");
       } else {
-        console.error("An error occurred:", error.message); // handle other errors
+        console.error("An error occurred:", error.message);
       }
     }
   };
+  
   useEffect(() => {}, []);
 
   return (
