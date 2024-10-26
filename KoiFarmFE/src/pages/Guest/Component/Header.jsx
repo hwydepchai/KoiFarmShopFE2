@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, NavDropdown, Button } from "react-bootstrap";
@@ -41,10 +42,6 @@ const Header = () => {
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="me-auto">
-          <Nav.Link as={Link} to="/category" className="text-white">
-            Category
-          </Nav.Link>
-
           <NavDropdown
             title={<span className="text-white">Koi Fish</span>}
             id="koi-fish-dropdown"
@@ -61,6 +58,9 @@ const Header = () => {
             ))}
           </NavDropdown>
 
+          <Nav.Link as={Link} to="/consign" className="text-white">
+            Consign
+          </Nav.Link>
           <Nav.Link as={Link} to="/order" className="text-white">
             Order
           </Nav.Link>
@@ -71,8 +71,11 @@ const Header = () => {
         <Nav className="ms-auto">
           {user ? (
             <NavDropdown
-              title={<span className="text-white">{user.name}</span>}
+              title={<span className="text-white btn">{user.name}Username </span>}
             >
+              <NavDropdown.Item as={Link} to="/user">
+                User center
+              </NavDropdown.Item>
               <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
             </NavDropdown>
           ) : (
