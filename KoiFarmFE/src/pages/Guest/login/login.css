@@ -1,0 +1,17 @@
+.login-page{
+    background-image: url(https://walltowallgraphics.com.au/wp-content/uploads/2022/07/2025186389_Cute_Black_Gold_Stylised_Koi_Japanese_Carp_Fish_Outlines.jpg);
+}
+
+.login-container{
+    background-color: white;
+    height: 70%;
+    width: 400px;
+}
+
+.login-form, .register-form input{
+    margin-top: 8px;
+}
+
+input:invalid {
+    border: red;
+}

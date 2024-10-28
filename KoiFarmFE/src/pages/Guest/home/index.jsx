@@ -29,14 +29,11 @@ function HomePage() {
 
   return (
     <>
-      <Header />
       <div className="homepage-container">
         {/* Hero Section */}
         <div className="hero text-center py-5 mb-4">
           <h2 className="mb-3">Looking for Koi</h2>
-          <p>
-            Explore our collection of premium koi fish.
-          </p>
+          <p>Explore our collection of premium koi fish.</p>
         </div>
 
         {/* Featured Products */}
@@ -60,7 +57,10 @@ function HomePage() {
                       <p>
                         <strong>Price:</strong> $150
                       </p>
-                      <Link to={`/koifish/${koi.id}`} className="btn btn-primary">
+                      <Link
+                        to={`/koifish/${koi.id}`}
+                        className="btn btn-primary"
+                      >
                         View Details
                       </Link>
                     </div>
