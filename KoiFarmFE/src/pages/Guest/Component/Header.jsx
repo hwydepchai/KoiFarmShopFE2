@@ -8,7 +8,6 @@ import axios from "axios";
 const Header = () => {
   const [koiFishTypes, setKoiFishTypes] = useState([]);
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +34,6 @@ const Header = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);
-    setToken(null);
     navigate("/");
   };
 
