@@ -14,6 +14,7 @@ import AccountDetails from "./AccountManage/accountdetails";
 import CartDetails from "./CartManage/cartdetails";
 import Footer from "../Component/Footer";
 import AddKoi from "./KoiManage/koiadd";
+import Consign from "./Consignment/consignment";
 
 const Dashboard = () => {
   return (
@@ -44,6 +45,9 @@ const Dashboard = () => {
                   <Nav.Link as={Link} to="/dashboard/settings">
                     Settings
                   </Nav.Link>
+                  <Nav.Link as={Link} to="/dashboard/consignment">
+                    Consignment
+                  </Nav.Link>
                 </Nav>
               </Card.Body>
             </Card>
@@ -64,6 +68,7 @@ const Dashboard = () => {
                   <Route path="/cart/*" element={<CartList />} />
                   <Route path="/cart/:id" element={<CartDetails />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/consignment" element={<Consign />} />
                 </Routes>
               </Card.Body>
             </Card>
