@@ -47,7 +47,7 @@ const ProductReviews = () => {
       if (
         window.confirm("Vui lòng đăng nhập để đánh giá. Chuyển đến trang chủ?")
       ) {
-        navigate("/login");
+        navigate("/home");
       }
       return;
     }
