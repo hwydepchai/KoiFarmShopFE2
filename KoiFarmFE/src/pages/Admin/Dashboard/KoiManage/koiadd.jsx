@@ -3,10 +3,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function AddKoi() {
-  const [categories, setCategories] = useState([]); // To store category options
+  const [categories, setCategories] = useState([]);
   const [newKoi, setNewKoi] = useState({
     origin: "",
-    gender: "",
+    gender: "Male", // default gender
     age: "",
     size: "",
     species: "",
@@ -16,33 +16,31 @@ function AddKoi() {
     type: "",
     status: "",
     categoryId: "",
-    date: new Date().toISOString() // This will hold the selected category ID
+    date: new Date().toISOString(),
+    price: "",
+    createdDate: new Date().toISOString(),
+    modifiedDate: new Date().toISOString(),
+    isDeleted: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch categories when component mounts
   useEffect(() => {
     fetch("https://localhost:7229/api/Category")
       .then((response) => response.json())
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => {
-        setError("Error fetching categories");
-      });
+      .then((data) => setCategories(data))
+      .catch((error) => setError("Error fetching categories"));
   }, []);
 
-  // Handle form inputs change
   const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setNewKoi({
       ...newKoi,
-      [e.target.name]: e.target.value
+      [name]: type === "checkbox" ? (checked ? "Female" : "Male") : value,
     });
   };
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
@@ -50,16 +48,16 @@ function AddKoi() {
     fetch("https://localhost:7229/api/KoiFish", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(newKoi)
+      body: JSON.stringify(newKoi),
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then(() => {
         setLoading(false);
-        navigate("/dashboard/koifish"); // Redirect back to koi list after successful submission
+        navigate("/dashboard/koifish");
       })
-      .catch((error) => {
+      .catch(() => {
         setError("Error adding Koi Fish");
         setLoading(false);
       });
@@ -71,6 +69,7 @@ function AddKoi() {
     <div className="container my-4">
       <h2 className="text-center mb-4">Add New Koi Fish</h2>
       <form onSubmit={handleSubmit}>
+        
         {/* Origin */}
         <div className="form-group mb-3">
           <label htmlFor="origin">Origin</label>
@@ -81,11 +80,132 @@ function AddKoi() {
             name="origin"
             value={newKoi.origin}
             onChange={handleChange}
-            required
           />
         </div>
 
-        {/* Category */}
+        {/* Gender Toggle Switch */}
+        <div className="form-group mb-3">
+          <label htmlFor="gender">Gender</label>
+          <div className="form-check form-switch">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              id="gender"
+              name="gender"
+              checked={newKoi.gender === "Female"}
+              onChange={handleChange}
+            />
+            <label className="form-check-label" htmlFor="gender">
+              {newKoi.gender === "Female" ? "Female" : "Male"}
+            </label>
+          </div>
+        </div>
+
+        {/* Age */}
+        <div className="form-group mb-3">
+          <label htmlFor="age">Age</label>
+          <input
+            type="number"
+            className="form-control"
+            id="age"
+            name="age"
+            value={newKoi.age}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Size */}
+        <div className="form-group mb-3">
+          <label htmlFor="size">Size</label>
+          <input
+            type="text"
+            className="form-control"
+            id="size"
+            name="size"
+            value={newKoi.size}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Species */}
+        <div className="form-group mb-3">
+          <label htmlFor="species">Species</label>
+          <input
+            type="text"
+            className="form-control"
+            id="species"
+            name="species"
+            value={newKoi.species}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Character */}
+        <div className="form-group mb-3">
+          <label htmlFor="character">Character</label>
+          <input
+            type="text"
+            className="form-control"
+            id="character"
+            name="character"
+            value={newKoi.character}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Amount of Food */}
+        <div className="form-group mb-3">
+          <label htmlFor="amountFood">Amount of Food</label>
+          <input
+            type="number"
+            className="form-control"
+            id="amountFood"
+            name="amountFood"
+            value={newKoi.amountFood}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Screening Rate */}
+        <div className="form-group mb-3">
+          <label htmlFor="screeningRate">Screening Rate</label>
+          <input
+            type="text"
+            className="form-control"
+            id="screeningRate"
+            name="screeningRate"
+            value={newKoi.screeningRate}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Type */}
+        <div className="form-group mb-3">
+          <label htmlFor="type">Type</label>
+          <input
+            type="text"
+            className="form-control"
+            id="type"
+            name="type"
+            value={newKoi.type}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Status */}
+        <div className="form-group mb-3">
+          <label htmlFor="status">Status</label>
+          <input
+            type="text"
+            className="form-control"
+            id="status"
+            name="status"
+            value={newKoi.status}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Category (Dropdown) */}
         <div className="form-group mb-3">
           <label htmlFor="categoryId">Category</label>
           <select
@@ -105,147 +225,16 @@ function AddKoi() {
           </select>
         </div>
 
-        {/* Gender */}
+        {/* Price */}
         <div className="form-group mb-3">
-          <label htmlFor="gender">Gender</label>
-          <select
-            className="form-control"
-            id="gender"
-            name="gender"
-            value={newKoi.gender}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-        </div>
-
-        {/* Age */}
-        <div className="form-group mb-3">
-          <label htmlFor="age">Age (years)</label>
+          <label htmlFor="price">Price</label>
           <input
             type="number"
             className="form-control"
-            id="age"
-            name="age"
-            value={newKoi.age}
+            id="price"
+            name="price"
+            value={newKoi.price}
             onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Size */}
-        <div className="form-group mb-3">
-          <label htmlFor="size">Size (cm)</label>
-          <input
-            type="number"
-            className="form-control"
-            id="size"
-            name="size"
-            value={newKoi.size}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Species */}
-        <div className="form-group mb-3">
-          <label htmlFor="species">Species</label>
-          <input
-            type="text"
-            className="form-control"
-            id="species"
-            name="species"
-            value={newKoi.species}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Character */}
-        <div className="form-group mb-3">
-          <label htmlFor="character">Character</label>
-          <input
-            type="text"
-            className="form-control"
-            id="character"
-            name="character"
-            value={newKoi.character}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Food Amount */}
-        <div className="form-group mb-3">
-          <label htmlFor="amountFood">Food Amount (kg)</label>
-          <input
-            type="number"
-            className="form-control"
-            id="amountFood"
-            name="amountFood"
-            value={newKoi.amountFood}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Screening Rate */}
-        <div className="form-group mb-3">
-          <label htmlFor="screeningRate">Screening Rate (%)</label>
-          <input
-            type="number"
-            step="0.1"
-            className="form-control"
-            id="screeningRate"
-            name="screeningRate"
-            value={newKoi.screeningRate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Type */}
-        <div className="form-group mb-3">
-          <label htmlFor="type">Type</label>
-          <input
-            type="text"
-            className="form-control"
-            id="type"
-            name="type"
-            value={newKoi.type}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Status */}
-        <div className="form-group mb-3">
-          <label htmlFor="status">Status</label>
-          <input
-            type="text"
-            className="form-control"
-            id="status"
-            name="status"
-            value={newKoi.status}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Amount */}
-        <div className="form-group mb-3">
-          <label htmlFor="amount">Amount</label>
-          <input
-            type="number"
-            className="form-control"
-            id="amount"
-            name="amount"
-            value={newKoi.amount}
-            onChange={handleChange}
-            required
           />
         </div>
 

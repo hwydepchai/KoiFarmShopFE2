@@ -8,7 +8,7 @@ function KoiFishList() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("https://localhost:7229/api/KoiFish") // Fetch list of Koi from API
+    fetch("https://localhost:7229/api/KoiFish")
       .then((response) => response.json())
       .then((data) => {
         setKoiList(data);
@@ -34,6 +34,7 @@ function KoiFishList() {
             <th scope="col">Gender</th>
             <th scope="col">Species</th>
             <th scope="col">Size</th>
+            <th scope="col">Price</th> {/* New column for price */}
             <th scope="col">Status</th>
             <th scope="col">Actions</th>
           </tr>
@@ -46,6 +47,7 @@ function KoiFishList() {
               <td>{koi.gender}</td>
               <td>{koi.species}</td>
               <td>{koi.size}</td>
+              <td>{koi.price}</td> {/* Display price */}
               <td>{koi.status}</td>
               <td>
                 <Link

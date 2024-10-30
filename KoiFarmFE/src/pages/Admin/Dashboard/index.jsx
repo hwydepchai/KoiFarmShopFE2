@@ -18,7 +18,6 @@ import AddKoi from "./KoiManage/koiadd";
 const Dashboard = () => {
   return (
     <div>
-      <Header />
       <Container fluid>
         <Row className="mt-4 justify-content-between">
           <Col md={2}>

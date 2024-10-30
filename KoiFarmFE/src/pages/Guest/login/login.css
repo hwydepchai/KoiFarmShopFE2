@@ -3,9 +3,18 @@
 }
 
 .login-container{
-    background-color: white;
+    background-color: #ece7e0;
     height: 70%;
     width: 400px;
+    box-shadow: 0px 8px 12px wheat;
+}
+
+h2 {
+    font-family: 'Playfair Display', serif;
+}
+
+label {
+    font-family: 'Raleway', serif;
 }
 
 .login-form, .register-form input{
