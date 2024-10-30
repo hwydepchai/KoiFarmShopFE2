@@ -75,9 +75,8 @@ const Header = () => {
           {user ? (
             <NavDropdown
               title={
-                <span className="text-white btn">{user.name}Username </span>
+                <span className="text-white btn">{user.fullname}</span>
               }
-              title={<span className="text-white btn">{user.fullname}</span>}
               id="user-dropdown"
             >
               <NavDropdown.Item as={Link} to="/user">
