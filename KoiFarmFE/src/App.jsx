@@ -11,13 +11,14 @@ import Dashboard from "./pages/Admin/Dashboard";
 import KoiList from "./pages/Guest/Koi/KoiList";
 import KoiDetails from "./pages/Guest/Koi/KoiDetails";
 import Header from "./pages/Guest/Component/Header";
+import Consign from "./pages/Guest/Consignment/consignment";
+import Feedback from "./pages/Guest/feedback/feedback";
 
 function App() {
   return (
     <>
       <Router>
-        
-      <Header />
+        <Header />
         <Routes>
           <Route path="/*" element={<HomePage />} />
           <Route path="/koifish/*" element={<KoiList />} />
@@ -27,6 +28,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route path="/consignment" element={<Consign />} />
+          <Route path="/feedback" element={<Feedback />} />
         </Routes>
       </Router>
     </>

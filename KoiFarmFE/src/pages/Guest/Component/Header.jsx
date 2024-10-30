@@ -58,7 +58,7 @@ const Header = () => {
             ))}
           </NavDropdown>
 
-          <Nav.Link as={Link} to="/consign" className="text-white">
+          <Nav.Link as={Link} to="/consignment" className="text-white">
             Consign
           </Nav.Link>
           <Nav.Link as={Link} to="/order" className="text-white">
@@ -71,7 +71,9 @@ const Header = () => {
         <Nav className="ms-auto">
           {user ? (
             <NavDropdown
-              title={<span className="text-white btn">{user.name}Username </span>}
+              title={
+                <span className="text-white btn">{user.name}Username </span>
+              }
             >
               <NavDropdown.Item as={Link} to="/user">
                 User center
