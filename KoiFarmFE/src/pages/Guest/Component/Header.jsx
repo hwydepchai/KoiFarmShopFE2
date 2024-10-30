@@ -8,6 +8,7 @@ import axios from "axios";
 const Header = () => {
   const [koiFishTypes, setKoiFishTypes] = useState([]);
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,16 +22,20 @@ const Header = () => {
         console.error("Error fetching Koi Fish data:", error);
       });
 
-    // Load user from localStorage
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
+    if (storedUser && storedUser.fullname) {
+      console.log("Stored user data:", storedUser);
       setUser(storedUser);
+    } else {
+      console.log("No valid user data in localStorage.");
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setUser(null);
+    setToken(null);
     navigate("/");
   };
 
@@ -74,9 +79,11 @@ const Header = () => {
               title={
                 <span className="text-white btn">{user.name}Username </span>
               }
+              title={<span className="text-white btn">{user.fullname}</span>}
+              id="user-dropdown"
             >
               <NavDropdown.Item as={Link} to="/user">
-                User center
+                User Center
               </NavDropdown.Item>
               <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
             </NavDropdown>

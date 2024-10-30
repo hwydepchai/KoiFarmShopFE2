@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -47,8 +46,18 @@ function LoginPage() {
 
     try {
       const response = await axios.post(api, loginData);
-      const userData = response.data;
-      localStorage.setItem("user", JSON.stringify(userData));
+      const { token, fullname, email } = response.data.data;
+
+      // Save token and user info in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          fullname,
+          email,
+        })
+      );
+
       navigate("/home");
     } catch (error) {
       console.error("An error occurred:", error.message);
@@ -67,18 +76,17 @@ function LoginPage() {
 
     try {
       const response = await axios.post(api, registerData);
-      console.log(response.data);
       alert("Registration successful!");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
-      console.error("Registration failed", error);
+      console.error("Registration error:", error.message);
       alert("Registration failed. Please try again.");
     }
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 login-page">
-      <div className="border rounded p-4 shadow login-container">
+      <div className="border rounded p-4 login-container">
         <h2 className="text-center mb-4">{isLogin ? "Login" : "Register"}</h2>
 
         {isLogin ? (
@@ -92,6 +100,7 @@ function LoginPage() {
                 value={loginData.email}
                 onChange={handleLoginChange}
                 required
+                placeholder="Email"
               />
             </div>
             <div className="form-group mb-3">
@@ -101,9 +110,10 @@ function LoginPage() {
                 name="password"
                 className="form-control"
                 value={loginData.password}
-                minLength='8'
+                minLength="8"
                 onChange={handleLoginChange}
                 required
+                placeholder="Password"
               />
             </div>
             <button type="submit" className="btn btn-primary w-100">

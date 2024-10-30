@@ -19,7 +19,6 @@ import Consign from "./Consignment/consignment";
 const Dashboard = () => {
   return (
     <div>
-      <Header />
       <Container fluid>
         <Row className="mt-4 justify-content-between">
           <Col md={2}>
