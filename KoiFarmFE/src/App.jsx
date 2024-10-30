@@ -8,6 +8,8 @@ import LoginPage from "./pages/Guest/login";
 import RegisterPage from "./pages/Guest/register";
 import CartPage from "./pages/Customer/cart";
 import Dashboard from "./pages/Admin/Dashboard";
+import Consign from "./pages/Guest/Consignment/consignment";
+import Feedback from "./pages/Guest/feedback/feedback";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route path="/consignment" element={<Consign />} />
+          <Route path="/feedback" element={<Feedback />} />
         </Routes>
       </Router>
     </>
