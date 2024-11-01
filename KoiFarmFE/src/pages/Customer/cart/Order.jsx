@@ -4,57 +4,39 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, Button, Container } from "react-bootstrap";
 
-const KoiDetails = () => {
+const Order = () => {
   const { id } = useParams();
   const [koi, setKoi] = useState(null);
-  const [accountId, setAccountId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch koi details
     axios
       .get(`https://localhost:7229/api/KoiFish/${id}`)
       .then((response) => setKoi(response.data))
       .catch((error) => console.error("Error fetching Koi details:", error));
   }, [id]);
 
-  useEffect(() => {
-    // Retrieve user email from localStorage and fetch account details
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user?.email) {
-      axios
-        .get("https://localhost:7229/api/Accounts")
-        .then((response) => {
-          const account = response.data.find((acc) => acc.email === user.email);
-          if (account) setAccountId(account.id);
-        })
-        .catch((error) => console.error("Error fetching account details:", error));
-    }
-  }, []);
-
-  const handleOrder = async () => {
+  const handleAddToCart = async () => {
     try {
-      if (!accountId || !koi) {
-        alert("Unable to fetch account or koi details.");
-        return;
-      }
-
-      // Post the order with required parameters
-      await axios.post("https://localhost:7229/api/Order", {
+      // Create order
+      const orderData = {
         koiId: koi.id,
-        koiFishyId: null,
-        accountId,
-        paymentId: 1,
-        status: null,
-        type: null,
+        koiFishyId: koi.id,
+        accountId: 7, // Placeholder, replace with actual account ID
+        paymentId: 1, // Placeholder, replace with actual payment ID
+        status: "Pending",
+        type: true,
         price: koi.price,
-      });
-
-      alert("Koi Fish added to your orders!");
-      navigate("/cart");
+      };
+      
+      const orderResponse = await axios.post("https://localhost:7229/api/Order", orderData);
+      const orderId = orderResponse.data.id;
+      
+      // Call Cart creation with order data
+      navigate(`/cart/${orderId}`);
     } catch (error) {
       console.error("Error creating order:", error);
-      alert("There was an issue adding the koi to your orders.");
+      alert("Error creating order. Please try again.");
     }
   };
 
@@ -75,8 +57,8 @@ const KoiDetails = () => {
           <Card.Text>Screening Rate: {koi.screeningRate}%</Card.Text>
           <Card.Text>Type: {koi.type}</Card.Text>
           <Card.Text>Status: {koi.status}</Card.Text>
-          <Button variant="primary" onClick={handleOrder}>
-            Add to cart
+          <Button variant="primary" onClick={handleAddToCart}>
+            Add to Cart
           </Button>
         </Card.Body>
       </Card>
@@ -84,4 +66,4 @@ const KoiDetails = () => {
   );
 };
 
-export default KoiDetails;
+export default Order;
