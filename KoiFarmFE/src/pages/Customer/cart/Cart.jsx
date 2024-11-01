@@ -21,7 +21,9 @@ const Cart = () => {
         );
         if (userAccount) setUserAccountId(userAccount.id);
       })
-      .catch((error) => console.error("Error fetching account details:", error));
+      .catch((error) =>
+        console.error("Error fetching account details:", error)
+      );
 
     // Fetch all orders
     axios
@@ -37,25 +39,34 @@ const Cart = () => {
             .then((response) => {
               setKoiDetails((prevKoiDetails) => ({
                 ...prevKoiDetails,
-                [order.koiId]: response.data
+                [order.koiId]: response.data,
               }));
             })
-            .catch((error) => console.error(`Error fetching koi details for ${order.koiId}:`, error));
+            .catch((error) =>
+              console.error(
+                `Error fetching koi details for ${order.koiId}:`,
+                error
+              )
+            );
         });
       })
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
 
   // Filter orders for the logged-in user's account
-  const filteredOrders = orders.filter((order) => order.accountId === userAccountId);
+  const filteredOrders = orders.filter(
+    (order) => order.accountId === userAccountId
+  );
 
   // Handle Purchase
   const handlePurchase = async (orderId) => {
     try {
-      const response = await axios.post(`https://localhost:7229/api/Payment?orderId=${orderId}`);
+      const response = await axios.post(
+        `https://localhost:7229/api/Payment?orderId=${orderId}`
+      );
       const paymentUrl = response.data.paymentUrl;
       if (paymentUrl) {
-        window.location.href = paymentUrl; // Redirect to payment URL
+        window.open(paymentUrl, "_blank", "noopener,noreferrer"); // Open payment URL in new tab
       } else {
         alert("Payment URL not provided.");
       }

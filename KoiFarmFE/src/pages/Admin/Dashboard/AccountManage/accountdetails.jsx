@@ -126,7 +126,7 @@ function AccountDetails() {
             >
               🗑️ Delete
             </button>
-            <Link to="/dashboard/accounts" className="btn btn-secondary">
+            <Link to="/dashboard/account" className="btn btn-secondary">
               Back to List
             </Link>
           </div>
