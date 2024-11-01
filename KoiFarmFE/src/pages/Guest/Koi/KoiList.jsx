@@ -28,8 +28,9 @@ const KoiList = () => {
     axios
       .get("https://localhost:7229/api/KoiFish")
       .then((response) => {
-        setKoiFish(response.data);
-        setFilteredKoi(response.data);
+        // Accessing the values directly from the response
+        setKoiFish(response.data.$values);
+        setFilteredKoi(response.data.$values);
       })
       .catch((error) => {
         console.error("Error fetching Koi Fish data:", error);
@@ -146,7 +147,7 @@ const KoiList = () => {
             {[
               { label: "Size (cm)", minName: "minSize", maxName: "maxSize" },
               { label: "Age (years)", minName: "minAge", maxName: "maxAge" },
-              { label: "Price ($)", minName: "minPrice", maxName: "maxPrice" },
+              { label: "Price (VND)", minName: "minPrice", maxName: "maxPrice" },
               { label: "Food (kg)", minName: "minAmountFood", maxName: "maxAmountFood" },
             ].map(({ label, minName, maxName }) => (
               <Form.Group controlId={`filter-${minName}`} key={minName}>
@@ -199,7 +200,7 @@ const KoiList = () => {
                     <Card.Text>Type: {koi.type}</Card.Text>
                     <Card.Text>Age: {koi.age} years</Card.Text>
                     <Card.Text>Size: {koi.size} cm</Card.Text>
-                    <Card.Text>Price: ${koi.price}</Card.Text>
+                    <Card.Text>Price: {koi.price} VND</Card.Text>
                     <Card.Text>
                       Category: {categories[koi.categoryId] || "Unknown"}
                     </Card.Text>

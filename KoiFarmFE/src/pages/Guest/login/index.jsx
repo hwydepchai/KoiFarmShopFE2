@@ -24,6 +24,8 @@ function LoginPage() {
     confirmPassword: "",
     fullname: "",
     phone: "",
+    birthday: "",
+    gender: "", // Track selected gender
   });
 
   const handleLoginChange = (e) => {
@@ -34,10 +36,18 @@ function LoginPage() {
   };
 
   const handleRegisterChange = (e) => {
-    setRegisterData({
-      ...registerData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setRegisterData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleGenderChange = (e) => {
+    setRegisterData((prevData) => ({
+      ...prevData,
+      gender: e.target.value,
+    }));
   };
 
   const handleLoginSubmit = async (e) => {
@@ -48,7 +58,6 @@ function LoginPage() {
       const response = await axios.post(api, loginData);
       const { token, fullname, email } = response.data.data;
 
-      // Save token and user info in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem(
         "user",
@@ -147,16 +156,66 @@ function LoginPage() {
                 required
               />
             </div>
-            <div className="form-group mb-3">
-              <label>Phone</label>
-              <input
-                type="text"
-                name="phone"
-                className="form-control"
-                value={registerData.phone}
-                onChange={handleRegisterChange}
-                required
-              />
+            <div className="d-flex mb-3">
+              <div className="form-group me-3 flex-grow-1">
+                <label>Phone</label>
+                <input
+                  type="text"
+                  name="phone"
+                  className="form-control"
+                  value={registerData.phone}
+                  onChange={handleRegisterChange}
+                  required
+                />
+              </div>
+              <div className="form-group flex-grow-1">
+                <label>Birthday</label>
+                <input
+                  type="date"
+                  name="birthday"
+                  className="form-control"
+                  value={registerData.birthday}
+                  onChange={handleRegisterChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group mb-3 d-flex align-items-center">
+              <div className="d-flex">
+                <div className="form-check me-3">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="male"
+                    className="form-check-input"
+                    checked={registerData.gender === "Male"}
+                    onChange={handleGenderChange}
+                  />
+                  <label className="form-check-label">Male</label>
+                </div>
+                <div className="form-check me-3">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="female"
+                    className="form-check-input"
+                    checked={registerData.gender === "Female"}
+                    onChange={handleGenderChange}
+                  />
+                  <label className="form-check-label">Female</label>
+                </div>
+                <div className="form-check">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="other"
+                    className="form-check-input"
+                    checked={registerData.gender === "Other"}
+                    onChange={handleGenderChange}
+                  />
+                  <label className="form-check-label">Other</label>
+                </div>
+              </div>
             </div>
             <div className="form-group mb-3">
               <label>Password</label>

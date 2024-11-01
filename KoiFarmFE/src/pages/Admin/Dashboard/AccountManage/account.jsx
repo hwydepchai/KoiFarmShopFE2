@@ -19,15 +19,11 @@ function AccountList() {
   const fetchAccounts = async () => {
     try {
       const response = await axios.get("https://localhost:7229/api/Accounts");
-      const accountData = response.data;
+      const accountData = response.data.$values;
 
       // Filter accounts based on the `isDeleted` property
-      const activeAccounts = accountData.filter(
-        (account) => !account.isDeleted
-      );
-      const deletedAccounts = accountData.filter(
-        (account) => account.isDeleted
-      );
+      const activeAccounts = accountData.filter((account) => !account.isDeleted);
+      const deletedAccounts = accountData.filter((account) => account.isDeleted);
 
       setAccounts({ active: activeAccounts, deleted: deletedAccounts });
       setLoading(false);
@@ -63,6 +59,8 @@ function AccountList() {
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>Gender</th>
+            <th>Date of Birth</th>
             <th>Status</th>
             <th>Details</th>
             <th>Delete</th>
@@ -75,32 +73,24 @@ function AccountList() {
               <td>{account.name}</td>
               <td>{account.email}</td>
               <td>{account.phone}</td>
+              <td>{account.gender || "N/A"}</td>
+              <td>{account.dateOfBirth ? new Date(account.dateOfBirth).toLocaleDateString() : "N/A"}</td>
               <td>{account.status}</td>
               <td>
-                <Link
-                  to={`/dashboard/account/${account.id}`}
-                  className="btn btn-primary btn-sm"
-                >
+                <Link to={`/dashboard/account/${account.id}`} className="btn btn-primary btn-sm">
                   View Details
                 </Link>
               </td>
               <td>
-                {!account.isDeleted && (
-                  <button
-                    onClick={() => deleteAccount(account.id)}
-                    className="btn"
-                  >
+                {!account.isDeleted ? (
+                  <button onClick={() => deleteAccount(account.id)} className="btn">
                     <label className="switch">
                       <input type="checkbox"></input>
                       <span className="slider"></span>
                     </label>
                   </button>
-                )}
-                {account.isDeleted && (
-                  <button
-                    onClick={() => toggleAccountStatus(account.id, false)} // Undeleted account
-                    className="btn"
-                  >
+                ) : (
+                  <button onClick={() => toggleAccountStatus(account.id, false)} className="btn">
                     <label className="switch">
                       <input type="checkbox" checked></input>
                       <span className="slider"></span>
@@ -127,7 +117,6 @@ function AccountList() {
 
   const toggleAccountStatus = async (id, isDeleted) => {
     try {
-      // Toggle the `isDeleted` status by calling the API with the opposite value
       await axios.put(`https://localhost:7229/api/Accounts/${id}/${isDeleted}`);
       fetchAccounts(); // Refresh the list after the update
     } catch (error) {
