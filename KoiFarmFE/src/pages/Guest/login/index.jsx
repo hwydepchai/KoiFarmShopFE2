@@ -68,6 +68,7 @@ function LoginPage() {
       );
 
       navigate("/home");
+      navigate(0);
     } catch (error) {
       console.error("An error occurred:", error.message);
       alert("Login failed. Please check your credentials.");
@@ -86,7 +87,7 @@ function LoginPage() {
     try {
       const response = await axios.post(api, registerData);
       alert("Registration successful!");
-      navigate("/");
+      navigate(0);
     } catch (error) {
       console.error("Registration error:", error.message);
       alert("Registration failed. Please try again.");
@@ -180,7 +181,7 @@ function LoginPage() {
                 />
               </div>
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
+            <div className="form-group mb-3 d-flex align-items-center ">
               <div className="d-flex">
                 <div className="form-check me-3">
                   <input
@@ -188,8 +189,8 @@ function LoginPage() {
                     name="gender"
                     value="male"
                     className="form-check-input"
-                    checked={registerData.gender === "Male"}
-                    onChange={handleGenderChange}
+                    checked={registerData.gender === "male"}
+                    onChange={handleRegisterChange}
                   />
                   <label className="form-check-label">Male</label>
                 </div>
@@ -199,8 +200,8 @@ function LoginPage() {
                     name="gender"
                     value="female"
                     className="form-check-input"
-                    checked={registerData.gender === "Female"}
-                    onChange={handleGenderChange}
+                    checked={registerData.gender === "female"}
+                    onChange={handleRegisterChange}
                   />
                   <label className="form-check-label">Female</label>
                 </div>
@@ -210,13 +211,14 @@ function LoginPage() {
                     name="gender"
                     value="other"
                     className="form-check-input"
-                    checked={registerData.gender === "Other"}
-                    onChange={handleGenderChange}
+                    checked={registerData.gender === "other"}
+                    onChange={handleRegisterChange}
                   />
                   <label className="form-check-label">Other</label>
                 </div>
               </div>
             </div>
+
             <div className="form-group mb-3">
               <label>Password</label>
               <input

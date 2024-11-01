@@ -6,21 +6,10 @@ import "./component.css";
 import axios from "axios";
 
 const Header = () => {
-  const [koiFishTypes, setKoiFishTypes] = useState([]);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("https://localhost:7229/api/KoiFish")
-      .then((response) => {
-        const types = Array.from(new Set(response.data.map((koi) => koi.type)));
-        setKoiFishTypes(types);
-      })
-      .catch((error) => {
-        console.error("Error fetching Koi Fish data:", error);
-      });
-
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser && storedUser.fullname) {
       console.log("Stored user data:", storedUser);
@@ -51,21 +40,15 @@ const Header = () => {
             className="dropdown-hover"
           >
             <NavDropdown.Item as={Link} to="/koifish">
-              All Koi Fish
+              Single
             </NavDropdown.Item>
-            <NavDropdown.Divider />
-            {koiFishTypes.map((type, index) => (
-              <NavDropdown.Item key={index} as={Link} to={`/koifish/${type}`}>
-                {type}
-              </NavDropdown.Item>
-            ))}
+            <NavDropdown.Item as={Link} to="/koifishy">
+              Whole
+            </NavDropdown.Item>
           </NavDropdown>
 
           <Nav.Link as={Link} to="/consignment" className="text-white">
             Consign
-          </Nav.Link>
-          <Nav.Link as={Link} to="/order" className="text-white">
-            Order
           </Nav.Link>
           <Nav.Link as={Link} to="/cart" className="text-white">
             Cart

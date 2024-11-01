@@ -7,16 +7,39 @@ function OrderList() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("https://localhost:7229/api/Order") // Fetch list of orders from API
-      .then((response) => response.json())
-      .then((data) => {
-        setOrderList(data);
+    // Function to fetch the orders and enrich them with account names and koi species
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("https://localhost:7229/api/Order");
+        const data = await response.json();
+        const orders = data.$values;
+
+        // Map through each order and fetch account and koi details
+        const enrichedOrders = await Promise.all(
+          orders.map(async (order) => {
+            const accountResponse = await fetch(`https://localhost:7229/api/Accounts/${order.accountId}`);
+            const accountData = await accountResponse.json();
+            
+            const koiResponse = await fetch(`https://localhost:7229/api/KoiFish/${order.koiId}`);
+            const koiData = await koiResponse.json();
+
+            return {
+              ...order,
+              accountName: accountData.name, // Add account name
+              koiSpecies: koiData.species,   // Add koi species
+            };
+          })
+        );
+
+        setOrderList(enrichedOrders);
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         setError(error);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchOrders();
   }, []);
 
   if (loading) return <div>Loading...</div>;
@@ -29,7 +52,8 @@ function OrderList() {
         <thead>
           <tr>
             <th scope="col">Order ID</th>
-            <th scope="col">Koi ID</th>
+            <th scope="col">Koi Species</th>
+            <th scope="col">Account Name</th>
             <th scope="col">Price</th>
             <th scope="col">Status</th>
             <th scope="col">Created Date</th>
@@ -40,11 +64,12 @@ function OrderList() {
           {orderList.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
-              <td>{order.koiId}</td>
+              <td>{order.koiSpecies || "N/A"}</td>
+              <td>{order.accountName || "N/A"}</td>
               <td>${order.price}</td>
-              <td>{order.status}</td>
-              <td>{new Date(order.createdDate).toLocaleDateString()}</td>
-              <td>{new Date(order.modifiedDate).toLocaleDateString()}</td>
+              <td>{order.status || "N/A"}</td>
+              <td>{order.createdDate ? new Date(order.createdDate).toLocaleDateString() : "N/A"}</td>
+              <td>{order.modifiedDate ? new Date(order.modifiedDate).toLocaleDateString() : "N/A"}</td>
             </tr>
           ))}
         </tbody>

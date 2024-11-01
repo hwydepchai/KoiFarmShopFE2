@@ -9,7 +9,6 @@ const Cart = () => {
   const [koiDetails, setKoiDetails] = useState({});
 
   useEffect(() => {
-    // Retrieve user email from localStorage
     const user = JSON.parse(localStorage.getItem("user"));
     const userEmail = user?.email;
 
@@ -17,7 +16,7 @@ const Cart = () => {
     axios
       .get("https://localhost:7229/api/Accounts")
       .then((response) => {
-        const userAccount = response.data.find(
+        const userAccount = response.data.$values.find(
           (account) => account.email === userEmail
         );
         if (userAccount) setUserAccountId(userAccount.id);
@@ -27,20 +26,24 @@ const Cart = () => {
     // Fetch all orders
     axios
       .get("https://localhost:7229/api/Order")
-      .then((response) => setOrders(response.data))
-      .catch((error) => console.error("Error fetching orders:", error));
-
-    // Fetch koi details for each order
-    axios
-      .get("https://localhost:7229/api/KoiFish")
       .then((response) => {
-        const koiMap = response.data.reduce((map, koi) => {
-          map[koi.id] = koi.species;
-          return map;
-        }, {});
-        setKoiDetails(koiMap);
+        const fetchedOrders = response.data.$values; // Adjusted to access $values
+        setOrders(fetchedOrders);
+
+        // Fetch koi details for each order
+        fetchedOrders.forEach((order) => {
+          axios
+            .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
+            .then((response) => {
+              setKoiDetails((prevKoiDetails) => ({
+                ...prevKoiDetails,
+                [order.koiId]: response.data
+              }));
+            })
+            .catch((error) => console.error(`Error fetching koi details for ${order.koiId}:`, error));
+        });
       })
-      .catch((error) => console.error("Error fetching koi details:", error));
+      .catch((error) => console.error("Error fetching orders:", error));
   }, []);
 
   // Filter orders for the logged-in user's account
@@ -76,26 +79,29 @@ const Cart = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredOrders.map((order, index) => (
-            <tr key={order.id}>
-              <td>{index + 1}</td>
-              <td>{koiDetails[order.koiId] || "Unknown"}</td>
-              <td>${order.price}</td>
-              <td>
-                {order.createdDate
-                  ? new Date(order.createdDate).toLocaleDateString()
-                  : "N/A"}
-              </td>
-              <td>
-                <Button
-                  variant="success"
-                  onClick={() => handlePurchase(order.id)}
-                >
-                  Purchase
-                </Button>
-              </td>
-            </tr>
-          ))}
+          {filteredOrders.map((order, index) => {
+            const koi = koiDetails[order.koiId];
+            return (
+              <tr key={order.id}>
+                <td>{index + 1}</td>
+                <td>{koi ? koi.species : "Loading..."}</td>
+                <td>${koi ? koi.price : "Loading..."}</td>
+                <td>
+                  {order.createdDate
+                    ? new Date(order.createdDate).toLocaleDateString()
+                    : "N/A"}
+                </td>
+                <td>
+                  <Button
+                    variant="success"
+                    onClick={() => handlePurchase(order.id)}
+                  >
+                    Purchase
+                  </Button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
     </Container>
