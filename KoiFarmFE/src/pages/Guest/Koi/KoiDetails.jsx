@@ -2,52 +2,116 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Button, Container } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 
 const KoiDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Assume koiId is part of the URL
   const [koi, setKoi] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`https://localhost:7229/api/KoiFish/${id}`)
-      .then((response) => setKoi(response.data))
-      .catch((error) => console.error("Error fetching Koi details:", error));
+    const fetchKoiDetails = async () => {
+      try {
+        const response = await axios.get(
+          `https://localhost:7229/api/KoiFish/${id}`
+        );
+        setKoi(response.data);
+      } catch (error) {
+        console.error("Error fetching koi details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("https://localhost:7229/api/Category");
+        setCategories(response.data.$values);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchKoiDetails();
+    fetchCategories();
   }, [id]);
 
-  const handleAddToCart = () => {
-    // Add koi fish to cart logic
-    const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-    cartItems.push(koi);
-    localStorage.setItem("cart", JSON.stringify(cartItems));
-    alert("Koi Fish added to cart!");
-    navigate("/cart");
+  const addToCart = async () => {
+    try {
+      // Retrieve user data from local storage
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const userEmail = userData?.email;
+
+      // Fetch accounts to find the matching accountId
+      const accountsResponse = await axios.get(
+        "https://localhost:7229/api/Accounts"
+      );
+      const accounts = accountsResponse.data.$values;
+
+      const userAccount = accounts.find(
+        (account) => account.email === userEmail
+      );
+
+      if (!userAccount) {
+        console.error("No account found for the user.");
+        return;
+      }
+
+      // Prepare the order object
+      const order = {
+        koiId: koi.id, // Assuming `koi` is the fetched koi fish object
+        koiFishyId: null, // Skipped as per instructions
+        accountId: userAccount.id, // Retrieved account ID
+        paymentId: 1, // Skipped as per instructions
+        status: "Pending", // Default status
+        type: true, // Assuming a default type, adjust as needed
+        price: koi.price, // Price of the koi fish
+      };
+
+      // Make the POST request to create the order
+      await axios.post("https://localhost:7229/api/Order", order);
+      // Optionally redirect to the cart or show a success message
+      navigate("/cart"); // Redirect to cart after successful addition
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
-  if (!koi) return <p>Loading...</p>;
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <Container>
-      <h2 className="my-4">Koi Fish Details</h2>
-      <Card>
-        <Card.Body>
-          <Card.Title>{koi.species}</Card.Title>
-          <Card.Text>Origin: {koi.origin}</Card.Text>
-          <Card.Text>Gender: {koi.gender}</Card.Text>
-          <Card.Text>Age: {koi.age} years</Card.Text>
-          <Card.Text>Size: {koi.size} cm</Card.Text>
-          <Card.Text>Character: {koi.character}</Card.Text>
-          <Card.Text>Food Amount: {koi.amountFood} kg</Card.Text>
-          <Card.Text>Screening Rate: {koi.screeningRate}%</Card.Text>
-          <Card.Text>Type: {koi.type}</Card.Text>
-          <Card.Text>Status: {koi.status}</Card.Text>
-          <Button variant="primary" onClick={handleAddToCart}>
-            Add to Cart
-          </Button>
-        </Card.Body>
-      </Card>
-    </Container>
+    <div>
+      {koi && (
+        <Card>
+          <Card.Body>
+            <Card.Title>{koi.species}</Card.Title>
+            <Card.Text>
+              <strong>Origin:</strong> {koi.origin}
+              <br />
+              <strong>Gender:</strong> {koi.gender}
+              <br />
+              <strong>Age:</strong> {koi.age}
+              <br />
+              <strong>Size:</strong> {koi.size} cm
+              <br />
+              <strong>Price:</strong> ${koi.price}
+              <br />
+              <strong>Category:</strong>{" "}
+              {categories.find((cat) => cat.id === koi.categoryId)?.category1 ||
+                "Unknown"}
+              <br />
+              <strong>Character:</strong> {koi.character}
+              <br />
+              <strong>Status:</strong> {koi.status}
+              <br />
+            </Card.Text>
+            <Button onClick={addToCart}>Add to Cart</Button>
+          </Card.Body>
+        </Card>
+      )}
+    </div>
   );
 };
 

@@ -11,7 +11,7 @@ function KoiFishList() {
     fetch("https://localhost:7229/api/KoiFish")
       .then((response) => response.json())
       .then((data) => {
-        setKoiList(data);
+        setKoiList(data.$values); // Accessing the $values array directly
         setLoading(false);
       })
       .catch((error) => {
@@ -33,8 +33,8 @@ function KoiFishList() {
             <th scope="col">Origin</th>
             <th scope="col">Gender</th>
             <th scope="col">Species</th>
-            <th scope="col">Size</th>
-            <th scope="col">Price</th> {/* New column for price */}
+            <th scope="col">Size (cm)</th>
+            <th scope="col">Price ($)</th>
             <th scope="col">Status</th>
             <th scope="col">Actions</th>
           </tr>
@@ -47,7 +47,7 @@ function KoiFishList() {
               <td>{koi.gender}</td>
               <td>{koi.species}</td>
               <td>{koi.size}</td>
-              <td>{koi.price}</td> {/* Display price */}
+              <td>{koi.price}</td>
               <td>{koi.status}</td>
               <td>
                 <Link
