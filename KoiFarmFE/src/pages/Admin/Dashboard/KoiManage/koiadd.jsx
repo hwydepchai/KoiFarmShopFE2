@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const countries = ["Vietnam", "Japan", "Thailand", "China", "South Korea", "India"];
+
 function AddKoi() {
   const [categories, setCategories] = useState([]);
   const [newKoi, setNewKoi] = useState({
     origin: "",
-    gender: "Male", // default gender
+    gender: "Male",
     age: "",
     size: "",
     species: "",
@@ -16,43 +18,60 @@ function AddKoi() {
     type: "",
     status: "",
     categoryId: "",
-    date: new Date().toISOString(),
     price: "",
-    createdDate: new Date().toISOString(),
-    modifiedDate: new Date().toISOString(),
-    isDeleted: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [image, setImage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch("https://localhost:7229/api/Category")
-      .then((response) => response.json())
-      .then((data) => setCategories(data))
-      .catch((error) => setError("Error fetching categories"));
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Error fetching categories");
+        }
+        return response.json();
+      })
+      .then((data) => setCategories(data.$values))
+      .catch((error) => setError(error.message));
   }, []);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setNewKoi({
-      ...newKoi,
-      [name]: type === "checkbox" ? (checked ? "Female" : "Male") : value,
-    });
+    const { name, value } = e.target;
+    setNewKoi((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    const formData = new FormData();
+    for (const key in newKoi) {
+      formData.append(key, newKoi[key]);
+    }
+    formData.append('Img', image);
 
     fetch("https://localhost:7229/api/KoiFish", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "accept": "text/plain",
       },
-      body: JSON.stringify(newKoi),
+      body: formData,
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Error adding Koi Fish");
+        }
+        return response.json();
+      })
       .then(() => {
         setLoading(false);
         navigate("/dashboard/koifish");
@@ -68,24 +87,28 @@ function AddKoi() {
   return (
     <div className="container my-4">
       <h2 className="text-center mb-4">Add New Koi Fish</h2>
-      <form onSubmit={handleSubmit}>
-        
-        {/* Origin */}
-        <div className="form-group mb-3">
-          <label htmlFor="origin">Origin</label>
-          <input
-            type="text"
-            className="form-control"
+      <form onSubmit={handleSubmit} className="row g-3">
+        {/* Origin Dropdown */}
+        <div className="col-md-4">
+          <label htmlFor="origin" className="form-label">Origin</label>
+          <select
+            className="form-select"
             id="origin"
             name="origin"
             value={newKoi.origin}
             onChange={handleChange}
-          />
+            required
+          >
+            <option value="" disabled>Select a country</option>
+            {countries.map((country) => (
+              <option key={country} value={country}>{country}</option>
+            ))}
+          </select>
         </div>
 
         {/* Gender Toggle Switch */}
-        <div className="form-group mb-3">
-          <label htmlFor="gender">Gender</label>
+        <div className="col-md-4">
+          <label htmlFor="gender" className="form-label">Gender</label>
           <div className="form-check form-switch">
             <input
               type="checkbox"
@@ -93,17 +116,17 @@ function AddKoi() {
               id="gender"
               name="gender"
               checked={newKoi.gender === "Female"}
-              onChange={handleChange}
+              onChange={() => setNewKoi(prev => ({ ...prev, gender: newKoi.gender === "Female" ? "Male" : "Female" }))}
             />
             <label className="form-check-label" htmlFor="gender">
-              {newKoi.gender === "Female" ? "Female" : "Male"}
+              {newKoi.gender}
             </label>
           </div>
         </div>
 
         {/* Age */}
-        <div className="form-group mb-3">
-          <label htmlFor="age">Age</label>
+        <div className="col-md-4">
+          <label htmlFor="age" className="form-label">Age</label>
           <input
             type="number"
             className="form-control"
@@ -111,12 +134,13 @@ function AddKoi() {
             name="age"
             value={newKoi.age}
             onChange={handleChange}
+            required
           />
         </div>
 
         {/* Size */}
-        <div className="form-group mb-3">
-          <label htmlFor="size">Size</label>
+        <div className="col-md-4">
+          <label htmlFor="size" className="form-label">Size</label>
           <input
             type="text"
             className="form-control"
@@ -124,12 +148,13 @@ function AddKoi() {
             name="size"
             value={newKoi.size}
             onChange={handleChange}
+            required
           />
         </div>
 
         {/* Species */}
-        <div className="form-group mb-3">
-          <label htmlFor="species">Species</label>
+        <div className="col-md-4">
+          <label htmlFor="species" className="form-label">Species</label>
           <input
             type="text"
             className="form-control"
@@ -137,12 +162,13 @@ function AddKoi() {
             name="species"
             value={newKoi.species}
             onChange={handleChange}
+            required
           />
         </div>
 
         {/* Character */}
-        <div className="form-group mb-3">
-          <label htmlFor="character">Character</label>
+        <div className="col-md-4">
+          <label htmlFor="character" className="form-label">Character</label>
           <input
             type="text"
             className="form-control"
@@ -150,12 +176,13 @@ function AddKoi() {
             name="character"
             value={newKoi.character}
             onChange={handleChange}
+            required
           />
         </div>
 
         {/* Amount of Food */}
-        <div className="form-group mb-3">
-          <label htmlFor="amountFood">Amount of Food</label>
+        <div className="col-md-4">
+          <label htmlFor="amountFood" className="form-label">Amount of Food</label>
           <input
             type="number"
             className="form-control"
@@ -163,12 +190,13 @@ function AddKoi() {
             name="amountFood"
             value={newKoi.amountFood}
             onChange={handleChange}
+            required
           />
         </div>
 
         {/* Screening Rate */}
-        <div className="form-group mb-3">
-          <label htmlFor="screeningRate">Screening Rate</label>
+        <div className="col-md-4">
+          <label htmlFor="screeningRate" className="form-label">Screening Rate</label>
           <input
             type="text"
             className="form-control"
@@ -176,12 +204,13 @@ function AddKoi() {
             name="screeningRate"
             value={newKoi.screeningRate}
             onChange={handleChange}
+            required
           />
         </div>
 
         {/* Type */}
-        <div className="form-group mb-3">
-          <label htmlFor="type">Type</label>
+        <div className="col-md-4">
+          <label htmlFor="type" className="form-label">Type</label>
           <input
             type="text"
             className="form-control"
@@ -189,12 +218,13 @@ function AddKoi() {
             name="type"
             value={newKoi.type}
             onChange={handleChange}
+            required
           />
         </div>
 
         {/* Status */}
-        <div className="form-group mb-3">
-          <label htmlFor="status">Status</label>
+        <div className="col-md-4">
+          <label htmlFor="status" className="form-label">Status</label>
           <input
             type="text"
             className="form-control"
@@ -202,32 +232,31 @@ function AddKoi() {
             name="status"
             value={newKoi.status}
             onChange={handleChange}
+            required
           />
         </div>
 
-        {/* Category (Dropdown) */}
-        <div className="form-group mb-3">
-          <label htmlFor="categoryId">Category</label>
+        {/* Category Dropdown */}
+        <div className="col-md-4">
+          <label htmlFor="categoryId" className="form-label">Category</label>
           <select
-            className="form-control"
+            className="form-select"
             id="categoryId"
             name="categoryId"
             value={newKoi.categoryId}
             onChange={handleChange}
             required
           >
-            <option value="">Select Category</option>
+            <option value="" disabled>Select a category</option>
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.category1}
-              </option>
+              <option key={category.id} value={category.id}>{category.category1}</option>
             ))}
           </select>
         </div>
 
         {/* Price */}
-        <div className="form-group mb-3">
-          <label htmlFor="price">Price</label>
+        <div className="col-md-4">
+          <label htmlFor="price" className="form-label">Price</label>
           <input
             type="number"
             className="form-control"
@@ -235,11 +264,26 @@ function AddKoi() {
             name="price"
             value={newKoi.price}
             onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Image Upload */}
+        <div className="col-md-4">
+          <label htmlFor="img" className="form-label">Image</label>
+          <input
+            type="file"
+            className="form-control"
+            id="img"
+            name="Img"
+            accept="image/*"
+            onChange={handleImageChange}
+            required
           />
         </div>
 
         {/* Submit Button */}
-        <div className="form-group">
+        <div className="col-12">
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? "Adding Koi..." : "Add Koi"}
           </button>
