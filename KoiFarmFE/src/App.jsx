@@ -7,10 +7,11 @@ import LoginPage from "./pages/Guest/login";
 import CartPage from "./pages/Customer/cart";
 import Dashboard from "./pages/Admin/Dashboard";
 import KoiList from "./pages/Guest/Koi/KoiList";
-import KoiDetails from "./pages/Guest/Koi/KoiDetails"; 
+import KoiDetails from "./pages/Guest/Koi/KoiDetails";
 import Header from "./pages/Guest/Component/Header";
 import Consign from "./pages/Guest/Consignment/consignment";
 import Feedback from "./pages/Guest/feedback/feedback";
+import Blog from "./pages/Guest/blog/blog";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/consignment" element={<Consign />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/blog" element={<Blog />} />
         </Routes>
       </Router>
     </>
