@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Card } from "react-bootstrap";
+import { Button, Card, Col, Row, Container } from "react-bootstrap";
 
 const KoiDetails = () => {
-  const { id } = useParams(); // Assume koiId is part of the URL
+  const { id } = useParams();
   const [koi, setKoi] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imageUrl, setImageUrl] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,22 +35,32 @@ const KoiDetails = () => {
       }
     };
 
+    const fetchImages = async () => {
+      try {
+        const response = await axios.get("https://localhost:7229/api/Image");
+        const koiImage = response.data.$values.find(
+          (img) => img.koiId === parseInt(id)
+        );
+        setImageUrl(koiImage?.urlPath || "");
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
     fetchKoiDetails();
     fetchCategories();
+    fetchImages();
   }, [id]);
 
   const addToCart = async () => {
     try {
-      // Retrieve user data from local storage
       const userData = JSON.parse(localStorage.getItem("user"));
       const userEmail = userData?.email;
 
-      // Fetch accounts to find the matching accountId
       const accountsResponse = await axios.get(
         "https://localhost:7229/api/Accounts"
       );
       const accounts = accountsResponse.data.$values;
-
       const userAccount = accounts.find(
         (account) => account.email === userEmail
       );
@@ -59,21 +70,18 @@ const KoiDetails = () => {
         return;
       }
 
-      // Prepare the order object
       const order = {
-        koiId: koi.id, // Assuming `koi` is the fetched koi fish object
-        koiFishyId: null, // Skipped as per instructions
-        accountId: userAccount.id, // Retrieved account ID
-        paymentId: 1, // Skipped as per instructions
-        status: "Pending", // Default status
-        type: true, // Assuming a default type, adjust as needed
-        price: koi.price, // Price of the koi fish
+        koiId: koi.id,
+        koiFishyId: null,
+        accountId: userAccount.id,
+        paymentId: 1,
+        status: "Pending",
+        type: true,
+        price: koi.price,
       };
 
-      // Make the POST request to create the order
       await axios.post("https://localhost:7229/api/Order", order);
-      // Optionally redirect to the cart or show a success message
-      navigate("/cart"); // Redirect to cart after successful addition
+      navigate("/cart");
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -82,36 +90,102 @@ const KoiDetails = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div>
-      {koi && (
-        <Card>
-          <Card.Body>
-            <Card.Title>{koi.species}</Card.Title>
-            <Card.Text>
-              <strong>Origin:</strong> {koi.origin}
-              <br />
-              <strong>Gender:</strong> {koi.gender}
-              <br />
-              <strong>Age:</strong> {koi.age}
-              <br />
-              <strong>Size:</strong> {koi.size} cm
-              <br />
-              <strong>Price:</strong> ${koi.price}
-              <br />
-              <strong>Category:</strong>{" "}
-              {categories.find((cat) => cat.id === koi.categoryId)?.category1 ||
-                "Unknown"}
-              <br />
-              <strong>Character:</strong> {koi.character}
-              <br />
-              <strong>Status:</strong> {koi.status}
-              <br />
-            </Card.Text>
-            <Button onClick={addToCart}>Add to Cart</Button>
-          </Card.Body>
-        </Card>
-      )}
-    </div>
+    <Container className="mt-4 d-flex justify-content-center">
+      <Card style={{ maxWidth: "800px", width: "100%" }}>
+        <Row noGutters>
+          <Col
+            md={4}
+            className="d-flex align-items-center justify-content-between"
+          >
+            {imageUrl ? (
+              <Card.Img
+                src={imageUrl}
+                alt={koi.species}
+                style={{
+                  width: "320px",
+                  height: "320px",
+                  objectFit: "cover",
+                  padding: "12px",
+                }}
+                className="rounded"
+              />
+            ) : (
+              <div
+                style={{
+                  width: "320px",
+                  height: "320px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#f0f0f0",
+                  padding: "12px",
+                }}
+              >
+                No image available
+              </div>
+            )}
+          </Col>
+          <Col md={8}>
+            <Card.Body>
+              <Card.Title>
+                <h2 className="text-center">{koi.species}</h2>
+              </Card.Title>
+              <Card.Text>
+                <Row>
+                  <Col xs={6}>
+                    <strong>Origin:</strong> {koi.origin}
+                  </Col>
+                  <Col xs={6}>
+                    <strong>Gender:</strong> {koi.gender}
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6}>
+                    <strong>Age:</strong> {koi.age}
+                  </Col>
+                  <Col xs={6}>
+                    <strong>Size:</strong> {koi.size} cm
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6}>
+                    <strong>Price:</strong> ${koi.price}
+                  </Col>
+                  <Col xs={6}>
+                    <strong>Category:</strong>{" "}
+                    {categories.find((cat) => cat.id === koi.categoryId)
+                      ?.category1 || "Unknown"}
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6}>
+                    <strong>Character:</strong> {koi.character}
+                  </Col>
+                  <Col xs={6}>
+                    <strong>Status:</strong> {koi.status}
+                  </Col>
+                </Row>
+              </Card.Text>
+              <Row>
+                <Col xs={6}>
+                  <Button onClick={addToCart} className="me-2">
+                    Add to Cart
+                  </Button>
+                </Col>
+                <Col xs={6}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => navigate("/koifish")}
+                  >
+                    Back to list
+                  </Button>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Col>
+        </Row>
+      </Card>
+    </Container>
   );
 };
 

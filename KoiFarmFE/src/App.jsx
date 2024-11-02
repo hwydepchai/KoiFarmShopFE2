@@ -13,6 +13,8 @@ import Feedback from "./pages/Guest/feedback/feedback";
 import Blog from "./pages/Guest/blog/blog";
 import Cart from "./pages/Customer/cart/Cart";
 import PaymentReturn from "./pages/Customer/payment/payment";
+import KoiyList from "./pages/Guest/Koiy/KoiyList";
+import KoiyDetails from "./pages/Guest/Koiy/KoiyDetails";
 
 function App() {
   return (
@@ -21,13 +23,14 @@ function App() {
         <Header />
         <Routes>
           <Route path="/*" element={<HomePage />} />
-          <Route path="/koifish/*" element={<KoiList />} />
+          <Route path="/koifish" element={<KoiList />} />
           <Route path="/koifish/:id" element={<KoiDetails />} />
-          <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/cart/" element={<Cart />} />
-          <Route path="/Payment/return" element={<PaymentReturn />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/payment" element={<PaymentReturn />} />
+          <Route path="/koiy" element={<KoiyList />} />
+          <Route path="/koiy/:id" element={<KoiyDetails />} />
           <Route path="/consignment" element={<Consign />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/blog" element={<Blog />} />

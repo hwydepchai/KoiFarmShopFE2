@@ -77,10 +77,12 @@ function KoiFishDetails() {
         if (!response.ok) {
           throw new Error("Failed to delete Koi fish");
         }
-        // Redirect or handle successful deletion, e.g., show a success message
+        alert("Koi fish deleted successfully");
+        history.push("/dashboard/koifish"); // Redirect to koi fish list
       })
       .catch((error) => {
         setError(error);
+        alert("Error deleting Koi fish: " + error.message);
       });
   };
 
@@ -119,7 +121,7 @@ function KoiFishDetails() {
                       <input
                         type="number"
                         name="price"
-                        value={updatedKoi.price}
+                        value={updatedKoi.price + " VND"}
                         onChange={handleChange}
                         className="form-control"
                       />
@@ -170,7 +172,7 @@ function KoiFishDetails() {
                       <strong>Size:</strong> {koiDetails.size} cm
                     </p>
                     <p className="card-text">
-                      <strong>Price:</strong> ${koiDetails.price}
+                      <strong>Price:</strong> {koiDetails.price} VND
                     </p>
                     <p className="card-text">
                       <strong>Age:</strong> {koiDetails.age} years

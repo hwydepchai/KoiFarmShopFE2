@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./home.css";
@@ -8,30 +9,48 @@ function HomePage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("https://localhost:7229/api/KoiFish")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data && Array.isArray(data.$values)) {
-          const formattedData = data.$values.map((koi) => ({
+    const fetchKoiFishData = async () => {
+      try {
+        const koiResponse = await fetch("https://localhost:7229/api/KoiFish");
+        const koiData = await koiResponse.json();
+
+        const imageResponse = await fetch("https://localhost:7229/api/Image");
+        const imageData = await imageResponse.json();
+
+        const koiArray = koiData.$values || [];
+        const imageArray = imageData.$values || [];
+
+        const koiWithImages = koiArray.map((koi) => {
+          const matchedImage = imageArray.find(
+            (image) => image.koiId === koi.id
+          );
+          return {
             ...koi,
-            UrlPath: koi.images?.$values?.[0] || "/images/koi-placeholder.jpg", // Default placeholder if no image
-          }));
-          setKoiList(formattedData);
-        } else {
-          console.error("Expected an array but got:", data);
-          setKoiList([]);
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
+            UrlPath: matchedImage
+              ? matchedImage.urlPath
+              : "/images/koi-placeholder.jpg",
+          };
+        });
+
+        setKoiList(koiWithImages);
+      } catch (error) {
         console.error("Fetch error:", error);
         setError(error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchKoiFishData();
   }, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+  // Sort koi by price in descending order and get the top 3
+  const topKoi = [...koiList]
+    .sort((a, b) => b.price - a.price)
+    .slice(0, 3);
 
   return (
     <div className="homepage-container">
@@ -43,15 +62,11 @@ function HomePage() {
         <div className="container">
           <h2 className="text-center mb-4">Featured Koi</h2>
           <div className="row">
-            {koiList.map((koi) => (
+            {topKoi.map((koi) => (
               <div className="col-md-4 mb-4" key={koi.id}>
-                <div className="card">
+                <div className="card koi-card">
                   <img
-                    src={
-                      koi.images && koi.images.length > 0
-                        ? koi.images[0].urlPath
-                        : "/images/koi-placeholder.jpg"
-                    }
+                    src={koi.UrlPath}
                     className="card-img-top"
                     alt={koi.species}
                   />
@@ -61,7 +76,7 @@ function HomePage() {
                       <strong>Origin:</strong> {koi.origin}
                     </p>
                     <p>
-                      <strong>Price:</strong> ${koi.price}
+                      <strong>Price:</strong> {koi.price} VND
                     </p>
                     <Link to={`/koifish/${koi.id}`} className="btn btn-primary">
                       View Details

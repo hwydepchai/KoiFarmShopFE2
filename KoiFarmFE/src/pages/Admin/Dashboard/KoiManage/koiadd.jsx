@@ -2,7 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const countries = ["Vietnam", "Japan", "Thailand", "China", "South Korea", "India"];
+const countries = [
+  "Vietnam",
+  "Japan",
+  "Thailand",
+  "China",
+  "South Korea",
+  "India",
+];
 
 function AddKoi() {
   const [categories, setCategories] = useState([]);
@@ -52,17 +59,17 @@ function AddKoi() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const formData = new FormData();
     for (const key in newKoi) {
       formData.append(key, newKoi[key]);
     }
-    formData.append('Img', image);
+    formData.append("Img", image);
 
     fetch("https://localhost:7229/api/KoiFish", {
       method: "POST",
       headers: {
-        "accept": "text/plain",
+        accept: "text/plain",
       },
       body: formData,
     })
@@ -90,7 +97,9 @@ function AddKoi() {
       <form onSubmit={handleSubmit} className="row g-3">
         {/* Origin Dropdown */}
         <div className="col-md-4">
-          <label htmlFor="origin" className="form-label">Origin</label>
+          <label htmlFor="origin" className="form-label">
+            Origin
+          </label>
           <select
             className="form-select"
             id="origin"
@@ -99,16 +108,22 @@ function AddKoi() {
             onChange={handleChange}
             required
           >
-            <option value="" disabled>Select a country</option>
+            <option value="" disabled>
+              Select a country
+            </option>
             {countries.map((country) => (
-              <option key={country} value={country}>{country}</option>
+              <option key={country} value={country}>
+                {country}
+              </option>
             ))}
           </select>
         </div>
 
         {/* Gender Toggle Switch */}
         <div className="col-md-4">
-          <label htmlFor="gender" className="form-label">Gender</label>
+          <label htmlFor="gender" className="form-label">
+            Gender
+          </label>
           <div className="form-check form-switch">
             <input
               type="checkbox"
@@ -116,7 +131,12 @@ function AddKoi() {
               id="gender"
               name="gender"
               checked={newKoi.gender === "Female"}
-              onChange={() => setNewKoi(prev => ({ ...prev, gender: newKoi.gender === "Female" ? "Male" : "Female" }))}
+              onChange={() =>
+                setNewKoi((prev) => ({
+                  ...prev,
+                  gender: newKoi.gender === "Female" ? "Male" : "Female",
+                }))
+              }
             />
             <label className="form-check-label" htmlFor="gender">
               {newKoi.gender}
@@ -126,7 +146,9 @@ function AddKoi() {
 
         {/* Age */}
         <div className="col-md-4">
-          <label htmlFor="age" className="form-label">Age</label>
+          <label htmlFor="age" className="form-label">
+            Age
+          </label>
           <input
             type="number"
             className="form-control"
@@ -140,7 +162,9 @@ function AddKoi() {
 
         {/* Size */}
         <div className="col-md-4">
-          <label htmlFor="size" className="form-label">Size</label>
+          <label htmlFor="size" className="form-label">
+            Size
+          </label>
           <input
             type="text"
             className="form-control"
@@ -154,7 +178,9 @@ function AddKoi() {
 
         {/* Species */}
         <div className="col-md-4">
-          <label htmlFor="species" className="form-label">Species</label>
+          <label htmlFor="species" className="form-label">
+            Species
+          </label>
           <input
             type="text"
             className="form-control"
@@ -168,7 +194,9 @@ function AddKoi() {
 
         {/* Character */}
         <div className="col-md-4">
-          <label htmlFor="character" className="form-label">Character</label>
+          <label htmlFor="character" className="form-label">
+            Character
+          </label>
           <input
             type="text"
             className="form-control"
@@ -182,7 +210,9 @@ function AddKoi() {
 
         {/* Amount of Food */}
         <div className="col-md-4">
-          <label htmlFor="amountFood" className="form-label">Amount of Food</label>
+          <label htmlFor="amountFood" className="form-label">
+            Amount of Food
+          </label>
           <input
             type="number"
             className="form-control"
@@ -196,7 +226,9 @@ function AddKoi() {
 
         {/* Screening Rate */}
         <div className="col-md-4">
-          <label htmlFor="screeningRate" className="form-label">Screening Rate</label>
+          <label htmlFor="screeningRate" className="form-label">
+            Screening Rate
+          </label>
           <input
             type="text"
             className="form-control"
@@ -208,23 +240,33 @@ function AddKoi() {
           />
         </div>
 
-        {/* Type */}
+        {/* Type Dropdown */}
         <div className="col-md-4">
-          <label htmlFor="type" className="form-label">Type</label>
-          <input
-            type="text"
-            className="form-control"
+          <label htmlFor="type" className="form-label">
+            Type
+          </label>
+          <select
+            className="form-select"
             id="type"
             name="type"
             value={newKoi.type}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="" disabled>
+              Select a type
+            </option>
+            <option value="Native">Native</option>
+            <option value="F1">F1</option>
+            <option value="Imported">Imported</option>
+          </select>
         </div>
 
         {/* Status */}
         <div className="col-md-4">
-          <label htmlFor="status" className="form-label">Status</label>
+          <label htmlFor="status" className="form-label">
+            Status
+          </label>
           <input
             type="text"
             className="form-control"
@@ -238,7 +280,9 @@ function AddKoi() {
 
         {/* Category Dropdown */}
         <div className="col-md-4">
-          <label htmlFor="categoryId" className="form-label">Category</label>
+          <label htmlFor="categoryId" className="form-label">
+            Category
+          </label>
           <select
             className="form-select"
             id="categoryId"
@@ -247,16 +291,22 @@ function AddKoi() {
             onChange={handleChange}
             required
           >
-            <option value="" disabled>Select a category</option>
+            <option value="" disabled>
+              Select a category
+            </option>
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>{category.category1}</option>
+              <option key={category.id} value={category.id}>
+                {category.category1}
+              </option>
             ))}
           </select>
         </div>
 
         {/* Price */}
         <div className="col-md-4">
-          <label htmlFor="price" className="form-label">Price</label>
+          <label htmlFor="price" className="form-label">
+            Price (VND)
+          </label>
           <input
             type="number"
             className="form-control"
@@ -270,7 +320,9 @@ function AddKoi() {
 
         {/* Image Upload */}
         <div className="col-md-4">
-          <label htmlFor="img" className="form-label">Image</label>
+          <label htmlFor="img" className="form-label">
+            Image
+          </label>
           <input
             type="file"
             className="form-control"

@@ -66,8 +66,12 @@ function LoginPage() {
           email,
         })
       );
-
-      navigate("/home");
+      if (email === "1@1.1") {
+        navigate("/dashboard");
+      } else {
+        alert("Logged in successfully");
+        navigate("/home");
+      }
       navigate(0);
     } catch (error) {
       console.error("An error occurred:", error.message);

@@ -11,7 +11,7 @@ function KoiFishList() {
     fetch("https://localhost:7229/api/KoiFish")
       .then((response) => response.json())
       .then((data) => {
-        setKoiList(data.$values); // Accessing the $values array directly
+        setKoiList(data.$values);
         setLoading(false);
       })
       .catch((error) => {
@@ -22,6 +22,9 @@ function KoiFishList() {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+  const activeKoi = koiList.filter(koi => !koi.isDeleted);
+  const deletedKoi = koiList.filter(koi => koi.isDeleted);
 
   return (
     <div className="container my-4">
@@ -34,13 +37,13 @@ function KoiFishList() {
             <th scope="col">Gender</th>
             <th scope="col">Species</th>
             <th scope="col">Size (cm)</th>
-            <th scope="col">Price ($)</th>
+            <th scope="col">Price (VND)</th>
             <th scope="col">Status</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {koiList.map((koi) => (
+          {activeKoi.map((koi) => (
             <tr key={koi.id}>
               <td>{koi.id}</td>
               <td>{koi.origin}</td>
@@ -61,9 +64,42 @@ function KoiFishList() {
           ))}
         </tbody>
       </table>
+      
       <Link className="btn btn-success mt-3" to={`/dashboard/koifish/create`}>
         Add
       </Link>
+
+      {deletedKoi.length > 0 && (
+        <>
+          <h2 className="text-center mt-5 mb-4">Deleted Koi Fish</h2>
+          <table className="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Origin</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Species</th>
+                <th scope="col">Size (cm)</th>
+                <th scope="col">Price (VND)</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deletedKoi.map((koi) => (
+                <tr key={koi.id}>
+                  <td>{koi.id}</td>
+                  <td>{koi.origin}</td>
+                  <td>{koi.gender}</td>
+                  <td>{koi.species}</td>
+                  <td>{koi.size}</td>
+                  <td>{koi.price}</td>
+                  <td>{koi.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 }

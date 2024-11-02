@@ -25,6 +25,13 @@
     text-align: left;
 }
 
+.koi-card img {
+    height: 320px;
+    width: 100%;
+    padding: 6px 18px;
+    border-radius: 16px solid;
+}
+
 @media only screen and (max-width: 720px) {
     .hero {
         height: 240px;
