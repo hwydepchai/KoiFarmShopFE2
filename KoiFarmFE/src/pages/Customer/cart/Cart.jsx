@@ -85,7 +85,7 @@ const Cart = () => {
             <th>#</th>
             <th>Species</th>
             <th>Price</th>
-            <th>Created Date</th>
+            <th>Status</th>
             <th>Purchase</th>
           </tr>
         </thead>
@@ -97,11 +97,7 @@ const Cart = () => {
                 <td>{index + 1}</td>
                 <td>{koi ? koi.species : "Loading..."}</td>
                 <td>${koi ? koi.price : "Loading..."}</td>
-                <td>
-                  {order.createdDate
-                    ? new Date(order.createdDate).toLocaleDateString()
-                    : "N/A"}
-                </td>
+                <td>{order.status}</td>
                 <td>
                   <Button
                     variant="success"
