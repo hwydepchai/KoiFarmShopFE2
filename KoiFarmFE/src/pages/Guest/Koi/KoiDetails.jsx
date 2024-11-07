@@ -67,6 +67,8 @@ const KoiDetails = () => {
 
       if (!userAccount) {
         console.error("No account found for the user.");
+        alert("You haven't logged in!");
+        navigate("/login");
         return;
       }
 

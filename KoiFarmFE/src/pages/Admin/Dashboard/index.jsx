@@ -15,6 +15,9 @@ import CartDetails from "./CartManage/cartdetails";
 import Footer from "../Component/Footer";
 import AddKoi from "./KoiManage/koiadd";
 import Consign from "./Consignment/consignment";
+import KoiFishy from "./KoisManage/KoiFishy";
+import KoiFishyDetails from "./KoisManage/KoiFishyDetails";
+import KoiFishyAdd from "./KoisManage/KoiFishyAdd";
 
 const Dashboard = () => {
   return (
@@ -36,11 +39,11 @@ const Dashboard = () => {
                   <Nav.Link as={Link} to="/dashboard/koifish">
                     Koi Fish
                   </Nav.Link>
+                  <Nav.Link as={Link} to="/dashboard/koifishy">
+                    Whole Fishes
+                  </Nav.Link>
                   <Nav.Link as={Link} to="/dashboard/order">
                     Order
-                  </Nav.Link>
-                  <Nav.Link as={Link} to="/dashboard/cart">
-                    Cart
                   </Nav.Link>
                   <Nav.Link as={Link} to="/dashboard/settings">
                     Settings
@@ -64,9 +67,10 @@ const Dashboard = () => {
                   <Route path="/koifish/*" element={<KoiFishList />} />
                   <Route path="/koifish/:id" element={<KoiFishDetails />} />
                   <Route path="/koifish/create" element={<AddKoi />} />
+                  <Route path="/koifishy/" element={<KoiFishy />} />
+                  <Route path="/koifishy/:id" element={<KoiFishyDetails />} />
+                  <Route path="/koifishy/create" element={<KoiFishyAdd />} />
                   <Route path="/order" element={<OrderList />} />
-                  <Route path="/cart/*" element={<CartList />} />
-                  <Route path="/cart/:id" element={<CartDetails />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/consignment" element={<Consign />} />
                 </Routes>

@@ -53,10 +53,18 @@ const Cart = () => {
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
 
-  // Filter orders for the logged-in user's account
-  const filteredOrders = orders.filter(
-    (order) => order.accountId === userAccountId
-  );
+  // Filter and sort orders for the logged-in user's account
+  const filteredOrders = orders
+    .filter((order) => order.accountId === userAccountId)
+    .sort((a, b) => {
+      const orderStatus = (status) => {
+        if (status === "Pending") return 1;
+        if (status === "") return 2;
+        if (status === "Completed") return 3;
+        return 4; // Default for other statuses
+      };
+      return orderStatus(a.status) - orderStatus(b.status);
+    });
 
   // Handle Purchase
   const handlePurchase = async (orderId) => {
@@ -76,6 +84,17 @@ const Cart = () => {
     }
   };
 
+  // Handle Delete
+  const handleDelete = async (orderId) => {
+    try {
+      await axios.delete(`https://localhost:7229/api/Order/${orderId}`);
+      setOrders(orders.filter((order) => order.id !== orderId)); // Update the orders state
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      alert("Failed to delete order. Please try again later.");
+    }
+  };
+
   return (
     <Container>
       <h2 className="my-4">Your Cart</h2>
@@ -87,23 +106,38 @@ const Cart = () => {
             <th>Price</th>
             <th>Status</th>
             <th>Purchase</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
           {filteredOrders.map((order, index) => {
             const koi = koiDetails[order.koiId];
+            const isPurchased = order.status === "Completed";
+
             return (
               <tr key={order.id}>
                 <td>{index + 1}</td>
                 <td>{koi ? koi.species : "Loading..."}</td>
                 <td>${koi ? koi.price : "Loading..."}</td>
-                <td>{order.status}</td>
+                <td>{isPurchased ? "Completed" : order.status}</td>
+                <td>
+                  {isPurchased ? (
+                    "Purchased"
+                  ) : (
+                    <Button
+                      variant="success"
+                      onClick={() => handlePurchase(order.id)}
+                    >
+                      Purchase
+                    </Button>
+                  )}
+                </td>
                 <td>
                   <Button
-                    variant="success"
-                    onClick={() => handlePurchase(order.id)}
+                    variant="danger"
+                    onClick={() => handleDelete(order.id)}
                   >
-                    Purchase
+                    Delete
                   </Button>
                 </td>
               </tr>

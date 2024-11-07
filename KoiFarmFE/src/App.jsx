@@ -28,9 +28,9 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/payment" element={<PaymentReturn />} />
-          <Route path="/koiy" element={<KoiyList />} />
-          <Route path="/koiy/:id" element={<KoiyDetails />} />
+          <Route path="/payment/return" element={<PaymentReturn />} />
+          <Route path="/koifishy" element={<KoiyList />} />
+          <Route path="/koifishy/:id" element={<KoiyDetails />} />
           <Route path="/consignment" element={<Consign />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/blog" element={<Blog />} />

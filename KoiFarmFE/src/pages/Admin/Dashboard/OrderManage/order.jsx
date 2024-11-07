@@ -53,8 +53,9 @@ function OrderList() {
           <tr>
             <th scope="col">Order ID</th>
             <th scope="col">Koi Species</th>
+            <th scope="col">KoiFishyId</th> 
             <th scope="col">Account Name</th>
-            <th scope="col">Price</th>
+            <th scope="col">Price (VND)</th>
             <th scope="col">Status</th>
             <th scope="col">Created Date</th>
             <th scope="col">Modified Date</th>
@@ -64,9 +65,10 @@ function OrderList() {
           {orderList.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
-              <td>{order.koiSpecies || "N/A"}</td>
+              <td>{order.koiSpecies || ""}</td>
+              <td>{order.koiFishyId || ""}</td> 
               <td>{order.accountName || "N/A"}</td>
-              <td>${order.price}</td>
+              <td>{order.price}</td>
               <td>{order.status || "N/A"}</td>
               <td>{order.createdDate ? new Date(order.createdDate).toLocaleDateString() : "N/A"}</td>
               <td>{order.modifiedDate ? new Date(order.modifiedDate).toLocaleDateString() : "N/A"}</td>

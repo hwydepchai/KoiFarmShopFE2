@@ -6,20 +6,36 @@ import axios from "axios";
 function KoiyDetails() {
   const { id } = useParams();
   const [koiyDetails, setKoiyDetails] = useState(null);
+  const [images, setImages] = useState([]); // Store koi fish images
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`https://localhost:7229/api/KoiFishy/${id}`)
-      .then((response) => {
+    const fetchKoiDetails = async () => {
+      try {
+        // Fetch koi fish details
+        const response = await axios.get(
+          `https://localhost:7229/api/KoiFishy/${id}`
+        );
         setKoiyDetails(response.data);
+
+        // Fetch related images for the koi fish
+        const imageResponse = await axios.get(
+          `https://localhost:7229/api/Image`
+        );
+        const koiImages = imageResponse.data.$values.filter(
+          (image) => image.koiFishyId === parseInt(id) // Match images by koiFishyId
+        );
+        setImages(koiImages);
+
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching koi fish details:", error);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchKoiDetails();
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -73,6 +89,25 @@ function KoiyDetails() {
             Created Date:{" "}
             {new Date(koiyDetails.createdDate).toLocaleDateString()}
           </p>
+
+          <h3>Images</h3>
+          <div className="row">
+            {images.length > 0 ? (
+              images.map((image) => (
+                <div key={image.id} className="col-md-4 mb-4">
+                  <img
+                    src={image.urlPath}
+                    alt={`Koi Fish Image ${image.id}`}
+                    className="img-fluid"
+                    style={{ height: "200px", objectFit: "cover" }}
+                  />
+                </div>
+              ))
+            ) : (
+              <p>No images available</p>
+            )}
+          </div>
+
           <button className="btn btn-success mt-3" onClick={handleAddToCart}>
             Add to Cart
           </button>
