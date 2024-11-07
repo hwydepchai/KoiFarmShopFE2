@@ -7,6 +7,7 @@ const Cart = () => {
   const [orders, setOrders] = useState([]);
   const [userAccountId, setUserAccountId] = useState(null);
   const [koiDetails, setKoiDetails] = useState({});
+  const [koiFishyDetails, setKoiFishyDetails] = useState({});
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -29,31 +30,48 @@ const Cart = () => {
     axios
       .get("https://localhost:7229/api/Order")
       .then((response) => {
-        const fetchedOrders = response.data.$values; // Adjusted to access $values
+        const fetchedOrders = response.data.$values;
         setOrders(fetchedOrders);
 
         // Fetch koi details for each order
         fetchedOrders.forEach((order) => {
-          axios
-            .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
-            .then((response) => {
-              setKoiDetails((prevKoiDetails) => ({
-                ...prevKoiDetails,
-                [order.koiId]: response.data,
-              }));
-            })
-            .catch((error) =>
-              console.error(
-                `Error fetching koi details for ${order.koiId}:`,
-                error
-              )
-            );
+          if (order.koiId != null) {
+            axios
+              .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
+              .then((response) => {
+                setKoiDetails((prevKoiDetails) => ({
+                  ...prevKoiDetails,
+                  [order.koiId]: response.data,
+                }));
+              })
+              .catch((error) =>
+                console.error(
+                  `Error fetching koi details for ${order.koiId}:`,
+                  error
+                )
+              );
+          } else {
+            // Fetch KoiFishy details if koiId is null
+            axios
+              .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
+              .then((response) => {
+                setKoiFishyDetails((prevKoiFishyDetails) => ({
+                  ...prevKoiFishyDetails,
+                  [order.koiId]: response.data,
+                }));
+              })
+              .catch((error) =>
+                console.error(
+                  `Error fetching KoiFishy details for ${order.koiId}:`,
+                  error
+                )
+              );
+          }
         });
       })
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
 
-  // Filter and sort orders for the logged-in user's account
   const filteredOrders = orders
     .filter((order) => order.accountId === userAccountId)
     .sort((a, b) => {
@@ -66,7 +84,6 @@ const Cart = () => {
       return orderStatus(a.status) - orderStatus(b.status);
     });
 
-  // Handle Purchase
   const handlePurchase = async (orderId) => {
     try {
       const response = await axios.post(
@@ -84,7 +101,6 @@ const Cart = () => {
     }
   };
 
-  // Handle Delete
   const handleDelete = async (orderId) => {
     try {
       await axios.delete(`https://localhost:7229/api/Order/${orderId}`);
@@ -95,9 +111,17 @@ const Cart = () => {
     }
   };
 
+  // Orders with koiId (not null)
+  const koiOrders = filteredOrders.filter((order) => order.koiId != null);
+  // Orders without koiId (null)
+  const koiFishyOrders = filteredOrders.filter((order) => order.koiId === null);
+
   return (
     <Container>
       <h2 className="my-4">Your Cart</h2>
+
+      {/* Table for Orders with Koi Fish */}
+      <h3 className="my-4">Koi Fish Orders</h3>
       <Table striped bordered hover responsive>
         <thead>
           <tr>
@@ -110,7 +134,7 @@ const Cart = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredOrders.map((order, index) => {
+          {koiOrders.map((order, index) => {
             const koi = koiDetails[order.koiId];
             const isPurchased = order.status === "Completed";
 
@@ -119,6 +143,56 @@ const Cart = () => {
                 <td>{index + 1}</td>
                 <td>{koi ? koi.species : "Loading..."}</td>
                 <td>${koi ? koi.price : "Loading..."}</td>
+                <td>{isPurchased ? "Completed" : order.status}</td>
+                <td>
+                  {isPurchased ? (
+                    "Purchased"
+                  ) : (
+                    <Button
+                      variant="success"
+                      onClick={() => handlePurchase(order.id)}
+                    >
+                      Purchase
+                    </Button>
+                  )}
+                </td>
+                <td>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleDelete(order.id)}
+                  >
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
+
+      {/* Table for Orders with KoiFishy (where koiId is null) */}
+      <h3 className="my-4">KoiFishy Orders</h3>
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>KoiFishy ID</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Purchase</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {koiFishyOrders.map((order, index) => {
+            const koiFishy = koiFishyDetails[order.koiId];
+            const isPurchased = order.status === "Completed";
+
+            return (
+              <tr key={order.id}>
+                <td>{index + 1}</td>
+                <td>{koiFishy ? koiFishy.id : "Loading..."}</td>
+                <td>${koiFishy ? koiFishy.price : "Loading..."}</td>
                 <td>{isPurchased ? "Completed" : order.status}</td>
                 <td>
                   {isPurchased ? (
