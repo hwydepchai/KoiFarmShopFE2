@@ -1,61 +1,81 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Modal, Button, Form } from "react-bootstrap"; // Bootstrap for Modal
+import { Modal, Button, Form } from "react-bootstrap";
+import axios from "axios";
+
+// Helper function to generate image URL
+const getImageUrl = (imagePath) => `https://localhost:7229/images/${imagePath}`;
 
 function KoiFishList() {
   const [koiList, setKoiList] = useState([]);
-  const [imageList, setImageList] = useState([]);
+  const [deletedKoi, setDeletedKoi] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedKoi, setSelectedKoi] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null); // Track selected image for editing
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newKoi, setNewKoi] = useState({
+    origin: "",
+    gender: "",
+    species: "",
+    size: 0,
+    price: 0,
+    status: "",
+    imgUrl: "",
+  });
 
   const navigate = useNavigate();
 
-  // Fetch koi list and images
+  // Fetch koi list on component mount
   useEffect(() => {
+    fetchKoiList();
+  }, []);
+
+  const fetchKoiList = () => {
     fetch("https://localhost:7229/api/KoiFish")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch koi fish data");
+        return response.json();
+      })
       .then((data) => {
-        setKoiList(data.$values);
+        const activeKoi = data.$values.filter((koi) => !koi.isDeleted);
+        const deletedKoi = data.$values.filter((koi) => koi.isDeleted);
+        setKoiList(activeKoi);
+        setDeletedKoi(deletedKoi);
         setLoading(false);
       })
       .catch((error) => {
-        setError(error);
+        setError(error.message);
         setLoading(false);
       });
-
-    fetch("https://localhost:7229/api/Image")
-      .then((response) => response.json())
-      .then((data) => {
-        setImageList(data.$values);
-      })
-      .catch((error) => setError(error));
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  const activeKoi = koiList.filter((koi) => !koi.isDeleted);
-  const deletedKoi = koiList.filter((koi) => koi.isDeleted);
-
-  // Open the Edit modal and fetch koi details
-  const handleEditClick = (id) => {
-    fetch(`https://localhost:7229/api/KoiFish/${id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setSelectedKoi(data);
-        setShowModal(true);
-        // Fetch associated image
-        const koiImage = imageList.find((img) => img.koiId === id);
-        setSelectedImage(koiImage); // Set selected image
-      })
-      .catch((error) => setError(error));
   };
 
-  // Handle update of specific property
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  const handleEditClick = (koi) => {
+    fetch(`https://localhost:7229/api/Image?koiId=${koi.id}`)
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch image data");
+        return response.json();
+      })
+      .then((data) => {
+        const imageUrl =
+          data.$values.length > 0 ? data.$values[0].urlPath : null;
+        setSelectedKoi({
+          ...koi,
+          imgUrl: imageUrl,
+        });
+        setShowModal(true);
+      })
+      .catch((error) => {
+        setError(error.message);
+        setShowModal(true);
+      });
+  };
+
   const handleFieldEdit = (field, value) => {
     setSelectedKoi((prevKoi) => ({
       ...prevKoi,
@@ -63,48 +83,103 @@ function KoiFishList() {
     }));
   };
 
-  // Handle saving the updated property
-  const handleSave = () => {
-    if (!selectedKoi) return;
-    fetch(`https://localhost:7229/api/KoiFish/${selectedKoi.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(selectedKoi),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to update Koi fish");
-        }
-        setShowModal(false); // Close the modal on success
-      })
-      .catch((error) => {
-        setError(error);
-        alert("Error updating Koi fish: " + error.message);
-      });
-  };
-
-  // Handle image change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Assuming the backend handles image upload and returns the image URL
-      const imageUrl = URL.createObjectURL(file); // Preview the selected image
-      setSelectedImage({
-        ...selectedImage,
-        urlPath: imageUrl, // Update the image URL with the new one
-      });
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(file);
+      setSelectedKoi((prev) => ({ ...prev, imgUrl: imageUrl }));
+    }
+  };
 
-      // Here you would typically upload the image to the server
-      // and update the koi's associated image with the response.
+  const handleSave = () => {
+    if (!selectedKoi) return;
+
+    const formData = new FormData();
+    for (const key in selectedKoi) {
+      if (key !== "imgUrl") formData.append(key, selectedKoi[key]);
+    }
+    if (selectedImage) formData.append("Img", selectedImage);
+
+    fetch(`https://localhost:7229/api/KoiFish/${selectedKoi.id}`, {
+      method: "PUT",
+      headers: { accept: "text/plain" },
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to update koi fish");
+        return response.json();
+      })
+      .then((updatedKoi) => {
+        setKoiList((prevList) =>
+          prevList.map((koi) => (koi.id === updatedKoi.id ? updatedKoi : koi))
+        );
+        setShowModal(false);
+      })
+      .catch((error) => {
+        setError(error.message);
+        alert("Error updating koi fish: " + error.message);
+      });
+  };
+
+  const deleteKoi = async (id) => {
+    try {
+      await axios.delete(`https://localhost:7229/api/KoiFish/${id}`);
+      fetchKoiList(); // Refresh the koi list
+    } catch (error) {
+      console.error("Error deleting koi fish:", error);
+    }
+  };
+
+  const toggleKoiStatus = async (id, isDeleted) => {
+    try {
+      await axios.put(`https://localhost:7229/api/KoiFish/${id}/${!isDeleted}`);
+      fetchKoiList(); // Refresh koi list to reflect status change
+    } catch (error) {
+      console.error("Error updating koi status:", error);
+    }
+  };
+
+  const handleAddFieldChange = (field, value) => {
+    setNewKoi((prevKoi) => ({
+      ...prevKoi,
+      [field]: value,
+    }));
+  };
+
+  const handleAddImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setNewKoi((prev) => ({ ...prev, imgUrl: imageUrl }));
+      setSelectedImage(file);
+    }
+  };
+
+  const handleAddSave = async () => {
+    const formData = new FormData();
+    for (const key in newKoi) {
+      formData.append(key, newKoi[key]);
+    }
+    if (selectedImage) formData.append("Img", selectedImage);
+
+    try {
+      await axios.post("https://localhost:7229/api/KoiFish", formData);
+      fetchKoiList(); // Refresh koi list after adding new koi
+      setShowAddModal(false); // Close modal after saving
+    } catch (error) {
+      console.error("Error adding koi fish:", error);
     }
   };
 
   return (
     <div className="container my-4">
       <h2 className="text-center mb-4">Available Koi Fish</h2>
-      <table className="table table-striped table-bordered">
+      <Button variant="primary" onClick={() => navigate("/dashboard/koifish/create")}>
+        Add New Koi
+      </Button>
+
+      <table className="table table-striped table-bordered mt-4">
         <thead>
           <tr>
             <th scope="col">ID</th>
@@ -118,7 +193,7 @@ function KoiFishList() {
           </tr>
         </thead>
         <tbody>
-          {activeKoi.map((koi) => (
+          {koiList.map((koi) => (
             <tr key={koi.id}>
               <td>{koi.id}</td>
               <td>{koi.origin}</td>
@@ -136,13 +211,13 @@ function KoiFishList() {
                 </Link>
                 <button
                   className="btn btn-warning btn-sm mx-2"
-                  onClick={() => handleEditClick(koi.id)}
+                  onClick={() => handleEditClick(koi)}
                 >
                   Edit
                 </button>
                 <button
-                  className="btn btn-danger btn-sm"
-                  // Add delete functionality if needed
+                  className="btn btn-danger btn-sm mx-2"
+                  onClick={() => deleteKoi(koi.id)}
                 >
                   Delete
                 </button>
@@ -152,34 +227,51 @@ function KoiFishList() {
         </tbody>
       </table>
 
-      {/* Modal for editing Koi details */}
-      {selectedKoi && (
+      <h3 className="text-center my-4">Deleted Koi Fish</h3>
+      <table className="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Origin</th>
+            <th scope="col">Gender</th>
+            <th scope="col">Species</th>
+            <th scope="col">Size (cm)</th>
+            <th scope="col">Price (VND)</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {deletedKoi.map((koi) => (
+            <tr key={koi.id}>
+              <td>{koi.id}</td>
+              <td>{koi.origin}</td>
+              <td>{koi.gender}</td>
+              <td>{koi.species}</td>
+              <td>{koi.size}</td>
+              <td>{koi.price}</td>
+              <td>{koi.status}</td>
+              <td>
+                <button
+                  className="btn btn-success btn-sm mx-2"
+                  onClick={() => toggleKoiStatus(koi.id, koi.isDeleted)}
+                >
+                  Restore
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Edit Modal */}
+      {showModal && selectedKoi && (
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>Edit Koi Fish Details</Modal.Title>
+            <Modal.Title>Edit Koi Fish</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
-              {/* Image Preview */}
-              {selectedImage && (
-                <div className="mb-3">
-                  <img
-                    src={selectedImage.urlPath}
-                    alt="Koi Fish"
-                    className="img-fluid mb-2"
-                    style={{ maxWidth: "300px" }}
-                  />
-                  <Form.Group controlId="formImage">
-                    <Form.Label>Change Image</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                  </Form.Group>
-                </div>
-              )}
-
               <Form.Group controlId="formOrigin">
                 <Form.Label>Origin</Form.Label>
                 <Form.Control
@@ -225,60 +317,6 @@ function KoiFishList() {
                 />
               </Form.Group>
 
-              <Form.Group controlId="formCategoryId">
-                <Form.Label>Category ID</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={selectedKoi.categoryId}
-                  onChange={(e) => handleFieldEdit("categoryId", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formAge">
-                <Form.Label>Age</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={selectedKoi.age}
-                  onChange={(e) => handleFieldEdit("age", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formCharacter">
-                <Form.Label>Character</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.character}
-                  onChange={(e) => handleFieldEdit("character", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formAmountFood">
-                <Form.Label>Amount Food</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={selectedKoi.amountFood}
-                  onChange={(e) => handleFieldEdit("amountFood", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formScreeningRate">
-                <Form.Label>Screening Rate</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={selectedKoi.screeningRate}
-                  onChange={(e) => handleFieldEdit("screeningRate", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formType">
-                <Form.Label>Type</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.type}
-                  onChange={(e) => handleFieldEdit("type", e.target.value)}
-                />
-              </Form.Group>
-
               <Form.Group controlId="formStatus">
                 <Form.Label>Status</Form.Label>
                 <Form.Control
@@ -286,6 +324,18 @@ function KoiFishList() {
                   value={selectedKoi.status}
                   onChange={(e) => handleFieldEdit("status", e.target.value)}
                 />
+              </Form.Group>
+
+              <Form.Group controlId="formImage">
+                <Form.Label>Image</Form.Label>
+                <Form.Control type="file" onChange={handleImageChange} />
+                {selectedKoi.imgUrl && (
+                  <img
+                    src={selectedKoi.imgUrl}
+                    alt="Selected Koi"
+                    className="img-fluid mt-2"
+                  />
+                )}
               </Form.Group>
             </Form>
           </Modal.Body>
