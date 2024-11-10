@@ -17,35 +17,48 @@ const Cart = () => {
       return;
     }
 
-    axios.get("https://localhost:7229/api/Order").then((response) => {
-      const fetchedOrders = response.data.$values;
-      const userOrders = fetchedOrders.filter(
-        (order) => order.accountId === userId
-      );
-      setOrders(userOrders);
+    const fetchOrdersAndDetails = async () => {
+      try {
+        // Fetch the orders for the user
+        const orderResponse = await axios.get(
+          "https://localhost:7229/api/Order"
+        );
+        const fetchedOrders = orderResponse.data.$values;
 
-      userOrders.forEach((order) => {
-        if (order.koiId != null) {
-          axios
-            .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
-            .then((response) => {
-              setKoiDetails((prevKoiDetails) => ({
-                ...prevKoiDetails,
-                [order.koiId]: response.data,
-              }));
-            });
-        } else {
-          axios
-            .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
-            .then((response) => {
-              setKoiFishyDetails((prevKoiFishyDetails) => ({
-                ...prevKoiFishyDetails,
-                [order.koiFishyId]: response.data,
-              }));
-            });
-        }
-      });
-    });
+        // Filter out orders with a "Canceled" or "Deleted" status
+        const userOrders = fetchedOrders.filter(
+          (order) => order.accountId === userId && order.status !== "Canceled"
+        );
+        setOrders(userOrders);
+
+        // Fetch koi and koiFishy details only for species information
+        userOrders.forEach((order) => {
+          if (order.koiId != null) {
+            axios
+              .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
+              .then((response) => {
+                setKoiDetails((prevKoiDetails) => ({
+                  ...prevKoiDetails,
+                  [order.koiId]: response.data,
+                }));
+              });
+          } else if (order.koiFishyId != null) {
+            axios
+              .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
+              .then((response) => {
+                setKoiFishyDetails((prevKoiFishyDetails) => ({
+                  ...prevKoiFishyDetails,
+                  [order.koiFishyId]: response.data,
+                }));
+              });
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching orders and koi details:", error);
+      }
+    };
+
+    fetchOrdersAndDetails();
   }, []);
 
   const handlePurchase = async (orderId) => {
@@ -67,10 +80,12 @@ const Cart = () => {
 
   const handleDelete = async (orderId, koiId, koiFishyId) => {
     try {
-      // First, cancel the order by deleting it
-      await axios.delete(`https://localhost:7229/api/Order/${orderId}`);
+      // Update the order's status to "Canceled" in the backend
+      await axios.put(`https://localhost:7229/api/Order/${orderId}`, {
+        status: "Canceled", // Ensure this status is set to "Canceled" or "Deleted"
+      });
 
-      // Then, update the koi or koiFishy status to false
+      // Optionally, update the koi or koiFishy status to false
       if (koiId) {
         await axios.put(`https://localhost:7229/api/KoiFish/${koiId}/false`);
       } else if (koiFishyId) {
@@ -79,11 +94,7 @@ const Cart = () => {
         );
       }
 
-      await axios.put(`https://localhost:7229/api/Order/${orderId}`, {
-        status: "Deleted",
-      });
-
-      // Update the local state to reflect the removal
+      // Update the local state to remove the order from the display
       setOrders((prevOrders) =>
         prevOrders.filter((order) => order.id !== orderId)
       );
@@ -93,7 +104,10 @@ const Cart = () => {
     }
   };
 
-  const filteredOrders = orders.filter((order) => order.status === "Pending");
+  // Filter orders to show only those with "Pending" or "Active" status
+  const filteredOrders = orders.filter(
+    (order) => order.status === "Pending" || order.status === "Active"
+  );
 
   return (
     <Container>
@@ -114,31 +128,30 @@ const Cart = () => {
             const koi = koiDetails[order.koiId];
             const koiFishy = koiFishyDetails[order.koiFishyId];
 
-            // Determine species and price based on whether it's a koi or koiFishy order
+            // Determine species based on whether it's a koi or koiFishy order
             const species = koi
               ? koi.species
               : koiFishy
               ? `KoiFishy no ${koiFishy.id}`
-              : "Loading...";
-            const price = koi
-              ? koi.price
-              : koiFishy
-              ? koiFishy.price
-              : "Loading...";
+              : "Unknown Species";
 
             return (
               <tr key={order.id}>
                 <td>{index + 1}</td>
                 <td>{species}</td>
-                <td>${price}</td>
+                <td>${order.price.toLocaleString()}</td>{" "}
+                {/* Use price directly from the order */}
                 <td>{order.status}</td>
                 <td>
-                  <Button
-                    variant="success"
-                    onClick={() => handlePurchase(order.id)}
-                  >
-                    Purchase
-                  </Button>
+                  {(order.status === "Pending" ||
+                    order.status === "Active") && (
+                    <Button
+                      variant="success"
+                      onClick={() => handlePurchase(order.id)}
+                    >
+                      Purchase
+                    </Button>
+                  )}
                 </td>
                 <td>
                   <Button

@@ -19,6 +19,7 @@ import KoiFishy from "./KoisManage/KoiFishy";
 import KoiFishyDetails from "./KoisManage/KoiFishyDetails";
 import KoiFishyAdd from "./KoisManage/KoiFishyAdd";
 import PromotionManagement from "./Promotion/promotion";
+import CertificateManager from "./Certificate/origin";
 
 const Dashboard = () => {
   return (
@@ -55,6 +56,9 @@ const Dashboard = () => {
                   <Nav.Link as={Link} to="/dashboard/promotion">
                     Promotion
                   </Nav.Link>
+                  <Nav.Link as={Link} to="/dashboard/origin">
+                    OriginCertificate
+                  </Nav.Link>
                 </Nav>
               </Card.Body>
             </Card>
@@ -78,6 +82,7 @@ const Dashboard = () => {
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/consignment" element={<Consign />} />
                   <Route path="/promotion" element={<PromotionManagement />} />
+                  <Route path="/origin" element={<CertificateManager />} />
                 </Routes>
               </Card.Body>
             </Card>
