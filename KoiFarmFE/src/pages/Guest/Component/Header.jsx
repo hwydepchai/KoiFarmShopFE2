@@ -6,14 +6,25 @@ import "./component.css";
 import axios from "axios";
 
 const Header = () => {
-  const [user, setUser] = useState(null);
+  const [userName, setUserName] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Get the userId from localStorage
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser && storedUser.fullname) {
-      console.log("Stored user data:", storedUser);
-      setUser(storedUser);
+    const userId = storedUser?.userId;
+
+    // Fetch user data if userId is available
+    if (userId) {
+      axios
+        .get(`https://localhost:7229/api/Accounts/${userId}`)
+        .then((response) => {
+          const name = response.data.name; // Assuming "name" is the property we need
+          setUserName(name);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
     } else {
       console.log("No valid user data in localStorage.");
     }
@@ -22,7 +33,7 @@ const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    setUser(null);
+    setUserName(null);
     navigate("/");
   };
 
@@ -56,11 +67,14 @@ const Header = () => {
           <Nav.Link as={Link} to="/cart" className="text-white">
             Cart
           </Nav.Link>
+          <Nav.Link as={Link} to="/history" className="text-white">
+            History
+          </Nav.Link>
         </Nav>
         <Nav className="ms-auto">
-          {user ? (
+          {userName ? (
             <NavDropdown
-              title={<span className="text-white btn">{user.fullname}</span>}
+              title={<span className="text-white btn">{userName}</span>}
               id="user-dropdown"
             >
               <NavDropdown.Item as={Link} to="/user">

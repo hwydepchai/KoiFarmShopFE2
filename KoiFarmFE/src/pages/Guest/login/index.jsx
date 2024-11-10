@@ -56,23 +56,26 @@ function LoginPage() {
 
     try {
       const response = await axios.post(api, loginData);
-      const { token, fullname, email } = response.data.data;
+      const { data: data, roleId, userId, message } = response.data;
 
-      localStorage.setItem("token", token);
+      // Save token and user info in localStorage
+      localStorage.setItem("token", data);
       localStorage.setItem(
         "user",
         JSON.stringify({
-          fullname,
-          email,
+          roleId,
+          userId,
         })
       );
-      if (email === "1@1.1") {
+
+      // Navigate based on roleId or show a success message
+      if (roleId === 1) {
         navigate("/dashboard");
       } else {
-        alert("Logged in successfully");
+        alert(message || "Logged in successfully");
         navigate("/home");
       }
-      navigate(0);
+      navigate(0); // Refresh
     } catch (error) {
       console.error("An error occurred:", error.message);
       alert("Login failed. Please check your credentials.");

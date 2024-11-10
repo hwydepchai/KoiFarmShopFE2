@@ -41,25 +41,17 @@ function KoiyDetails() {
   const handleAddToCart = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
-      const userEmail = userData?.email;
+      const userId = userData?.userId;
 
-      const accountsResponse = await axios.get(
-        "https://localhost:7229/api/Accounts"
-      );
-      const accounts = accountsResponse.data.$values;
-      const userAccount = accounts.find(
-        (account) => account.email === userEmail
-      );
-
-      if (!userAccount) {
-        console.error("No account found for the user.");
+      if (!userId) {
+        console.error("No user ID found in localStorage. Redirecting to login.");
         return;
       }
 
       const order = {
         koiId: null,
         koiFishyId: koiyDetails.id,
-        accountId: userAccount.id,
+        accountId: userId,
         paymentId: 1,
         status: "Pending",
         type: true,

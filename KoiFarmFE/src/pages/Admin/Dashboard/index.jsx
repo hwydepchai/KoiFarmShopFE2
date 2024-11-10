@@ -18,6 +18,7 @@ import Consign from "./Consignment/consignment";
 import KoiFishy from "./KoisManage/KoiFishy";
 import KoiFishyDetails from "./KoisManage/KoiFishyDetails";
 import KoiFishyAdd from "./KoisManage/KoiFishyAdd";
+import CartFr from "./CartManage/cartfr";
 
 const Dashboard = () => {
   return (
@@ -73,6 +74,8 @@ const Dashboard = () => {
                   <Route path="/order" element={<OrderList />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/consignment" element={<Consign />} />
+                  <Route path="/cartFr" element={<CartFr />} />
+                  <Route path="/cartFr/:id" element={<CartDetails />} />
                 </Routes>
               </Card.Body>
             </Card>

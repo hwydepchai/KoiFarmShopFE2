@@ -27,7 +27,9 @@ const PaymentReturn = () => {
   const updateOrderStatus = async (orderId) => {
     try {
       // Fetch the current order details
-      const response = await fetch(`https://localhost:7229/api/Order/${orderId}`);
+      const response = await fetch(
+        `https://localhost:7229/api/Order/${orderId}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch order details");
       }
@@ -36,7 +38,7 @@ const PaymentReturn = () => {
       // Prepare updated order details
       const updatedOrderDetails = {
         ...currentOrderDetails,
-        status: "Completed", // Update status to Completed
+        status: "Paid", // Update status to Completed
       };
 
       // Send the updated order details back to the server

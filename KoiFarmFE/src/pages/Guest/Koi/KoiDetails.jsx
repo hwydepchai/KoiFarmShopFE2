@@ -55,27 +55,19 @@ const KoiDetails = () => {
   const addToCart = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
-      const userEmail = userData?.email;
+      const userId = userData?.userId;
 
-      const accountsResponse = await axios.get(
-        "https://localhost:7229/api/Accounts"
-      );
-      const accounts = accountsResponse.data.$values;
-      const userAccount = accounts.find(
-        (account) => account.email === userEmail
-      );
-
-      if (!userAccount) {
-        console.error("No account found for the user.");
+      if (!userId) {
         alert("You haven't logged in!");
         navigate("/login");
         return;
       }
 
+      // Add to cart
       const order = {
         koiId: koi.id,
         koiFishyId: null,
-        accountId: userAccount.id,
+        accountId: userId, // Use userId from localStorage
         paymentId: 1,
         status: "Pending",
         type: true,
@@ -83,9 +75,14 @@ const KoiDetails = () => {
       };
 
       await axios.post("https://localhost:7229/api/Order", order);
+
+      // Send DELETE request to KoiFishy
+      await axios.delete(`https://localhost:7229/api/KoiFish/${koi.id}`);
+
+      // Navigate to cart after adding koi and deleting it
       navigate("/cart");
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      console.error("Error adding to cart or deleting koi:", error);
     }
   };
 
@@ -171,7 +168,7 @@ const KoiDetails = () => {
               <Row>
                 <Col xs={6}>
                   <Button onClick={addToCart} className="me-2">
-                    Add to Cart
+                    Order now!
                   </Button>
                 </Col>
                 <Col xs={6}>

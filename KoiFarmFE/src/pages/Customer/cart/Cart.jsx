@@ -5,84 +5,48 @@ import { Table, Container, Button } from "react-bootstrap";
 
 const Cart = () => {
   const [orders, setOrders] = useState([]);
-  const [userAccountId, setUserAccountId] = useState(null);
   const [koiDetails, setKoiDetails] = useState({});
   const [koiFishyDetails, setKoiFishyDetails] = useState({});
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const userEmail = user?.email;
+    const userId = user?.userId;
 
-    // Fetch account details to get the accountId of the logged-in user
-    axios
-      .get("https://localhost:7229/api/Accounts")
-      .then((response) => {
-        const userAccount = response.data.$values.find(
-          (account) => account.email === userEmail
-        );
-        if (userAccount) setUserAccountId(userAccount.id);
-      })
-      .catch((error) =>
-        console.error("Error fetching account details:", error)
+    if (!userId) {
+      console.error("No user ID found in localStorage. Redirecting to login.");
+      return;
+    }
+
+    axios.get("https://localhost:7229/api/Order").then((response) => {
+      const fetchedOrders = response.data.$values;
+      const userOrders = fetchedOrders.filter(
+        (order) => order.accountId === userId
       );
+      setOrders(userOrders);
 
-    // Fetch all orders
-    axios
-      .get("https://localhost:7229/api/Order")
-      .then((response) => {
-        const fetchedOrders = response.data.$values;
-        setOrders(fetchedOrders);
-
-        // Fetch koi details for each order
-        fetchedOrders.forEach((order) => {
-          if (order.koiId != null) {
-            axios
-              .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
-              .then((response) => {
-                setKoiDetails((prevKoiDetails) => ({
-                  ...prevKoiDetails,
-                  [order.koiId]: response.data,
-                }));
-              })
-              .catch((error) =>
-                console.error(
-                  `Error fetching koi details for ${order.koiId}:`,
-                  error
-                )
-              );
-          } else {
-            // Fetch KoiFishy details if koiId is null
-            axios
-              .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
-              .then((response) => {
-                setKoiFishyDetails((prevKoiFishyDetails) => ({
-                  ...prevKoiFishyDetails,
-                  [order.koiId]: response.data,
-                }));
-              })
-              .catch((error) =>
-                console.error(
-                  `Error fetching KoiFishy details for ${order.koiId}:`,
-                  error
-                )
-              );
-          }
-        });
-      })
-      .catch((error) => console.error("Error fetching orders:", error));
-  }, []);
-
-  const filteredOrders = orders
-    .filter((order) => order.accountId === userAccountId)
-    .sort((a, b) => {
-      const orderStatus = (status) => {
-        if (status === "Pending") return 1;
-        if (status === "") return 2;
-        if (status === "Completed") return 3;
-        return 4; // Default for other statuses
-      };
-      return orderStatus(a.status) - orderStatus(b.status);
+      userOrders.forEach((order) => {
+        if (order.koiId != null) {
+          axios
+            .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
+            .then((response) => {
+              setKoiDetails((prevKoiDetails) => ({
+                ...prevKoiDetails,
+                [order.koiId]: response.data,
+              }));
+            });
+        } else {
+          axios
+            .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
+            .then((response) => {
+              setKoiFishyDetails((prevKoiFishyDetails) => ({
+                ...prevKoiFishyDetails,
+                [order.koiFishyId]: response.data,
+              }));
+            });
+        }
+      });
     });
+  }, []);
 
   const handlePurchase = async (orderId) => {
     try {
@@ -91,7 +55,7 @@ const Cart = () => {
       );
       const paymentUrl = response.data.paymentUrl;
       if (paymentUrl) {
-        window.open(paymentUrl, "_blank", "noopener,noreferrer"); // Open payment URL in new tab
+        window.open(paymentUrl, "_blank", "noopener,noreferrer");
       } else {
         alert("Payment URL not provided.");
       }
@@ -101,27 +65,39 @@ const Cart = () => {
     }
   };
 
-  const handleDelete = async (orderId) => {
+  const handleDelete = async (orderId, koiId, koiFishyId) => {
     try {
+      // First, cancel the order by deleting it
       await axios.delete(`https://localhost:7229/api/Order/${orderId}`);
-      setOrders(orders.filter((order) => order.id !== orderId)); // Update the orders state
+
+      // Then, update the koi or koiFishy status to false
+      if (koiId) {
+        await axios.put(`https://localhost:7229/api/KoiFish/${koiId}/false`);
+      } else if (koiFishyId) {
+        await axios.put(
+          `https://localhost:7229/api/KoiFishy/${koiFishyId}/false`
+        );
+      }
+
+      await axios.put(`https://localhost:7229/api/Order/${orderId}`, {
+        status: "Deleted",
+      });
+
+      // Update the local state to reflect the removal
+      setOrders((prevOrders) =>
+        prevOrders.filter((order) => order.id !== orderId)
+      );
     } catch (error) {
-      console.error("Error deleting order:", error);
-      alert("Failed to delete order. Please try again later.");
+      console.error("Error canceling order:", error);
+      alert("Failed to cancel order. Please try again later.");
     }
   };
 
-  // Orders with koiId (not null)
-  const koiOrders = filteredOrders.filter((order) => order.koiId != null);
-  // Orders without koiId (null)
-  const koiFishyOrders = filteredOrders.filter((order) => order.koiId === null);
+  const filteredOrders = orders.filter((order) => order.status === "Pending");
 
   return (
     <Container>
-      <h2 className="my-4">Your Cart</h2>
-
-      {/* Table for Orders with Koi Fish */}
-      <h3 className="my-4">Koi Fish Orders</h3>
+      <h2 className="my-4">Pending Orders</h2>
       <Table striped bordered hover responsive>
         <thead>
           <tr>
@@ -130,88 +106,48 @@ const Cart = () => {
             <th>Price</th>
             <th>Status</th>
             <th>Purchase</th>
-            <th>Delete</th>
+            <th>Cancel</th>
           </tr>
         </thead>
         <tbody>
-          {koiOrders.map((order, index) => {
+          {filteredOrders.map((order, index) => {
             const koi = koiDetails[order.koiId];
-            const isPurchased = order.status === "Completed";
+            const koiFishy = koiFishyDetails[order.koiFishyId];
+
+            // Determine species and price based on whether it's a koi or koiFishy order
+            const species = koi
+              ? koi.species
+              : koiFishy
+              ? `KoiFishy no ${koiFishy.id}`
+              : "Loading...";
+            const price = koi
+              ? koi.price
+              : koiFishy
+              ? koiFishy.price
+              : "Loading...";
 
             return (
               <tr key={order.id}>
                 <td>{index + 1}</td>
-                <td>{koi ? koi.species : "Loading..."}</td>
-                <td>${koi ? koi.price : "Loading..."}</td>
-                <td>{isPurchased ? "Completed" : order.status}</td>
-                <td>
-                  {isPurchased ? (
-                    "Purchased"
-                  ) : (
-                    <Button
-                      variant="success"
-                      onClick={() => handlePurchase(order.id)}
-                    >
-                      Purchase
-                    </Button>
-                  )}
-                </td>
+                <td>{species}</td>
+                <td>${price}</td>
+                <td>{order.status}</td>
                 <td>
                   <Button
-                    variant="danger"
-                    onClick={() => handleDelete(order.id)}
+                    variant="success"
+                    onClick={() => handlePurchase(order.id)}
                   >
-                    Delete
+                    Purchase
                   </Button>
                 </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
-
-      {/* Table for Orders with KoiFishy (where koiId is null) */}
-      <h3 className="my-4">KoiFishy Orders</h3>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>KoiFishy ID</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Purchase</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          {koiFishyOrders.map((order, index) => {
-            const koiFishy = koiFishyDetails[order.koiId];
-            const isPurchased = order.status === "Completed";
-
-            return (
-              <tr key={order.id}>
-                <td>{index + 1}</td>
-                <td>{koiFishy ? koiFishy.id : "Loading..."}</td>
-                <td>${koiFishy ? koiFishy.price : "Loading..."}</td>
-                <td>{isPurchased ? "Completed" : order.status}</td>
-                <td>
-                  {isPurchased ? (
-                    "Purchased"
-                  ) : (
-                    <Button
-                      variant="success"
-                      onClick={() => handlePurchase(order.id)}
-                    >
-                      Purchase
-                    </Button>
-                  )}
-                </td>
                 <td>
                   <Button
                     variant="danger"
-                    onClick={() => handleDelete(order.id)}
+                    onClick={() =>
+                      handleDelete(order.id, order.koiId, order.koiFishyId)
+                    }
                   >
-                    Delete
+                    Cancel
                   </Button>
                 </td>
               </tr>

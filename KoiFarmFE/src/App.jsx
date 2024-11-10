@@ -15,6 +15,7 @@ import Cart from "./pages/Customer/cart/Cart";
 import PaymentReturn from "./pages/Customer/payment/payment";
 import KoiyList from "./pages/Guest/Koiy/KoiyList";
 import KoiyDetails from "./pages/Guest/Koiy/KoiyDetails";
+import History from "./pages/Customer/cart/history";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/consignment" element={<Consign />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/history" element={<History />} />
         </Routes>
       </Router>
     </>

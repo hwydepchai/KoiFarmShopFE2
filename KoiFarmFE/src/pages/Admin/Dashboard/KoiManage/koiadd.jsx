@@ -23,7 +23,7 @@ function AddKoi() {
     amountFood: "",
     screeningRate: "",
     type: "",
-    status: "",
+    status: "Available",
     categoryId: "",
     price: "",
   });
@@ -260,22 +260,6 @@ function AddKoi() {
             <option value="F1">F1</option>
             <option value="Imported">Imported</option>
           </select>
-        </div>
-
-        {/* Status */}
-        <div className="col-md-4">
-          <label htmlFor="status" className="form-label">
-            Status
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="status"
-            name="status"
-            value={newKoi.status}
-            onChange={handleChange}
-            required
-          />
         </div>
 
         {/* Category Dropdown */}
