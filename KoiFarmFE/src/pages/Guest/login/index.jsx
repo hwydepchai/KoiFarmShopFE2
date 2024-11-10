@@ -28,6 +28,8 @@ function LoginPage() {
     gender: "", // Track selected gender
   });
 
+  const [formError, setFormError] = useState(""); // New state for form error
+
   const handleLoginChange = (e) => {
     setLoginData({
       ...loginData,
@@ -48,6 +50,7 @@ function LoginPage() {
       ...prevData,
       gender: e.target.value,
     }));
+    setFormError(""); // Reset form error on gender change
   };
 
   const handleLoginSubmit = async (e) => {
@@ -82,6 +85,13 @@ function LoginPage() {
     }
   };
 
+  const formatFullname = (fullname) => {
+    return fullname
+      .split(" ") // Split by spaces
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter and lower the rest
+      .join(" "); // Join back with spaces
+  };
+
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (registerData.password !== registerData.confirmPassword) {
@@ -89,10 +99,22 @@ function LoginPage() {
       return;
     }
 
+    // Check if gender is selected
+    if (!registerData.gender) {
+      setFormError("Please select a gender.");
+      return;
+    }
+
+    // Format fullname before sending to API
+    const formattedFullname = formatFullname(registerData.fullname);
+
     const api = "https://localhost:7229/api/Auth/register";
 
     try {
-      const response = await axios.post(api, registerData);
+      const response = await axios.post(api, {
+        ...registerData,
+        fullname: formattedFullname, // Send the formatted fullname
+      });
       alert("Registration successful!");
       navigate(0);
     } catch (error) {
@@ -127,10 +149,11 @@ function LoginPage() {
                 name="password"
                 className="form-control"
                 value={loginData.password}
-                minLength="8"
+                pattern="^(?=.*[A-Z]).{8,}$"
                 onChange={handleLoginChange}
                 required
                 placeholder="Password"
+                title="Password format is incorrect."
               />
             </div>
             <button type="submit" className="btn btn-primary w-100">
@@ -151,8 +174,10 @@ function LoginPage() {
                 value={registerData.email}
                 onChange={handleRegisterChange}
                 required
+                placeholder="Email"
               />
             </div>
+            {/* Fullname field */}
             <div className="form-group mb-3">
               <label>Fullname</label>
               <input
@@ -162,10 +187,15 @@ function LoginPage() {
                 value={registerData.fullname}
                 onChange={handleRegisterChange}
                 required
+                pattern="^[A-Za-z]+(?: [A-Za-z]+)*$" // Allow only letters and spaces
+                title="Full name should only contain letters and spaces, and the first letter of each word must be capitalized."
+                placeholder="Full name"
               />
             </div>
-            <div className="d-flex mb-3">
-              <div className="form-group me-3 flex-grow-1">
+
+            <div className="d-flex justify-content-center">
+              {/* Phone field */}
+              <div className="form-group mb-3 me-3">
                 <label>Phone</label>
                 <input
                   type="text"
@@ -174,9 +204,13 @@ function LoginPage() {
                   value={registerData.phone}
                   onChange={handleRegisterChange}
                   required
+                  pattern="^0[0-9]{9}$" // Phone number must start with 0 and be 10 digits long
+                  title="Phone number must start with 0 and contain exactly 10 digits."
                 />
               </div>
-              <div className="form-group flex-grow-1">
+
+              {/* Birthday field */}
+              <div className="form-group mb-3 ms-1">
                 <label>Birthday</label>
                 <input
                   type="date"
@@ -188,7 +222,9 @@ function LoginPage() {
                 />
               </div>
             </div>
-            <div className="form-group mb-3 d-flex align-items-center ">
+
+            {/* Gender radio buttons */}
+            <div className="form-group mb-3 d-flex align-items-center">
               <div className="d-flex">
                 <div className="form-check me-3">
                   <input
@@ -197,7 +233,8 @@ function LoginPage() {
                     value="male"
                     className="form-check-input"
                     checked={registerData.gender === "male"}
-                    onChange={handleRegisterChange}
+                    onChange={handleGenderChange}
+                    required
                   />
                   <label className="form-check-label">Male</label>
                 </div>
@@ -208,7 +245,8 @@ function LoginPage() {
                     value="female"
                     className="form-check-input"
                     checked={registerData.gender === "female"}
-                    onChange={handleRegisterChange}
+                    onChange={handleGenderChange}
+                    required
                   />
                   <label className="form-check-label">Female</label>
                 </div>
@@ -219,13 +257,16 @@ function LoginPage() {
                     value="other"
                     className="form-check-input"
                     checked={registerData.gender === "other"}
-                    onChange={handleRegisterChange}
+                    onChange={handleGenderChange}
+                    required
                   />
                   <label className="form-check-label">Other</label>
                 </div>
               </div>
             </div>
+            {formError && <div className="text-danger">{formError}</div>}
 
+            {/* Password field */}
             <div className="form-group mb-3">
               <label>Password</label>
               <input
@@ -235,8 +276,12 @@ function LoginPage() {
                 value={registerData.password}
                 onChange={handleRegisterChange}
                 required
+                pattern="^(?=.*[A-Z]).{8,}$" // At least 8 characters and 1 uppercase letter
+                title="Password must contain at least 8 characters, including one uppercase letter."
               />
             </div>
+
+            {/* Confirm Password field */}
             <div className="form-group mb-3">
               <label>Confirm Password</label>
               <input
@@ -248,6 +293,7 @@ function LoginPage() {
                 required
               />
             </div>
+
             <button type="submit" className="btn btn-primary w-100">
               Register
             </button>

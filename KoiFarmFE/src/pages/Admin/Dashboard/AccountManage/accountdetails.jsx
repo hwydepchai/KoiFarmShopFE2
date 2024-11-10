@@ -26,16 +26,6 @@ function AccountDetails() {
     fetchAccountDetails();
   }, [id]);
 
-  const handleEdit = (id) => {
-    console.log(`Edit account with ID: ${id}`);
-    // Add your edit logic here
-  };
-
-  const handleDelete = (id) => {
-    console.log(`Delete account with ID: ${id}`);
-    // Add your delete logic here
-  };
-
   // Display loading state or the account details once fetched
   if (loading) {
     return <p>Loading account details...</p>;
@@ -100,32 +90,6 @@ function AccountDetails() {
               <strong>Last Modified:</strong>{" "}
               {new Date(accountDetails.modifiedDate).toLocaleDateString()}
             </p>
-            <p className="card-text">
-              <strong>
-                <button className="btn bg-light border">View Cart</button>
-              </strong>{" "}
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="card mb-4">
-          <div className="card-header">
-            <h5 className="card-title">Actions</h5>
-          </div>
-          <div className="card-body d-flex flex-column justify-content-between">
-            <button
-              className="btn btn-primary"
-              onClick={() => handleEdit(accountDetails.id)}
-            >
-              ✏️ Edit
-            </button>
-            <button
-              className="btn btn-danger"
-              onClick={() => handleDelete(accountDetails.id)}
-            >
-              🗑️ Delete
-            </button>
             <Link to="/dashboard/account" className="btn btn-secondary">
               Back to List
             </Link>

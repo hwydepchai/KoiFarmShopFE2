@@ -1,8 +1,8 @@
-.login-page{
+.login-page {
     background-image: url(https://walltowallgraphics.com.au/wp-content/uploads/2022/07/2025186389_Cute_Black_Gold_Stylised_Koi_Japanese_Carp_Fish_Outlines.jpg);
 }
 
-.login-container{
+.login-container {
     background-color: #ece7e0;
     height: 80%;
     width: 400px;
@@ -17,10 +17,62 @@ label {
     font-family: 'Raleway', serif;
 }
 
-.login-form input, .register-form input{
-    margin-top: 8px;
+.valid {
+    border: 1px solid green;
 }
 
+.invalid {
+    border: 1px solid red;
+}
+
+
+.login-form input,
+.register-form input {
+    margin-top: 4px;
+}
+
+/* Style for valid input */
+input:valid {
+    border: 1px solid green;
+}
+
+/* Style for invalid input */
 input:invalid {
-    border: red;
+    border: 1px solid red;
+}
+
+/* Style for required inputs when they are invalid */
+input:required:invalid {
+    background-color: #ffe6e6;
+}
+
+/* Optional: To improve user experience */
+input:focus:invalid {
+    border-color: red;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+/* Prevent placeholder from affecting validation */
+input:placeholder-shown:valid {
+    border: 1px solid #ccc;
+    /* Set default border if placeholder is shown */
+}
+
+/* When the input is focused and has no placeholder, show it as valid or invalid */
+input:focus:placeholder-shown:valid {
+    border: 2px solid #ccc;
+}
+
+input:focus:placeholder-shown:invalid {
+    border: 2px solid red;
+}
+
+/* Adjust styles for placeholder text */
+input::placeholder {
+    color: #888;
+}
+
+/* Optional: To make the placeholder text smaller and faded for better UX */
+input:focus::placeholder {
+    color: transparent;
 }

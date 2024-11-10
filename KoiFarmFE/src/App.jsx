@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -16,6 +15,7 @@ import PaymentReturn from "./pages/Customer/payment/payment";
 import KoiyList from "./pages/Guest/Koiy/KoiyList";
 import KoiyDetails from "./pages/Guest/Koiy/KoiyDetails";
 import History from "./pages/Customer/cart/history";
+import ProtectedRoute from "./pages/Guest/login/auth"; // Import ProtectedRoute
 
 function App() {
   return (
@@ -27,7 +27,11 @@ function App() {
           <Route path="/koifish" element={<KoiList />} />
           <Route path="/koifish/:id" element={<KoiDetails />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard/*" element={<Dashboard />} />
+          {/* Sử dụng ProtectedRoute với element */}
+          <Route
+            path="/dashboard/*"
+            element={<ProtectedRoute element={Dashboard} />}
+          />
           <Route path="/cart" element={<Cart />} />
           <Route path="/payment/return" element={<PaymentReturn />} />
           <Route path="/koifishy" element={<KoiyList />} />
