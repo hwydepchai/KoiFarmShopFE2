@@ -6,12 +6,14 @@ function KoiFishDetails() {
   const { id } = useParams();
   const [koiDetails, setKoiDetails] = useState(null);
   const [categoryDetails, setCategoryDetails] = useState(null);
+  const [images, setImages] = useState([]); // New state to hold images
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedKoi, setUpdatedKoi] = useState({});
 
   useEffect(() => {
+    // Fetch koi details
     fetch(`https://localhost:7229/api/KoiFish/${id}`)
       .then((response) => response.json())
       .then((data) => {
@@ -25,6 +27,15 @@ function KoiFishDetails() {
       .then((response) => response.json())
       .then((categoryData) => {
         setCategoryDetails(categoryData);
+        return fetch("https://localhost:7229/api/Image");
+      })
+      .then((response) => response.json())
+      .then((imageData) => {
+        // Filter images that match the koiId
+        const filteredImages = imageData.$values.filter(
+          (image) => image.koiId === parseInt(id)
+        );
+        setImages(filteredImages); // Store filtered images
         setLoading(false);
       })
       .catch((error) => {
@@ -94,6 +105,23 @@ function KoiFishDetails() {
   return (
     <div className="container my-4 d-flex flex-column">
       <h2 className="text-center mb-4">Koi Fish Details</h2>
+
+      {/* Display images */}
+      <div className="d-flex flex-wrap justify-content-center mb-4">
+        {images.length > 0 ? (
+          images.map((image) => (
+            <img
+              key={image.id}
+              src={image.urlPath}
+              alt={`Koi Fish ${koiDetails.id}`}
+              className="img-fluid m-2"
+              style={{ maxWidth: "300px", maxHeight: "300px" }}
+            />
+          ))
+        ) : (
+          <p>No images available for this Koi fish.</p>
+        )}
+      </div>
 
       <div className="d-flex justify-content-between">
         <div className="card mb-4 flex-fill">
@@ -244,43 +272,11 @@ function KoiFishDetails() {
                         className="form-control"
                       />
                     </div>
-                    <div className="mb-2">
-                      <label>Date:</label>
-                      <input
-                        type="datetime-local"
-                        name="date"
-                        value={
-                          updatedKoi.date
-                            ? new Date(updatedKoi.date)
-                                .toISOString()
-                                .substring(0, 16)
-                            : ""
-                        }
-                        onChange={handleChange}
-                        className="form-control"
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label>Status:</label>
-                      <input
-                        type="text"
-                        name="status"
-                        value={updatedKoi.status}
-                        onChange={handleChange}
-                        className="form-control"
-                      />
-                    </div>
                   </>
                 ) : (
                   <>
                     <p className="card-text">
-                      <strong>Category:</strong> {categoryDetails.category1}
-                    </p>
-                    <p className="card-text">
-                      <strong>Type:</strong> {koiDetails.type}
-                    </p>
-                    <p className="card-text">
-                      <strong>Gender:</strong> {koiDetails.gender}
+                      <strong>Species:</strong> {koiDetails.species}
                     </p>
                     <p className="card-text">
                       <strong>Character:</strong> {koiDetails.character}
@@ -289,21 +285,13 @@ function KoiFishDetails() {
                       <strong>Amount of Food:</strong> {koiDetails.amountFood}
                     </p>
                     <p className="card-text">
-                      <strong>Screening Rate:</strong>{" "}
-                      {koiDetails.screeningRate}
+                      <strong>Screening Rate:</strong> {koiDetails.screeningRate}
                     </p>
                     <p className="card-text">
                       <strong>Amount:</strong> {koiDetails.amount}
                     </p>
                     <p className="card-text">
-                      <strong>Date:</strong>{" "}
-                      {koiDetails.date
-                        ? new Date(koiDetails.date).toLocaleString()
-                        : "N/A"}
-                    </p>
-
-                    <p className="card-text">
-                      <strong>Status:</strong> {koiDetails.status}
+                      <strong>Type:</strong> {koiDetails.type}
                     </p>
                   </>
                 )}
@@ -311,35 +299,28 @@ function KoiFishDetails() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="card mb-4">
-        <div className="card-header">
-          <h5 className="card-title">Actions</h5>
-        </div>
-        <div className="card-body d-flex justify-content-between">
-          {isEditing ? (
-            <>
-              <button className="btn btn-success" onClick={handleUpdate}>
-                💾 Save
-              </button>
-              <button className="btn btn-secondary" onClick={handleEditToggle}>
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="btn btn-primary" onClick={handleEditToggle}>
-                ✏️ Edit
-              </button>
-              <button className="btn btn-danger" onClick={handleDelete}>
-                🗑️ Delete
-              </button>
-            </>
-          )}
-          <Link to="/dashboard/koifish" className="btn btn-secondary">
+        <div className="d-flex flex-column justify-content-end">
+          <Link to="/dashboard/koifish" className="btn btn-secondary mb-2">
             Back to List
           </Link>
+          {isEditing ? (
+            <button className="btn btn-success mb-2" onClick={handleUpdate}>
+              Save Changes
+            </button>
+          ) : (
+            <button
+              className="btn btn-primary mb-2"
+              onClick={handleEditToggle}
+            >
+              Edit
+            </button>
+          )}
+          <button
+            className="btn btn-danger mb-2"
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>

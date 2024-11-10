@@ -44,10 +44,13 @@ function KoiyDetails() {
       const userId = userData?.userId;
 
       if (!userId) {
-        console.error("No user ID found in localStorage. Redirecting to login.");
+        console.error(
+          "No user ID found in localStorage. Redirecting to login."
+        );
         return;
       }
 
+      // Add the koi fish to the cart
       const order = {
         koiId: null,
         koiFishyId: koiyDetails.id,
@@ -59,10 +62,13 @@ function KoiyDetails() {
       };
 
       await axios.post("https://localhost:7229/api/Order", order);
-      alert(`Koi Fish with ID ${id} has been added to your cart!`);
+
+      // Delete the koi fish from the system
+      await axios.delete(`https://localhost:7229/api/KoiFishy/${id}`);
+
       navigate("/cart");
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      console.error("Error adding to cart or deleting koi fish:", error);
     }
   };
 
@@ -101,7 +107,7 @@ function KoiyDetails() {
           </div>
 
           <button className="btn btn-success mt-3" onClick={handleAddToCart}>
-            Add to Cart
+            Order now!
           </button>
         </div>
       </div>

@@ -8,6 +8,7 @@ const KoiyList = () => {
   const [koiFishList, setKoiFishList] = useState([]);
   const [filteredKoi, setFilteredKoi] = useState([]);
   const [categories, setCategories] = useState({});
+  const [images, setImages] = useState([]); // State to store images
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     category: "",
@@ -21,6 +22,7 @@ const KoiyList = () => {
   useEffect(() => {
     const fetchKoiFishData = async () => {
       try {
+        // Fetch koi fish data
         const koiResponse = await axios.get("https://localhost:7229/api/KoiFishy");
         const koiFishList = koiResponse.data.$values;
 
@@ -32,10 +34,14 @@ const KoiyList = () => {
         });
         setCategories(categoryMap);
 
+        // Fetch images
+        const imageResponse = await axios.get("https://localhost:7229/api/Image");
+        setImages(imageResponse.data.$values); // Store images in state
+
         setKoiFishList(koiFishList);
         setFilteredKoi(koiFishList); // Initialize filtered list
       } catch (error) {
-        console.error("Error fetching koi fish or category data:", error);
+        console.error("Error fetching koi fish, category, or image data:", error);
       } finally {
         setLoading(false);
       }
@@ -51,6 +57,8 @@ const KoiyList = () => {
   const applyFilters = () => {
     const filtered = koiFishList.filter((koi) => {
       return (
+        koi.status === "Active" && // Only active status
+        koi.isDeleted === false && // Only non-deleted items
         (!filters.category || koi.categoryId === parseInt(filters.category)) &&
         (!filters.minPrice || koi.price >= parseFloat(filters.minPrice)) &&
         (!filters.maxPrice || koi.price <= parseFloat(filters.maxPrice)) &&
@@ -64,6 +72,11 @@ const KoiyList = () => {
 
   const handleFilterChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
+  };
+
+  const getKoiImages = (koiId) => {
+    // Filter the images to match the koiFishyId
+    return images.filter((image) => image.koiFishyId === koiId);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -160,30 +173,34 @@ const KoiyList = () => {
         {/* Main Content */}
         <Col md={9}>
           <Row>
-            {filteredKoi.map((koi) => (
-              <Col md={4} key={koi.id} className="mb-4">
-                <Card>
-                  <Card.Img
-                    variant="top"
-                    src={koi.images.$values[0]?.url || "https://via.placeholder.com/150"}
-                    alt={`Koi ID: ${koi.id}`}
-                    style={{ height: "150px", objectFit: "cover" }}
-                  />
-                  <Card.Body>
-                    <Card.Title>Koi ID: {koi.id}</Card.Title>
-                    <Card.Text>Price: {koi.price} VND</Card.Text>
-                    <Card.Text>Quantity: {koi.quantity}</Card.Text>
-                    <Card.Text>Status: {koi.status}</Card.Text>
-                    <Card.Text>
-                      Category: {categories[koi.categoryId] || "Unknown"}
-                    </Card.Text>
-                    <Link to={`/koifishy/${koi.id}`} className="btn btn-primary">
-                      View Details
-                    </Link>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
+            {filteredKoi.map((koi) => {
+              const koiImages = getKoiImages(koi.id); // Get koi images for this koi
+              return (
+                <Col md={4} key={koi.id} className="mb-4">
+                  <Card>
+                    {/* Display the first image (or a placeholder if no image available) */}
+                    <Card.Img
+                      variant="top"
+                      src={koiImages.length > 0 ? koiImages[0].urlPath : "https://via.placeholder.com/150"}
+                      alt={`Koi ID: ${koi.id}`}
+                      style={{ height: "150px", objectFit: "cover" }}
+                    />
+                    <Card.Body>
+                      <Card.Title>Koi ID: {koi.id}</Card.Title>
+                      <Card.Text>Price: {koi.price} VND</Card.Text>
+                      <Card.Text>Quantity: {koi.quantity}</Card.Text>
+                      <Card.Text>Status: {koi.status}</Card.Text>
+                      <Card.Text>
+                        Category: {categories[koi.categoryId] || "Unknown"}
+                      </Card.Text>
+                      <Link to={`/koifishy/${koi.id}`} className="btn btn-primary">
+                        View Details
+                      </Link>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
           </Row>
         </Col>
       </Row>
