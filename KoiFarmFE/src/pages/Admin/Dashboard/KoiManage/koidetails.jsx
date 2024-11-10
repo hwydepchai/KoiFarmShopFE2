@@ -9,8 +9,6 @@ function KoiFishDetails() {
   const [images, setImages] = useState([]); // New state to hold images
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [updatedKoi, setUpdatedKoi] = useState({});
 
   useEffect(() => {
     // Fetch koi details
@@ -18,7 +16,6 @@ function KoiFishDetails() {
       .then((response) => response.json())
       .then((data) => {
         setKoiDetails(data);
-        setUpdatedKoi(data); // Initialize with existing koi details
         return data.categoryId;
       })
       .then((categoryId) => {
@@ -50,7 +47,7 @@ function KoiFishDetails() {
   if (!koiDetails || !categoryDetails) return <div>No details available</div>;
 
   return (
-    <div className="container my-4 d-flex flex-column">
+    <div className="container my-4">
       <h2 className="text-center mb-4">Koi Fish Details</h2>
 
       {/* Display images */}
@@ -70,67 +67,58 @@ function KoiFishDetails() {
         )}
       </div>
 
-      <div className="d-flex justify-content-between">
-        <div className="card mb-4 flex-fill">
-          <div className="card-header">
-            <h5 className="card-title">General Info</h5>
-          </div>
-          <div className="card-body">
-            <div className="row">
-              {/* Left Column */}
-              <div className="col-md-6">
-                <div>
-                  <p className="card-text">
-                    <strong>ID:</strong> #{koiDetails.id}
-                  </p>
-                  <p className="card-text">
-                    <strong>Origin:</strong> {koiDetails.origin}
-                  </p>
-                  <p className="card-text">
-                    <strong>Species:</strong> {koiDetails.species}
-                  </p>
-                  <p className="card-text">
-                    <strong>Size:</strong> {koiDetails.size} cm
-                  </p>
-                  <p className="card-text">
-                    <strong>Price:</strong> {koiDetails.price} VND
-                  </p>
-                  <p className="card-text">
-                    <strong>Age:</strong> {koiDetails.age} years
-                  </p>
-                </div>
-              </div>
-              {/* Right Column */}
-              <div className="col-md-6">
-                <div>
-                  <p className="card-text">
-                    <strong>Species:</strong> {koiDetails.species}
-                  </p>
-                  <p className="card-text">
-                    <strong>Character:</strong> {koiDetails.character}
-                  </p>
-                  <p className="card-text">
-                    <strong>Amount of Food:</strong> {koiDetails.amountFood}
-                  </p>
-                  <p className="card-text">
-                    <strong>Screening Rate:</strong> {koiDetails.screeningRate}
-                  </p>
-                  <p className="card-text">
-                    <strong>Amount:</strong> {koiDetails.amount}
-                  </p>
-                  <p className="card-text">
-                    <strong>Type:</strong> {koiDetails.type}
-                  </p>
-                </div>
-              </div>
+      <div className="card mb-4">
+        <div className="card-header">
+          <h5 className="card-title">General Information</h5>
+        </div>
+        <div className="card-body">
+          <div className="row">
+            {/* Left Column */}
+            <div className="col-md-6">
+              <p className="card-text">
+                <strong>ID:</strong> #{koiDetails.id}
+              </p>
+              <p className="card-text">
+                <strong>Origin:</strong> {koiDetails.origin}
+              </p>
+              <p className="card-text">
+                <strong>Species:</strong> {koiDetails.species}
+              </p>
+              <p className="card-text">
+                <strong>Size:</strong> {koiDetails.size} cm
+              </p>
+              <p className="card-text">
+                <strong>Price:</strong> {koiDetails.price} VND
+              </p>
+            </div>
+
+            {/* Right Column */}
+            <div className="col-md-6">
+              <p className="card-text">
+                <strong>Character:</strong> {koiDetails.character}
+              </p>
+              <p className="card-text">
+                <strong>Age:</strong> {koiDetails.age} years
+              </p>
+              <p className="card-text">
+                <strong>Amount of Food:</strong> {koiDetails.amountFood}
+              </p>
+              <p className="card-text">
+                <strong>Screening Rate:</strong> {koiDetails.screeningRate}
+              </p>
+              <p className="card-text">
+                <strong>Category:</strong> {categoryDetails?.category1}
+              </p>
             </div>
           </div>
         </div>
-        <div className="d-flex flex-column justify-content-end">
-          <Link to="/dashboard/koifish" className="btn btn-secondary mb-2">
-            Back to List
-          </Link>
-        </div>
+      </div>
+
+      {/* Back to List Button */}
+      <div className="d-flex justify-content-start">
+        <Link to="/dashboard/koifish" className="btn btn-secondary">
+          Back to List
+        </Link>
       </div>
     </div>
   );

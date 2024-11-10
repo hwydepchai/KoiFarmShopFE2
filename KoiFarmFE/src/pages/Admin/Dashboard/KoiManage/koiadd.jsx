@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const countries = [
   "Vietnam",
@@ -9,6 +10,26 @@ const countries = [
   "China",
   "South Korea",
   "India",
+];
+const speciesOptions = [
+  "Showa",
+  "Asagi",
+  "Karashi",
+  "Kohaku",
+  "Shusui",
+  "Sanke",
+  "Tancho",
+  "Shiro Utsuri",
+];
+const characterOptions = [
+  "Friendly",
+  "Curious",
+  "Shy",
+  "Aggressive",
+  "Calm",
+  "Playful",
+  "Adaptable",
+  "Showy",
 ];
 
 function AddKoi() {
@@ -89,13 +110,18 @@ function AddKoi() {
       });
   };
 
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <div className="alert alert-danger">Error: {error}</div>;
 
   return (
     <div className="container my-4">
       <h2 className="text-center mb-4">Add New Koi Fish</h2>
       <form onSubmit={handleSubmit} className="row g-3">
-        {/* Origin Dropdown */}
+        {/* Basic Information */}
+        <div className="col-12">
+          <h4 className="text-primary">Basic Information</h4>
+        </div>
+
+        {/* Origin */}
         <div className="col-md-4">
           <label htmlFor="origin" className="form-label">
             Origin
@@ -119,7 +145,7 @@ function AddKoi() {
           </select>
         </div>
 
-        {/* Gender Toggle Switch */}
+        {/* Gender */}
         <div className="col-md-4">
           <label htmlFor="gender" className="form-label">
             Gender
@@ -163,10 +189,10 @@ function AddKoi() {
         {/* Size */}
         <div className="col-md-4">
           <label htmlFor="size" className="form-label">
-            Size
+            Size (cm)
           </label>
           <input
-            type="text"
+            type="number"
             className="form-control"
             id="size"
             name="size"
@@ -181,15 +207,23 @@ function AddKoi() {
           <label htmlFor="species" className="form-label">
             Species
           </label>
-          <input
-            type="text"
-            className="form-control"
+          <select
+            className="form-select"
             id="species"
             name="species"
             value={newKoi.species}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="" disabled>
+              Select a species
+            </option>
+            {speciesOptions.map((species) => (
+              <option key={species} value={species}>
+                {species}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Character */}
@@ -197,15 +231,23 @@ function AddKoi() {
           <label htmlFor="character" className="form-label">
             Character
           </label>
-          <input
-            type="text"
-            className="form-control"
+          <select
+            className="form-select"
             id="character"
             name="character"
             value={newKoi.character}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="" disabled>
+              Select a character
+            </option>
+            {characterOptions.map((character) => (
+              <option key={character} value={character}>
+                {character}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Amount of Food */}
@@ -227,10 +269,10 @@ function AddKoi() {
         {/* Screening Rate */}
         <div className="col-md-4">
           <label htmlFor="screeningRate" className="form-label">
-            Screening Rate
+            Screening Rate (%)
           </label>
           <input
-            type="text"
+            type="number"
             className="form-control"
             id="screeningRate"
             name="screeningRate"
@@ -240,7 +282,7 @@ function AddKoi() {
           />
         </div>
 
-        {/* Type Dropdown */}
+        {/* Type */}
         <div className="col-md-4">
           <label htmlFor="type" className="form-label">
             Type
@@ -262,7 +304,7 @@ function AddKoi() {
           </select>
         </div>
 
-        {/* Category Dropdown */}
+        {/* Category */}
         <div className="col-md-4">
           <label htmlFor="categoryId" className="form-label">
             Category
