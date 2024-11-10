@@ -186,7 +186,6 @@ const KoiyList = () => {
                       style={{ height: "150px", objectFit: "cover" }}
                     />
                     <Card.Body>
-                      <Card.Title>Koi ID: {koi.id}</Card.Title>
                       <Card.Text>Price: {koi.price} VND</Card.Text>
                       <Card.Text>Quantity: {koi.quantity}</Card.Text>
                       <Card.Text>Status: {koi.status}</Card.Text>

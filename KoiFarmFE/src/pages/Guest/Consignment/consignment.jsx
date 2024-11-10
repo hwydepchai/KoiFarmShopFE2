@@ -181,8 +181,6 @@ const UserConsignment = () => {
             <Table hover className="mb-0">
               <thead className="bg-light">
                 <tr>
-                  <th>ID</th>
-                  <th>Koi Code</th>
                   <th>Price</th>
                   <th>Status</th>
                   <th>Created Date</th>
@@ -192,9 +190,7 @@ const UserConsignment = () => {
               <tbody>
                 {consignments.map((consignment) => (
                   <tr key={consignment.id}>
-                    <td>{consignment.id}</td>
-                    <td>{consignment.koiCode}</td>
-                    <td>${consignment.price.toLocaleString()}</td>
+                    <td>{consignment.price.toLocaleString()} VND</td>
                     <td>
                       <Badge
                         bg={
@@ -309,12 +305,6 @@ const UserConsignment = () => {
           {selectedConsignment ? (
             <Row>
               <Col md={6}>
-                <p>
-                  <strong>ID:</strong> {selectedConsignment.id}
-                </p>
-                <p>
-                  <strong>Koi Code:</strong> {selectedConsignment.koiCode}
-                </p>
                 <p>
                   <strong>Price:</strong> $
                   {selectedConsignment.price.toLocaleString()}
