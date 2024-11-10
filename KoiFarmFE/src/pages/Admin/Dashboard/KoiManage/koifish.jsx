@@ -62,11 +62,13 @@ function KoiFishList() {
         return response.json();
       })
       .then((data) => {
-        const imageUrl =
-          data.$values.length > 0 ? data.$values[0].urlPath : null;
+        // Find the image URL that matches the koi's ID
+        const matchingImage = data.$values.find((img) => img.koiId === koi.id);
+        const imageUrl = matchingImage ? matchingImage.urlPath : null;
+
         setSelectedKoi({
           ...koi,
-          imgUrl: imageUrl,
+          imgUrl: imageUrl, // Set imgUrl to the matching image's URL
         });
         setShowModal(true);
       })
@@ -175,7 +177,10 @@ function KoiFishList() {
   return (
     <div className="container my-4">
       <h2 className="text-center mb-4">Available Koi Fish</h2>
-      <Button variant="primary" onClick={() => navigate("/dashboard/koifish/create")}>
+      <Button
+        variant="primary"
+        onClick={() => navigate("/dashboard/koifish/create")}
+      >
         Add New Koi
       </Button>
 
