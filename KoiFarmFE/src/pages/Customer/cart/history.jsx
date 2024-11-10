@@ -87,7 +87,7 @@ const History = () => {
               <tr key={order.id}>
                 <td>{index + 1}</td>
                 <td>{species}</td>
-                <td>{price}</td>
+                <td>{price} VND</td>
                 <td>{order.status}</td>
               </tr>
             );
