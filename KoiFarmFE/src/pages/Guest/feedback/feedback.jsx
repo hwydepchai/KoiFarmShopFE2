@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Pagination from "../../../components/feedback/Pagination";
+import { Container, Form, Button, Card, Pagination } from "react-bootstrap";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const FeedbackPage = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -20,12 +21,9 @@ const FeedbackPage = () => {
     try {
       const response = await fetch("https://localhost:7229/api/Feedback");
       const data = await response.json();
-
-      // Sort feedbacks by createdDate in descending order (newest first)
       const sortedFeedbacks = data.$values.sort(
         (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
       );
-
       setFeedbacks(sortedFeedbacks);
     } catch (err) {
       console.error("Failed to load feedbacks");
@@ -36,7 +34,6 @@ const FeedbackPage = () => {
     fetchFeedbacks();
   }, []);
 
-  // Reset to first page when new feedback is added
   useEffect(() => {
     setCurrentPage(1);
   }, [feedbacks.length]);
@@ -51,7 +48,6 @@ const FeedbackPage = () => {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-    // Scroll to the top of the feedbacks section
     document
       .getElementById("recent-feedbacks")
       ?.scrollIntoView({ behavior: "smooth" });
@@ -89,8 +85,8 @@ const FeedbackPage = () => {
       if (response.ok) {
         setSuccess(true);
         setNewFeedback({ description: "", rating: 0 });
-        await fetchFeedbacks(); // Refetch to get the updated list
-        setCurrentPage(1); // Reset to first page to show the new feedback
+        await fetchFeedbacks();
+        setCurrentPage(1);
         setTimeout(() => {
           setSuccess(false);
           setIsButtonPressed(false);
@@ -114,16 +110,23 @@ const FeedbackPage = () => {
     hoveredRating = 0,
   }) => {
     return (
-      <div className="flex gap-2">
+      <div className="d-flex gap-2">
         {[1, 2, 3, 4, 5].map((star) => (
           <span
             key={star}
             onClick={() => interactive && onRate(star)}
             onMouseEnter={() => interactive && setHoveredRating(star)}
             onMouseLeave={() => interactive && setHoveredRating(0)}
-            className={`text-3xl cursor-pointer select-none ${
-              interactive ? "hover:scale-110 transition-transform" : ""
-            }`}
+            style={{
+              cursor: interactive ? "pointer" : "default",
+              fontSize: "1.5rem",
+              transition: "transform 0.2s",
+              transform:
+                interactive && hoveredRating >= star
+                  ? "scale(1.1)"
+                  : "scale(1)",
+            }}
+            className="user-select-none"
           >
             {interactive
               ? hoveredRating >= star || newFeedback.rating >= star
@@ -139,119 +142,108 @@ const FeedbackPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      {/* Submit New Feedback */}
-      <div className="bg-white rounded-lg p-6 mb-10">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-          Submit New Feedback
-        </h1>
+    <Container className="py-5">
+      <Card className="mb-4">
+        <Card.Body>
+          <h1 className="h3 mb-4">Submit New Feedback</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-600 mb-2">Rating</label>
-            <StarRating
-              rating={newFeedback.rating}
-              hoveredRating={hoveredRating}
-              interactive={true}
-              onRate={(rating) => setNewFeedback({ ...newFeedback, rating })}
-            />
-          </div>
-
-          <div>
-            <textarea
-              value={newFeedback.description}
-              onChange={(e) =>
-                setNewFeedback({ ...newFeedback, description: e.target.value })
-              }
-              className="w-full min-h-[120px] p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 resize-none"
-              placeholder="Write your feedback here..."
-            />
-          </div>
-
-          {error && <div className="text-red-500 text-sm">{error}</div>}
-
-          {success && (
-            <div className="text-green-500 text-sm">
-              Feedback submitted successfully!
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`relative overflow-hidden bg-orange-500 text-white px-6 py-2 rounded-sm 
-              hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed transition-colors
-              ${isButtonPressed ? "submit-button-pressed" : ""}`}
-            style={{
-              transform: isButtonPressed ? "scale(0.95)" : "scale(1)",
-              transition: "transform 0.1s ease-in-out",
-            }}
-          >
-            <div className="relative z-10">
-              {loading ? "Submitting..." : "Submit Feedback"}
-            </div>
-            {isButtonPressed && (
-              <div
-                className="absolute inset-0 bg-orange-600"
-                style={{
-                  animation: "ripple 0.6s linear",
-                  borderRadius: "50%",
-                }}
-              />
-            )}
-          </button>
-        </form>
-      </div>
-
-      {/* Recent Feedbacks */}
-      <div id="recent-feedbacks">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Recent Feedbacks
-        </h2>
-
-        <div className="space-y-4">
-          {currentFeedbacks.map((feedback) => (
-            <div
-              key={feedback.id}
-              className="bg-white p-6 border border-gray-100"
-            >
-              <div className="flex justify-between items-start">
-                <StarRating rating={feedback.rating} />
-                <span className="text-sm text-gray-500">
-                  {new Date(feedback.createdDate).toLocaleDateString()}
-                </span>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Rating</Form.Label>
+              <div>
+                <StarRating
+                  rating={newFeedback.rating}
+                  hoveredRating={hoveredRating}
+                  interactive={true}
+                  onRate={(rating) =>
+                    setNewFeedback({ ...newFeedback, rating })
+                  }
+                />
               </div>
-              <p className="text-gray-700 mt-3">{feedback.description}</p>
-            </div>
-          ))}
-        </div>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Control
+                as="textarea"
+                rows={4}
+                value={newFeedback.description}
+                onChange={(e) =>
+                  setNewFeedback({
+                    ...newFeedback,
+                    description: e.target.value,
+                  })
+                }
+                placeholder="Write your feedback here..."
+              />
+            </Form.Group>
+
+            {error && <div className="text-danger mb-3">{error}</div>}
+            {success && (
+              <div className="text-success mb-3">
+                Feedback submitted successfully!
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              variant="warning"
+              disabled={loading}
+              className={`position-relative ${isButtonPressed ? "active" : ""}`}
+            >
+              {loading ? "Submitting..." : "Submit Feedback"}
+            </Button>
+          </Form>
+        </Card.Body>
+      </Card>
+
+      <div id="recent-feedbacks">
+        <h2 className="h3 mb-4">Recent Feedbacks</h2>
+
+        {currentFeedbacks.map((feedback) => (
+          <Card key={feedback.id} className="mb-3">
+            <Card.Body>
+              <div className="d-flex justify-content-between align-items-start">
+                <StarRating rating={feedback.rating} />
+                <small className="text-muted">
+                  {new Date(feedback.createdDate).toLocaleDateString()}
+                </small>
+              </div>
+              <p className="mt-3 mb-0">{feedback.description}</p>
+            </Card.Body>
+          </Card>
+        ))}
 
         {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+          <div className="d-flex justify-content-center mt-4">
+            <Pagination>
+              <Pagination.Prev
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <IoIosArrowBack />
+              </Pagination.Prev>
+
+              {[...Array(totalPages)].map((_, index) => (
+                <Pagination.Item
+                  key={index + 1}
+                  active={currentPage === index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </Pagination.Item>
+              ))}
+
+              <Pagination.Next
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <IoIosArrowForward />
+              </Pagination.Next>
+            </Pagination>
+          </div>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes ripple {
-          0% {
-            transform: scale(0);
-            opacity: 1;
-          }
-          100% {
-            transform: scale(4);
-            opacity: 0;
-          }
-        }
-
-        .submit-button-pressed {
-          transform: scale(0.95);
-        }
-      `}</style>
-    </div>
+    </Container>
   );
 };
 

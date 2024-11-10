@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Form, Row, Col, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import './KoiList.css'
+import "./KoiList.css";
 
 const KoiList = () => {
   const [koiFish, setKoiFish] = useState([]);
@@ -17,7 +17,7 @@ const KoiList = () => {
     minSize: "",
     maxSize: "",
     minAge: "",
-    maxAge: "", 
+    maxAge: "",
     type: "",
     minPrice: "",
     maxPrice: "",
@@ -42,7 +42,7 @@ const KoiList = () => {
       .then((response) => {
         // Filter out koi with isDeleted = true and prioritize those with images
         const koiData = response.data.$values
-          .filter(koi => !koi.isDeleted)
+          .filter((koi) => !koi.isDeleted)
           .sort((a, b) => {
             const hasImageA = images.some((image) => image.koiId === a.id);
             const hasImageB = images.some((image) => image.koiId === b.id);
@@ -165,15 +165,28 @@ const KoiList = () => {
             </Form.Group>
 
             {/* Min-Max Filters */}
-            {[{
-              label: "Size (cm)", minName: "minSize", maxName: "maxSize"
-            }, {
-              label: "Age (years)", minName: "minAge", maxName: "maxAge"
-            }, {
-              label: "Price (VND)", minName: "minPrice", maxName: "maxPrice"
-            }, {
-              label: "Food (kg)", minName: "minAmountFood", maxName: "maxAmountFood"
-            }].map(({ label, minName, maxName }) => (
+            {[
+              {
+                label: "Size (cm)",
+                minName: "minSize",
+                maxName: "maxSize",
+              },
+              {
+                label: "Age (years)",
+                minName: "minAge",
+                maxName: "maxAge",
+              },
+              {
+                label: "Price (VND)",
+                minName: "minPrice",
+                maxName: "maxPrice",
+              },
+              {
+                label: "Food (kg)",
+                minName: "minAmountFood",
+                maxName: "maxAmountFood",
+              },
+            ].map(({ label, minName, maxName }) => (
               <Form.Group controlId={`filter-${minName}`} key={minName}>
                 <Form.Label>{label}</Form.Label>
                 <Row>
@@ -240,7 +253,10 @@ const KoiList = () => {
                       <Card.Text>
                         Category: {categories[koi.categoryId] || "Unknown"}
                       </Card.Text>
-                      <Link to={`/koifish/${koi.id}`} className="btn btn-primary">
+                      <Link
+                        to={`/koifish/${koi.id}`}
+                        className="btn btn-primary"
+                      >
                         View Details
                       </Link>
                     </Card.Body>

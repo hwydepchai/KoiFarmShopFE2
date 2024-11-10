@@ -18,6 +18,7 @@ import Consign from "./Consignment/consignment";
 import KoiFishy from "./KoisManage/KoiFishy";
 import KoiFishyDetails from "./KoisManage/KoiFishyDetails";
 import KoiFishyAdd from "./KoisManage/KoiFishyAdd";
+import PromotionManagement from "./Promotion/promotion";
 
 const Dashboard = () => {
   return (
@@ -51,6 +52,9 @@ const Dashboard = () => {
                   <Nav.Link as={Link} to="/dashboard/consignment">
                     Consignment
                   </Nav.Link>
+                  <Nav.Link as={Link} to="/dashboard/promotion">
+                    Promotion
+                  </Nav.Link>
                 </Nav>
               </Card.Body>
             </Card>
@@ -73,6 +77,7 @@ const Dashboard = () => {
                   <Route path="/order" element={<OrderList />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/consignment" element={<Consign />} />
+                  <Route path="/promotion" element={<PromotionManagement />} />
                 </Routes>
               </Card.Body>
             </Card>
