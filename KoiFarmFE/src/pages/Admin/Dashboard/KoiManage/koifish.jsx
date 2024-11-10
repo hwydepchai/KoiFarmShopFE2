@@ -322,6 +322,15 @@ function KoiFishList() {
                 />
               </Form.Group>
 
+              <Form.Group controlId="formCharacter">
+                <Form.Label>Character</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedKoi.character}
+                  onChange={(e) => handleFieldEdit("character", e.target.value)}
+                />
+              </Form.Group>
+
               <Form.Group controlId="formStatus">
                 <Form.Label>Status</Form.Label>
                 <Form.Control
