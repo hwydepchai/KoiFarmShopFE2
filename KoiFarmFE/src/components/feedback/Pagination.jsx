@@ -2,54 +2,36 @@ import React from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
   return (
-    <div className="d-flex justify-content-center align-items-center gap-2 mt-4">
+    <div className="flex justify-center items-center gap-2 mt-8">
       <button
-        className="btn btn-outline-primary"
-        onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+        onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        style={{
-          minWidth: "40px",
-          height: "40px",
-          borderRadius: "4px",
-        }}
+        className="p-2 rounded-md border border-gray-300 disabled:opacity-50"
       >
-        <IoIosArrowBack />
+        <IoIosArrowBack size={18} />
       </button>
 
-      {pageNumbers.map((number) => (
+      {[...Array(totalPages)].map((_, index) => (
         <button
-          key={number}
-          onClick={() => onPageChange(number)}
-          className={`btn ${
-            number === currentPage ? "btn-primary" : "btn-outline-primary"
+          key={index + 1}
+          onClick={() => onPageChange(index + 1)}
+          className={`w-10 h-10 rounded-md ${
+            currentPage === index + 1
+              ? "bg-green-600 text-white"
+              : "border border-gray-300 hover:bg-gray-50"
           }`}
-          style={{
-            minWidth: "40px",
-            height: "40px",
-            borderRadius: "4px",
-          }}
         >
-          {number}
+          {index + 1}
         </button>
       ))}
 
       <button
-        className="btn btn-outline-primary"
-        onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+        onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        style={{
-          minWidth: "40px",
-          height: "40px",
-          borderRadius: "4px",
-        }}
+        className="p-2 rounded-md border border-gray-300 disabled:opacity-50"
       >
-        <IoIosArrowForward />
+        <IoIosArrowForward size={18} />
       </button>
     </div>
   );
