@@ -40,13 +40,13 @@ const KoiList = () => {
     axios
       .get("https://localhost:7229/api/KoiFish")
       .then((response) => {
-        // Filter out koi with isDeleted = true, and only keep those with Active status
+        // Filter out koi with isDeleted = true and prioritize those with images
         const koiData = response.data.$values
-          .filter((koi) => !koi.isDeleted && koi.status === "Active") // Ensure the koi is active
+          .filter((koi) => !koi.isDeleted)
           .sort((a, b) => {
             const hasImageA = images.some((image) => image.koiId === a.id);
             const hasImageB = images.some((image) => image.koiId === b.id);
-            return hasImageB - hasImageA; // Sort with images first
+            return hasImageB - hasImageA; // Sorts with images first
           });
         setKoiFish(koiData);
         setFilteredKoi(koiData);
