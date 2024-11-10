@@ -9,6 +9,8 @@ import {
   Spinner,
   Alert,
   Form,
+  Row,
+  Col,
 } from "react-bootstrap";
 import axios from "axios";
 import { Plus, Eye } from "lucide-react";
@@ -24,22 +26,16 @@ const UserConsignment = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [alert, setAlert] = useState(null);
-  const [createForm, setCreateForm] = useState({
-    price: "",
-  });
+  const [createForm, setCreateForm] = useState({ price: "" });
 
-  // Get user data and token from localStorage once when component mounts
   const userData = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // Check for authentication
     if (!token || !userData) {
       navigate("/login");
       return;
     }
-
-    // Initial fetch of consignments
     fetchUserConsignments();
   }, []);
 
@@ -50,67 +46,23 @@ const UserConsignment = () => {
 
   const fetchUserConsignments = async () => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       const response = await axios.get(
         `https://localhost:7229/api/Consignments`,
         config
       );
+
       if (response.data && response.data.$values) {
         const userConsignments = response.data.$values.filter(
           (cons) => cons.accountId === userData.userId
         );
         setConsignments(userConsignments);
-
-        // Automatically create orders for consignments with "Active" status
-        for (const consignment of userConsignments) {
-          if (consignment.status === "Active") {
-            await createOrderIfNotExists(consignment.id, consignment.price);
-          }
-        }
       }
     } catch (error) {
       console.error("Error fetching consignments:", error);
-      if (error.response?.status === 401) {
-        navigate("/login");
-      }
       showAlert("Error fetching consignments", "danger");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const createOrderIfNotExists = async (consignmentId, price) => {
-    try {
-      const response = await axios.get("https://localhost:7229/api/Order", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const orders = response.data.$values || [];
-      const existingOrder = orders.find(
-        (order) =>
-          order.consignmentId === consignmentId && order.status === "Pending"
-      );
-
-      // If no existing pending order for this consignment, create one
-      if (!existingOrder) {
-        await axios.post(
-          "https://localhost:7229/api/Order",
-          {
-            consignmentId,
-            accountId: userData.userId,
-            price,
-            status: "Pending",
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        showAlert("Order created for active consignment!");
-      }
-    } catch (error) {
-      console.error("Error creating order for consignment:", error);
     }
   };
 
@@ -156,19 +108,30 @@ const UserConsignment = () => {
 
   const handleViewDetails = async (consignment) => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       const response = await axios.get(
         `https://localhost:7229/api/Consignments/${consignment.id}`,
         config
       );
 
       if (response.data) {
-        setSelectedConsignment(response.data);
+        const consignmentData = response.data;
+
+        // Gọi API /api/Image để lấy URL của ảnh nếu consignment có ảnh
+        if (
+          consignmentData.images &&
+          consignmentData.images.$values.length > 0
+        ) {
+          const imageId = consignmentData.images.$values[0].id;
+          const imageResponse = await axios.get(
+            `https://localhost:7229/api/Image/${imageId}`,
+            config
+          );
+
+          consignmentData.imageUrl = imageResponse.data.urlPath; // Gán URL ảnh vào consignment
+        }
+
+        setSelectedConsignment(consignmentData);
         setShowDetailsModal(true);
       }
     } catch (error) {
@@ -343,7 +306,7 @@ const UserConsignment = () => {
           <Modal.Title>Consignment Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedConsignment && (
+          {selectedConsignment ? (
             <Row>
               <Col md={6}>
                 <p>
@@ -379,21 +342,25 @@ const UserConsignment = () => {
                 </p>
               </Col>
               <Col md={6}>
-                {selectedConsignment.images?.$values?.length > 0 && (
+                {selectedConsignment.imageUrl ? (
                   <div>
                     <p>
                       <strong>Koi Image:</strong>
                     </p>
                     <img
-                      src={selectedConsignment.images.$values[0].urlPath}
+                      src={selectedConsignment.imageUrl}
                       alt="Koi"
                       className="img-fluid rounded"
                       style={{ maxHeight: "300px", objectFit: "contain" }}
                     />
                   </div>
+                ) : (
+                  <p>No image available</p>
                 )}
               </Col>
             </Row>
+          ) : (
+            <p>Loading...</p>
           )}
         </Modal.Body>
       </Modal>

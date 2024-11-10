@@ -1,12 +1,13 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Container } from "react-bootstrap";
+import { Table, Container, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const History = () => {
   const [orders, setOrders] = useState([]);
   const [koiDetails, setKoiDetails] = useState({});
   const [koiFishyDetails, setKoiFishyDetails] = useState({});
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -55,9 +56,19 @@ const History = () => {
       order.status === "Deleted"
   );
 
+  // Navigate to feedback page
+  const goToFeedbackPage = () => {
+    navigate("/feedback");
+  };
+
   return (
     <Container>
-      <h2 className="my-4">Order History</h2>
+      <div className="d-flex justify-content-between align-items-center my-4">
+        <h2>Order History</h2>
+        <Button variant="primary" onClick={goToFeedbackPage}>
+          Feedback
+        </Button>
+      </div>
 
       <Table striped bordered hover responsive>
         <thead>
