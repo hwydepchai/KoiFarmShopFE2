@@ -1,111 +1,161 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Container, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import {
+  Table,
+  Container,
+  Button,
+  Spinner,
+  Badge,
+  Card,
+} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const History = () => {
   const [orders, setOrders] = useState([]);
-  const [koiDetails, setKoiDetails] = useState({});
-  const [koiFishyDetails, setKoiFishyDetails] = useState({});
-  const navigate = useNavigate(); // Initialize navigate
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const userId = user?.userId;
-
-    if (!userId) {
-      console.error("No user ID found in localStorage. Redirecting to login.");
+    if (!user?.userId) {
+      navigate("/login");
       return;
     }
-
-    axios.get("https://localhost:7229/api/Order").then((response) => {
-      const fetchedOrders = response.data.$values;
-      const userOrders = fetchedOrders.filter(
-        (order) => order.accountId === userId
-      );
-      setOrders(userOrders);
-
-      userOrders.forEach((order) => {
-        if (order.koiId != null) {
-          axios
-            .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
-            .then((response) => {
-              setKoiDetails((prevKoiDetails) => ({
-                ...prevKoiDetails,
-                [order.koiId]: response.data,
-              }));
-            });
-        } else {
-          axios
-            .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
-            .then((response) => {
-              setKoiFishyDetails((prevKoiFishyDetails) => ({
-                ...prevKoiFishyDetails,
-                [order.koiFishyId]: response.data,
-              }));
-            });
-        }
-      });
-    });
+    fetchOrderHistory();
   }, []);
 
-  const historyOrders = orders.filter(
-    (order) =>
-      order.status === "Paid" ||
-      order.status === "Cancelled" ||
-      order.status === "Deleted"
-  );
+  const fetchOrderHistory = async () => {
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
 
-  // Navigate to feedback page
-  const goToFeedbackPage = () => {
-    navigate("/feedback");
+      const response = await axios.get(
+        "https://localhost:7229/api/Order",
+        config
+      );
+
+      if (response.data && response.data.$values) {
+        const userOrders = response.data.$values.filter(
+          (order) =>
+            order.accountId === user.userId &&
+            (order.status === "Canceled" ||
+              order.status === "Completed" ||
+              order.status === "Paid" ||
+              order.status === "Deleted")
+        );
+
+        const ordersWithDetails = await Promise.all(
+          userOrders.map(async (order) => {
+            try {
+              if (order.koiId) {
+                const koiResponse = await axios.get(
+                  `https://localhost:7229/api/KoiFish/${order.koiId}`,
+                  config
+                );
+                return {
+                  ...order,
+                  price: koiResponse.data.price || order.price,
+                  species: koiResponse.data.species,
+                };
+              } else if (order.koiFishyId) {
+                const fishyResponse = await axios.get(
+                  `https://localhost:7229/api/KoiFishy/${order.koiFishyId}`,
+                  config
+                );
+                return {
+                  ...order,
+                  price: fishyResponse.data.price || order.price,
+                  species: `KoiFishy #${fishyResponse.data.id}`,
+                };
+              }
+              return order;
+            } catch (err) {
+              console.error("Error fetching details:", err);
+              return {
+                ...order,
+                species: "Unknown Species",
+              };
+            }
+          })
+        );
+
+        setOrders(ordersWithDetails);
+      }
+    } catch (error) {
+      console.error("Error fetching order history:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (loading) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center min-vh-100">
+        <Spinner animation="border" variant="primary" />
+      </Container>
+    );
+  }
+
   return (
-    <Container>
-      <div className="d-flex justify-content-between align-items-center my-4">
-        <h2>Order History</h2>
-        <Button variant="primary" onClick={goToFeedbackPage}>
-          Feedback
-        </Button>
-      </div>
-
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Order Type</th>
-            <th>Price</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {historyOrders.map((order, index) => {
-            const koi = koiDetails[order.koiId];
-            const koiFishy = koiFishyDetails[order.koiFishyId];
-            const species = koi
-              ? koi.species
-              : koiFishy
-              ? `KoiFishy no ${koiFishy.id}`
-              : "Loading...";
-            const price = koi
-              ? koi.price
-              : koiFishy
-              ? koiFishy.price
-              : "Loading...";
-
-            return (
-              <tr key={order.id}>
-                <td>{index + 1}</td>
-                <td>{species}</td>
-                <td>{price} VND</td>
-                <td>{order.status}</td>
+    <Container className="py-4">
+      <Card className="shadow-sm">
+        <Card.Header className="bg-white">
+          <div className="d-flex justify-content-between align-items-center">
+            <h2 className="h5 mb-0">Order History</h2>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate("/feedback")}
+            >
+              Feedback
+            </Button>
+          </div>
+        </Card.Header>
+        <Card.Body className="p-0">
+          <Table responsive hover className="mb-0">
+            <thead className="bg-light">
+              <tr>
+                <th>#</th>
+                <th>Species</th>
+                <th>Price (VND)</th>
+                <th>Status</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </Table>
+            </thead>
+            <tbody>
+              {orders.map((order, index) => (
+                <tr key={order.id}>
+                  <td>{index + 1}</td>
+                  <td>{order.species || "Unknown Species"}</td>
+                  <td>{(order.price || 0).toLocaleString()}</td>
+                  <td>
+                    <Badge
+                      bg={
+                        order.status === "Completed" || order.status === "Paid"
+                          ? "success"
+                          : order.status === "Canceled"
+                          ? "danger"
+                          : "secondary"
+                      }
+                    >
+                      {order.status}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+              {orders.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="text-center py-4">
+                    No order history found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
     </Container>
   );
 };
