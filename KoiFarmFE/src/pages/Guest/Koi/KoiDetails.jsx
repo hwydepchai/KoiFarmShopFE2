@@ -126,7 +126,7 @@ const KoiDetails = () => {
                 <Col xs={6}><strong>Size:</strong> {koi.size} cm</Col>
               </Row>
               <Row className="mb-3">
-                <Col xs={6}><strong>Price:</strong> ${koi.price}</Col>
+                <Col xs={6}><strong>Price:</strong> {koi.price} VND</Col>
                 <Col xs={6}>
                   <strong>Category:</strong> {categories.find(cat => cat.id === koi.categoryId)?.category1 || "Unknown"}
                 </Col>

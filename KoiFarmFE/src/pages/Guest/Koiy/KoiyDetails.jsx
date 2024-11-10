@@ -84,7 +84,7 @@ function KoiyDetails() {
         <div className="col-lg-8 col-md-12 mb-4">
           <div className="card shadow-lg rounded">
             <div className="card-body">
-              <h5 className="card-title text-success">Price: ${koiyDetails.price}</h5>
+              <h5 className="card-title text-success">Price: {koiyDetails.price} VND</h5>
               <p className="card-text"><strong>Quantity:</strong> {koiyDetails.quantity}</p>
               <p className="card-text"><strong>Status:</strong> {koiyDetails.status}</p>
               <p className="card-text"><strong>Created Date:</strong> {new Date(koiyDetails.createdDate).toLocaleDateString()}</p>

@@ -313,7 +313,7 @@ function AddKoi() {
         {/* Amount of Food */}
         <div className="col-md-4">
           <label htmlFor="amountFood" className="form-label">
-            Amount of Food (kg)
+            Amount of Food (gram)
           </label>
           <input
             type="number"
