@@ -9,8 +9,6 @@ import {
   Spinner,
   Alert,
   Form,
-  Row,
-  Col,
 } from "react-bootstrap";
 import axios from "axios";
 import { Plus, Eye } from "lucide-react";
@@ -56,6 +54,41 @@ const UserConsignment = () => {
         const userConsignments = response.data.$values.filter(
           (cons) => cons.accountId === userData.userId
         );
+
+        // Check and create orders for newly approved consignments
+        userConsignments.forEach(async (consignment) => {
+          if (consignment.status === "Active") {
+            try {
+              const orderResponse = await axios.get(
+                "https://localhost:7229/api/Order",
+                config
+              );
+              const existingOrder = orderResponse.data.$values.find(
+                (order) => order.consignmentId === consignment.id
+              );
+
+              if (!existingOrder) {
+                const orderData = {
+                  consignmentId: consignment.id,
+                  accountId: userData.userId,
+                  type: true,
+                  price: consignment.price,
+                  status: "Pending",
+                };
+
+                await axios.post(
+                  "https://localhost:7229/api/Order",
+                  orderData,
+                  config
+                );
+                navigate("/cart");
+              }
+            } catch (error) {
+              console.error("Error checking/creating order:", error);
+            }
+          }
+        });
+
         setConsignments(userConsignments);
       }
     } catch (error) {
@@ -74,6 +107,7 @@ const UserConsignment = () => {
       const formData = new FormData();
       formData.append("accountId", userData.userId);
       formData.append("price", createForm.price);
+      formData.append("status", "Pending");
       if (selectedFile) {
         formData.append("img", selectedFile);
       }
@@ -92,7 +126,9 @@ const UserConsignment = () => {
       );
 
       if (response.data) {
-        showAlert("Consignment created successfully!");
+        showAlert(
+          "Consignment created successfully! Waiting for admin approval."
+        );
         setConsignments((prev) => [...prev, response.data]);
         setShowCreateModal(false);
         setCreateForm({ price: "" });
@@ -116,8 +152,6 @@ const UserConsignment = () => {
 
       if (response.data) {
         const consignmentData = response.data;
-
-        // Gọi API /api/Image để lấy URL của ảnh nếu consignment có ảnh
         if (
           consignmentData.images &&
           consignmentData.images.$values.length > 0
@@ -127,10 +161,8 @@ const UserConsignment = () => {
             `https://localhost:7229/api/Image/${imageId}`,
             config
           );
-
-          consignmentData.imageUrl = imageResponse.data.urlPath; // Gán URL ảnh vào consignment
+          consignmentData.imageUrl = imageResponse.data.urlPath;
         }
-
         setSelectedConsignment(consignmentData);
         setShowDetailsModal(true);
       }
@@ -221,7 +253,7 @@ const UserConsignment = () => {
                 ))}
                 {consignments.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="text-center py-4">
+                    <td colSpan="4" className="text-center py-4">
                       No consignments found
                     </td>
                   </tr>
@@ -303,14 +335,14 @@ const UserConsignment = () => {
         </Modal.Header>
         <Modal.Body>
           {selectedConsignment ? (
-            <Row>
-              <Col md={6}>
+            <div className="row">
+              <div className="col-md-6">
                 <p>
-                  <strong>Price:</strong> $
-                  {selectedConsignment.price.toLocaleString()}
+                  <strong>Price:</strong>{" "}
+                  {selectedConsignment.price.toLocaleString()} VND
                 </p>
                 <p>
-                  <strong>Status:</strong>
+                  <strong>Status:</strong>{" "}
                   <Badge
                     bg={
                       selectedConsignment.status === "Active"
@@ -330,8 +362,8 @@ const UserConsignment = () => {
                     selectedConsignment.createdDate
                   ).toLocaleDateString()}
                 </p>
-              </Col>
-              <Col md={6}>
+              </div>
+              <div className="col-md-6">
                 {selectedConsignment.imageUrl ? (
                   <div>
                     <p>
@@ -347,8 +379,8 @@ const UserConsignment = () => {
                 ) : (
                   <p>No image available</p>
                 )}
-              </Col>
-            </Row>
+              </div>
+            </div>
           ) : (
             <p>Loading...</p>
           )}
