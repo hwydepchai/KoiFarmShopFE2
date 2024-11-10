@@ -81,6 +81,23 @@ function AddKoi() {
     e.preventDefault();
     setLoading(true);
 
+    // Validate price and number fields
+    if (newKoi.price < 10000) {
+      setError("Price must be greater than 10,000.");
+      setLoading(false);
+      return;
+    }
+    if (
+      newKoi.age <= 0 ||
+      newKoi.size <= 0 ||
+      newKoi.amountFood <= 0 ||
+      newKoi.screeningRate <= 0
+    ) {
+      setError("All number fields must be greater than 0.");
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
     for (const key in newKoi) {
       formData.append(key, newKoi[key]);
@@ -116,9 +133,28 @@ function AddKoi() {
     <div className="container my-4">
       <h2 className="text-center mb-4">Add New Koi Fish</h2>
       <form onSubmit={handleSubmit} className="row g-3">
-        {/* Basic Information */}
-        <div className="col-12">
-          <h4 className="text-primary">Basic Information</h4>
+        {/* Category */}
+        <div className="col-md-4">
+          <label htmlFor="categoryId" className="form-label">
+            Category
+          </label>
+          <select
+            className="form-select"
+            id="categoryId"
+            name="categoryId"
+            value={newKoi.categoryId}
+            onChange={handleChange}
+            required
+          >
+            <option value="" disabled>
+              Select a category
+            </option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.category1}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Origin */}
@@ -143,63 +179,6 @@ function AddKoi() {
               </option>
             ))}
           </select>
-        </div>
-
-        {/* Gender */}
-        <div className="col-md-4">
-          <label htmlFor="gender" className="form-label">
-            Gender
-          </label>
-          <div className="form-check form-switch">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="gender"
-              name="gender"
-              checked={newKoi.gender === "Female"}
-              onChange={() =>
-                setNewKoi((prev) => ({
-                  ...prev,
-                  gender: newKoi.gender === "Female" ? "Male" : "Female",
-                }))
-              }
-            />
-            <label className="form-check-label" htmlFor="gender">
-              {newKoi.gender}
-            </label>
-          </div>
-        </div>
-
-        {/* Age */}
-        <div className="col-md-4">
-          <label htmlFor="age" className="form-label">
-            Age
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            id="age"
-            name="age"
-            value={newKoi.age}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Size */}
-        <div className="col-md-4">
-          <label htmlFor="size" className="form-label">
-            Size (cm)
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            id="size"
-            name="size"
-            value={newKoi.size}
-            onChange={handleChange}
-            required
-          />
         </div>
 
         {/* Species */}
@@ -250,38 +229,6 @@ function AddKoi() {
           </select>
         </div>
 
-        {/* Amount of Food */}
-        <div className="col-md-4">
-          <label htmlFor="amountFood" className="form-label">
-            Amount of Food
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            id="amountFood"
-            name="amountFood"
-            value={newKoi.amountFood}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Screening Rate */}
-        <div className="col-md-4">
-          <label htmlFor="screeningRate" className="form-label">
-            Screening Rate (%)
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            id="screeningRate"
-            name="screeningRate"
-            value={newKoi.screeningRate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
         {/* Type */}
         <div className="col-md-4">
           <label htmlFor="type" className="form-label">
@@ -304,28 +251,97 @@ function AddKoi() {
           </select>
         </div>
 
-        {/* Category */}
+        {/* Gender */}
         <div className="col-md-4">
-          <label htmlFor="categoryId" className="form-label">
-            Category
+          <label htmlFor="gender" className="form-label">
+            Gender
           </label>
-          <select
-            className="form-select"
-            id="categoryId"
-            name="categoryId"
-            value={newKoi.categoryId}
+          <div className="form-check form-switch">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              id="gender"
+              name="gender"
+              checked={newKoi.gender === "Female"}
+              onChange={() =>
+                setNewKoi((prev) => ({
+                  ...prev,
+                  gender: newKoi.gender === "Female" ? "Male" : "Female",
+                }))
+              }
+            />
+            <label className="form-check-label" htmlFor="gender">
+              {newKoi.gender}
+            </label>
+          </div>
+        </div>
+
+        {/* Age */}
+        <div className="col-md-4">
+          <label htmlFor="age" className="form-label">
+            Age (years)
+          </label>
+          <input
+            type="number"
+            className="form-control"
+            id="age"
+            name="age"
+            value={newKoi.age}
             onChange={handleChange}
             required
-          >
-            <option value="" disabled>
-              Select a category
-            </option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.category1}
-              </option>
-            ))}
-          </select>
+            placeholder="Enter age (>0)"
+          />
+        </div>
+
+        {/* Size */}
+        <div className="col-md-4">
+          <label htmlFor="size" className="form-label">
+            Size (cm)
+          </label>
+          <input
+            type="number"
+            className="form-control"
+            id="size"
+            name="size"
+            value={newKoi.size}
+            onChange={handleChange}
+            required
+            placeholder="Enter size (>0)"
+          />
+        </div>
+
+        {/* Amount of Food */}
+        <div className="col-md-4">
+          <label htmlFor="amountFood" className="form-label">
+            Amount of Food (kg)
+          </label>
+          <input
+            type="number"
+            className="form-control"
+            id="amountFood"
+            name="amountFood"
+            value={newKoi.amountFood}
+            onChange={handleChange}
+            required
+            placeholder="Enter amount of food (>0)"
+          />
+        </div>
+
+        {/* Screening Rate */}
+        <div className="col-md-4">
+          <label htmlFor="screeningRate" className="form-label">
+            Screening Rate (%)
+          </label>
+          <input
+            type="number"
+            className="form-control"
+            id="screeningRate"
+            name="screeningRate"
+            value={newKoi.screeningRate}
+            onChange={handleChange}
+            required
+            placeholder="Enter screening rate (>0)"
+          />
         </div>
 
         {/* Price */}
@@ -341,6 +357,7 @@ function AddKoi() {
             value={newKoi.price}
             onChange={handleChange}
             required
+            placeholder="Enter price (>10k)"
           />
         </div>
 

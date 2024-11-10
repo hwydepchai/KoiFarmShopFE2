@@ -1,11 +1,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import axios from "axios";
-
-// Helper function to generate image URL
-const getImageUrl = (imagePath) => `https://localhost:7229/images/${imagePath}`;
 
 function KoiFishy() {
   const [koiList, setKoiyList] = useState([]);
@@ -15,6 +12,8 @@ function KoiFishy() {
   const [showModal, setShowModal] = useState(false);
   const [selectedKoi, setSelectedKoi] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State for the search input
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" }); // Sorting state
 
   const navigate = useNavigate();
 
@@ -56,13 +55,43 @@ function KoiFishy() {
       });
   };
 
+  // Search filter function
+  const filteredKoiList = koiList.filter((koi) => {
+    return (
+      koi.id.toString().includes(searchTerm) ||
+      getCategoryName(koi.categoryId)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      koi.quantity.toString().includes(searchTerm) ||
+      koi.price.toString().includes(searchTerm) ||
+      koi.status.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  // Sorting function
+  const sortKoiList = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+
+    const sortedList = [...filteredKoiList].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setKoiyList(sortedList);
+    setSortConfig({ key, direction });
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   const placeholderImage = "https://via.placeholder.com/300?text=No+Image"; // Placeholder
 
-  const activeKoi = koiList.filter((koi) => !koi.isDeleted);
-  const deletedKoi = koiList.filter((koi) => koi.isDeleted);
+  const activeKoi = filteredKoiList.filter((koi) => !koi.isDeleted);
+  const deletedKoi = filteredKoiList.filter((koi) => koi.isDeleted);
 
   const handleEditClick = (koi) => {
     fetch(`https://localhost:7229/api/Image?koiFishyId=${koi.id}`)
@@ -107,12 +136,28 @@ function KoiFishy() {
   const handleSave = () => {
     if (!selectedKoi) return;
 
+    // Validate price, quantity, and status before saving
+    if (selectedKoi.price < 10000) {
+      alert("Price must be at least 10,000 VND.");
+      return;
+    }
+    if (selectedKoi.quantity < 10) {
+      alert("Quantity must be at least 10.");
+      return;
+    }
+    if (!/^[a-zA-Z]+$/.test(selectedKoi.status)) {
+      alert("Status must contain only letters (a-z, A-Z).");
+      return;
+    }
+
+    // If validation passes, prepare the form data
     const formData = new FormData();
     for (const key in selectedKoi) {
       if (key !== "imgUrl") formData.append(key, selectedKoi[key]);
     }
     if (selectedImage) formData.append("Img", selectedImage);
 
+    // Send the PUT request to save the changes
     fetch(`https://localhost:7229/api/KoiFishy/${selectedKoi.id}`, {
       method: "PUT",
       headers: { accept: "text/plain" },
@@ -163,21 +208,52 @@ function KoiFishy() {
 
   return (
     <div className="container my-4">
-      <h2 className="text-center mb-4">Available Koi Fish</h2>
+      <h2 className="text-center mb-4">Available Koi Fishy</h2>
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: "20px" }}
+      />
       <Button
         variant="primary"
         onClick={() => navigate("/dashboard/koifishy/create")}
+        className="btn btn-success btn-sm"
+        style={{ marginBottom: "10px" }}
       >
         Add New Koi Batch
       </Button>
+      <br />
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Category</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Price (VND)</th>
-            <th scope="col">Status</th>
+            <th scope="col" onClick={() => sortKoiList("id")}>
+              ID
+              {sortConfig.key === "id" &&
+                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+            </th>
+            <th scope="col" onClick={() => sortKoiList("categoryId")}>
+              Category
+              {sortConfig.key === "categoryId" &&
+                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+            </th>
+            <th scope="col" onClick={() => sortKoiList("quantity")}>
+              Quantity
+              {sortConfig.key === "quantity" &&
+                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+            </th>
+            <th scope="col" onClick={() => sortKoiList("price")}>
+              Price (VND)
+              {sortConfig.key === "price" &&
+                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+            </th>
+            <th scope="col" onClick={() => sortKoiList("status")}>
+              Status
+              {sortConfig.key === "status" &&
+                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+            </th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
@@ -190,24 +266,42 @@ function KoiFishy() {
               <td>{koi.price}</td>
               <td>{koi.status}</td>
               <td>
-                <Link
-                  to={`/dashboard/koifishy/${koi.id}`}
-                  className="btn btn-primary btn-sm"
-                >
-                  View Details
-                </Link>
-                <button
-                  className="btn btn-warning btn-sm mx-2"
-                  onClick={() => handleEditClick(koi)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn btn-danger btn-sm mx-2"
-                  onClick={() => deleteKoi(koi.id)}
-                >
-                  Delete
-                </button>
+                <Dropdown>
+                  <Dropdown.Toggle
+                    variant="link"
+                    id="dropdown-custom-components"
+                    className="text-decoration-none"
+                  >
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/128/2311/2311524.png"
+                      alt="more"
+                      style={{ height: "20px", cursor: "pointer" }}
+                    />
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      as={Link}
+                      to={`/dashboard/koifishy/${koi.id}`}
+                    >
+                      View Details
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as="button"
+                      className="btn btn-warning btn-sm"
+                      onClick={() => handleEditClick(koi)}
+                    >
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => deleteKoi(koi.id)}
+                    >
+                      Delete
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </td>
             </tr>
           ))}

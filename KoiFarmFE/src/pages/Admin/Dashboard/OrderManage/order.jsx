@@ -1,9 +1,14 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 
 function OrderList() {
   const [orderList, setOrderList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -40,6 +45,20 @@ function OrderList() {
     fetchOrders();
   }, []);
 
+  const handleSort = (key) => {
+    const direction =
+      sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
+    
+    const sortedOrders = [...orderList].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setOrderList(sortedOrders);
+    setSortConfig({ key, direction });
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
@@ -49,13 +68,90 @@ function OrderList() {
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
-            <th scope="col">Order ID</th>
-            <th scope="col">Koi Information</th>
-            <th scope="col">Account Name</th>
-            <th scope="col">Price (VND)</th>
-            <th scope="col">Status</th>
-            <th scope="col">Created Date</th>
-            <th scope="col">Modified Date</th>
+            <th
+              scope="col"
+              onClick={() => handleSort("id")}
+              style={{ cursor: "pointer" }}
+            >
+              Order ID
+              {sortConfig.key === "id"
+                ? sortConfig.direction === "asc"
+                  ? " ↑"
+                  : " ↓"
+                : ""}
+            </th>
+            <th
+              scope="col"
+              onClick={() => handleSort("koiSpecies")}
+              style={{ cursor: "pointer" }}
+            >
+              Koi Information
+              {sortConfig.key === "koiSpecies"
+                ? sortConfig.direction === "asc"
+                  ? " ↑"
+                  : " ↓"
+                : ""}
+            </th>
+            <th
+              scope="col"
+              onClick={() => handleSort("accountName")}
+              style={{ cursor: "pointer" }}
+            >
+              Account Name
+              {sortConfig.key === "accountName"
+                ? sortConfig.direction === "asc"
+                  ? " ↑"
+                  : " ↓"
+                : ""}
+            </th>
+            <th
+              scope="col"
+              onClick={() => handleSort("price")}
+              style={{ cursor: "pointer" }}
+            >
+              Price (VND)
+              {sortConfig.key === "price"
+                ? sortConfig.direction === "asc"
+                  ? " ↑"
+                  : " ↓"
+                : ""}
+            </th>
+            <th
+              scope="col"
+              onClick={() => handleSort("status")}
+              style={{ cursor: "pointer" }}
+            >
+              Status
+              {sortConfig.key === "status"
+                ? sortConfig.direction === "asc"
+                  ? " ↑"
+                  : " ↓"
+                : ""}
+            </th>
+            <th
+              scope="col"
+              onClick={() => handleSort("createdDate")}
+              style={{ cursor: "pointer" }}
+            >
+              Created Date
+              {sortConfig.key === "createdDate"
+                ? sortConfig.direction === "asc"
+                  ? " ↑"
+                  : " ↓"
+                : ""}
+            </th>
+            <th
+              scope="col"
+              onClick={() => handleSort("modifiedDate")}
+              style={{ cursor: "pointer" }}
+            >
+              Modified Date
+              {sortConfig.key === "modifiedDate"
+                ? sortConfig.direction === "asc"
+                  ? " ↑"
+                  : " ↓"
+                : ""}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -70,8 +166,16 @@ function OrderList() {
               <td>{order.accountName || "N/A"}</td>
               <td>{order.price}</td>
               <td>{order.status || "N/A"}</td>
-              <td>{order.createdDate ? new Date(order.createdDate).toLocaleDateString() : "N/A"}</td>
-              <td>{order.modifiedDate ? new Date(order.modifiedDate).toLocaleDateString() : "N/A"}</td>
+              <td>
+                {order.createdDate
+                  ? new Date(order.createdDate).toLocaleDateString()
+                  : "N/A"}
+              </td>
+              <td>
+                {order.modifiedDate
+                  ? new Date(order.modifiedDate).toLocaleDateString()
+                  : "N/A"}
+              </td>
             </tr>
           ))}
         </tbody>

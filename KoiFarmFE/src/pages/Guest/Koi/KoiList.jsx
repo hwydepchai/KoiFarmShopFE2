@@ -8,25 +8,26 @@ import "./KoiList.css";
 const KoiList = () => {
   const [koiFish, setKoiFish] = useState([]);
   const [filteredKoi, setFilteredKoi] = useState([]);
-  const [categories, setCategories] = useState({});
+  const [categories, setCategories] = useState([]);
   const [images, setImages] = useState([]);
   const [filters, setFilters] = useState({
     species: "",
     gender: "",
     category: "",
+    type: "",
     minSize: "",
     maxSize: "",
     minAge: "",
     maxAge: "",
-    type: "",
     minPrice: "",
     maxPrice: "",
     minAmountFood: "",
     maxAmountFood: "",
   });
 
+  // Fetch initial data for koi fish, categories, and images
   useEffect(() => {
-    // Fetch images data first to use in koi fish sorting
+    // Fetch images
     axios
       .get("https://localhost:7229/api/Image")
       .then((response) => {
@@ -40,67 +41,64 @@ const KoiList = () => {
     axios
       .get("https://localhost:7229/api/KoiFish")
       .then((response) => {
-        // Filter out koi with isDeleted = true and prioritize those with images
-        const koiData = response.data.$values
-          .filter((koi) => !koi.isDeleted)
-          .sort((a, b) => {
-            const hasImageA = images.some((image) => image.koiId === a.id);
-            const hasImageB = images.some((image) => image.koiId === b.id);
-            return hasImageB - hasImageA; // Sorts with images first
-          });
+        const koiData = response.data.$values.filter((koi) => !koi.isDeleted);
         setKoiFish(koiData);
-        setFilteredKoi(koiData);
       })
       .catch((error) => {
-        console.error("Error fetching Koi Fish data:", error);
+        console.error("Error fetching koi fish data:", error);
       });
 
-    // Fetch category data
+    // Fetch categories
     axios
       .get("https://localhost:7229/api/Category")
       .then((response) => {
-        const categoryMap = {};
-        response.data.$values.forEach((category) => {
-          categoryMap[category.id] = category.category1;
-        });
-        setCategories(categoryMap);
+        setCategories(response.data.$values);
       })
       .catch((error) => {
         console.error("Error fetching categories:", error);
       });
-  }, [images]); // Dependency to ensure images are loaded before sorting koi
+  }, []);
 
-  // Filter koi fish based on user inputs
-  const applyFilters = () => {
+  // Apply filters based on state
+  useEffect(() => {
     const filtered = koiFish.filter((koi) => {
+      const matchSpecies = !filters.species || koi.species.toLowerCase().includes(filters.species.toLowerCase());
+      const matchGender = !filters.gender || koi.gender === filters.gender;
+      const matchCategory = !filters.category || koi.categoryId === parseInt(filters.category);
+      const matchType = !filters.type || koi.type === filters.type;
+      const matchSize =
+        (!filters.minSize || koi.size >= parseFloat(filters.minSize)) && (!filters.maxSize || koi.size <= parseFloat(filters.maxSize));
+      const matchAge =
+        (!filters.minAge || koi.age >= parseInt(filters.minAge)) && (!filters.maxAge || koi.age <= parseInt(filters.maxAge));
+      const matchPrice =
+        (!filters.minPrice || koi.price >= parseFloat(filters.minPrice)) && (!filters.maxPrice || koi.price <= parseFloat(filters.maxPrice));
+      const matchAmountFood =
+        (!filters.minAmountFood || koi.amountFood >= parseFloat(filters.minAmountFood)) &&
+        (!filters.maxAmountFood || koi.amountFood <= parseFloat(filters.maxAmountFood));
+
       return (
-        (!filters.species || koi.species.includes(filters.species)) &&
-        (!filters.minSize || koi.size >= parseFloat(filters.minSize)) &&
-        (!filters.maxSize || koi.size <= parseFloat(filters.maxSize)) &&
-        (!filters.minAge || koi.age >= parseInt(filters.minAge)) &&
-        (!filters.maxAge || koi.age <= parseInt(filters.maxAge)) &&
-        (!filters.type || koi.type.includes(filters.type)) &&
-        (!filters.minAmountFood ||
-          koi.amountFood >= parseFloat(filters.minAmountFood)) &&
-        (!filters.maxAmountFood ||
-          koi.amountFood <= parseFloat(filters.maxAmountFood)) &&
-        (!filters.minPrice || koi.price >= parseFloat(filters.minPrice)) &&
-        (!filters.maxPrice || koi.price <= parseFloat(filters.maxPrice)) &&
-        (!filters.gender || koi.gender === filters.gender) &&
-        (!filters.category || koi.categoryId === parseInt(filters.category))
+        matchSpecies &&
+        matchGender &&
+        matchCategory &&
+        matchType &&
+        matchSize &&
+        matchAge &&
+        matchPrice &&
+        matchAmountFood
       );
     });
+
     setFilteredKoi(filtered);
-  };
+  }, [filters, koiFish]);
 
-  // Update filter criteria
+  // Handle changes in filter inputs
   const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
   };
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters]);
 
   return (
     <Container fluid>
@@ -156,37 +154,36 @@ const KoiList = () => {
                 onChange={handleFilterChange}
               >
                 <option value="">All Categories</option>
-                {Object.entries(categories).map(([id, name]) => (
-                  <option key={id} value={id}>
-                    {name}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.category1}
                   </option>
                 ))}
               </Form.Control>
             </Form.Group>
 
+            {/* Type Filter */}
+            <Form.Group controlId="filter-type">
+              <Form.Label>Type</Form.Label>
+              <Form.Control
+                as="select"
+                name="type"
+                value={filters.type}
+                onChange={handleFilterChange}
+              >
+                <option value="">All Types</option>
+                <option value="Native">Native</option>
+                <option value="F1">F1</option>
+                <option value="Imported">Imported</option>
+              </Form.Control>
+            </Form.Group>
+
             {/* Min-Max Filters */}
-            {[
-              {
-                label: "Size (cm)",
-                minName: "minSize",
-                maxName: "maxSize",
-              },
-              {
-                label: "Age (years)",
-                minName: "minAge",
-                maxName: "maxAge",
-              },
-              {
-                label: "Price (VND)",
-                minName: "minPrice",
-                maxName: "maxPrice",
-              },
-              {
-                label: "Food (kg)",
-                minName: "minAmountFood",
-                maxName: "maxAmountFood",
-              },
-            ].map(({ label, minName, maxName }) => (
+            {[{ label: "Size (cm)", minName: "minSize", maxName: "maxSize" },
+            { label: "Age (years)", minName: "minAge", maxName: "maxAge" },
+            { label: "Price (VND)", minName: "minPrice", maxName: "maxPrice" },
+            { label: "Food (kg)", minName: "minAmountFood", maxName: "maxAmountFood" }]
+            .map(({ label, minName, maxName }) => (
               <Form.Group controlId={`filter-${minName}`} key={minName}>
                 <Form.Label>{label}</Form.Label>
                 <Row>
@@ -251,12 +248,9 @@ const KoiList = () => {
                       <Card.Text>Size: {koi.size} cm</Card.Text>
                       <Card.Text>Price: {koi.price} VND</Card.Text>
                       <Card.Text>
-                        Category: {categories[koi.categoryId] || "Unknown"}
+                        Category: {categories.find((cat) => cat.id === koi.categoryId)?.category1 || "Unknown"}
                       </Card.Text>
-                      <Link
-                        to={`/koifish/${koi.id}`}
-                        className="btn btn-primary"
-                      >
+                      <Link to={`/koifish/${koi.id}`} className="btn btn-primary">
                         View Details
                       </Link>
                     </Card.Body>

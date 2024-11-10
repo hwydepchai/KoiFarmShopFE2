@@ -48,77 +48,88 @@ function KoiFishDetails() {
 
   return (
     <div className="container my-4">
-      <h2 className="text-center mb-4">Koi Fish Details</h2>
+      <h2 className="text-center mb-4 text-dark">Koi Fish Details</h2>
 
-      {/* Display images */}
-      <div className="d-flex flex-wrap justify-content-center mb-4">
-        {images.length > 0 ? (
-          images.map((image) => (
-            <img
-              key={image.id}
-              src={image.urlPath}
-              alt={`Koi Fish ${koiDetails.id}`}
-              className="img-fluid m-2"
-              style={{ maxWidth: "300px", maxHeight: "300px" }}
-            />
-          ))
-        ) : (
-          <p>No images available for this Koi fish.</p>
-        )}
-      </div>
+      {/* Product Card */}
+      <div
+        className="card mb-4 p-4 shadow-sm border-light"
+        style={{ borderRadius: "15px", borderWidth: "2px" }}
+      >
+        <div className="row">
+          {/* Left Column with Image */}
+          <div className="col-md-4 d-flex justify-content-center align-items-center mb-3">
+            {images.length > 0 ? (
+              <img
+                key={images[0].id}
+                src={images[0].urlPath}
+                alt={`Koi Fish ${koiDetails.id}`}
+                className="img-fluid rounded border border-info shadow-lg"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "300px",
+                  borderRadius: "10px",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <p>No images available for this Koi fish.</p>
+            )}
+          </div>
 
-      <div className="card mb-4">
-        <div className="card-header">
-          <h5 className="card-title">General Information</h5>
-        </div>
-        <div className="card-body">
-          <div className="row">
-            {/* Left Column */}
-            <div className="col-md-6">
-              <p className="card-text">
-                <strong>ID:</strong> #{koiDetails.id}
-              </p>
-              <p className="card-text">
-                <strong>Origin:</strong> {koiDetails.origin}
-              </p>
-              <p className="card-text">
-                <strong>Species:</strong> {koiDetails.species}
-              </p>
-              <p className="card-text">
-                <strong>Size:</strong> {koiDetails.size} cm
-              </p>
-              <p className="card-text">
-                <strong>Price:</strong> {koiDetails.price} VND
-              </p>
-            </div>
+          {/* Right Column with Product Info */}
+          <div className="col-md-8">
+            <div className="d-flex justify-content-around" style={{}}>
+              <div>
+                {/* Koi Name */}
+                <h4 className="text-primary">{koiDetails.species}</h4>
 
-            {/* Right Column */}
-            <div className="col-md-6">
-              <p className="card-text">
-                <strong>Character:</strong> {koiDetails.character}
-              </p>
-              <p className="card-text">
-                <strong>Age:</strong> {koiDetails.age} years
-              </p>
-              <p className="card-text">
-                <strong>Amount of Food:</strong> {koiDetails.amountFood}
-              </p>
-              <p className="card-text">
-                <strong>Screening Rate:</strong> {koiDetails.screeningRate}
-              </p>
-              <p className="card-text">
-                <strong>Category:</strong> {categoryDetails?.category1}
-              </p>
+                {/* Price */}
+                <p className="text-danger fs-4">
+                  <strong>Price:</strong> {koiDetails.price} VND
+                </p>
+                <p className="text-black fs-4">
+                  <strong> {koiDetails.type} </strong> Koi
+                </p>
+
+                {/* Action Buttons */}
+                <div className="d-flex justify-content-end flex-column mt-3">
+                  <Link
+                    to="/dashboard/koifish"
+                    className="btn btn-secondary me-2"
+                  >
+                    Back to List
+                  </Link>
+                </div>
+              </div>
+              <div>
+                {/* General Info */}
+                <div className="mb-3">
+                  <p className="card-text">
+                    <strong>Origin:</strong> {koiDetails.origin}
+                  </p>
+                  <p className="card-text">
+                    <strong>Size:</strong> {koiDetails.size} cm
+                  </p>
+                  <p className="card-text">
+                    <strong>Age:</strong> {koiDetails.age} years
+                  </p>
+                  <p className="card-text">
+                    <strong>Screening Rate:</strong> {koiDetails.screeningRate}
+                  </p>
+                  <p className="card-text">
+                    <strong>Amount of Food:</strong> {koiDetails.amountFood}
+                  </p>
+                  <p className="card-text">
+                    <strong>Character:</strong> {koiDetails.character}
+                  </p>
+                  <p className="card-text">
+                    <strong>Category:</strong> {categoryDetails?.category1}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Back to List Button */}
-      <div className="d-flex justify-content-start">
-        <Link to="/dashboard/koifish" className="btn btn-secondary">
-          Back to List
-        </Link>
       </div>
     </div>
   );

@@ -117,7 +117,7 @@ const Cart = () => {
           <tr>
             <th>#</th>
             <th>Species</th>
-            <th>Price</th>
+            <th>Price (VND)</th>
             <th>Status</th>
             <th>Purchase</th>
             <th>Cancel</th>
