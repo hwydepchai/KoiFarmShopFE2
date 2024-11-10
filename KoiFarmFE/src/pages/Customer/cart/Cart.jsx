@@ -139,11 +139,7 @@ const Cart = () => {
               <tr key={order.id}>
                 <td>{index + 1}</td>
                 <td>{species}</td>
-<<<<<<< HEAD
-                <td>{order.price.toLocaleString()}</td>{" "}
-=======
                 <td>{order.price.toLocaleString()} VND</td>{" "}
->>>>>>> main
                 {/* Use price directly from the order */}
                 <td>{order.status}</td>
                 <td>
