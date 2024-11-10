@@ -47,9 +47,6 @@ const Dashboard = () => {
                   <Nav.Link as={Link} to="/dashboard/order">
                     Order
                   </Nav.Link>
-                  <Nav.Link as={Link} to="/dashboard/settings">
-                    Settings
-                  </Nav.Link>
                   <Nav.Link as={Link} to="/dashboard/consignment">
                     Consignment
                   </Nav.Link>
@@ -79,7 +76,6 @@ const Dashboard = () => {
                   <Route path="/koifishy/:id" element={<KoiFishyDetails />} />
                   <Route path="/koifishy/create" element={<KoiFishyAdd />} />
                   <Route path="/order" element={<OrderList />} />
-                  <Route path="/settings" element={<Settings />} />
                   <Route path="/consignment" element={<Consign />} />
                   <Route path="/promotion" element={<PromotionManagement />} />
                   <Route path="/origin" element={<CertificateManager />} />

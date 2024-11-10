@@ -17,6 +17,7 @@ import KoiyList from "./pages/Guest/Koiy/KoiyList";
 import KoiyDetails from "./pages/Guest/Koiy/KoiyDetails";
 import History from "./pages/Customer/cart/history";
 import ProtectedRoute from "./pages/Guest/login/auth"; // Import ProtectedRoute
+import User from "./pages/Customer/user/user";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/history" element={<History />} />
+          <Route path="/user" element={<User />} />
         </Routes>
       </Router>
     </>
