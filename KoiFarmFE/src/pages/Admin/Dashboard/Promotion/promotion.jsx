@@ -1,183 +1,173 @@
 import React, { useState, useEffect } from "react";
-import PromotionForm from "./PromotionForm";
-import PromotionTable from "./PromotionTable";
+import { Table, Button, Modal, Form, Badge, Spinner } from "react-bootstrap";
+import { Plus } from "lucide-react";
 
 const PromotionManagement = () => {
   const [promotions, setPromotions] = useState([]);
-  const [accounts, setAccounts] = useState([]);
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Form state for create
+  const [createForm, setCreateForm] = useState({
     point: "",
     discountPercentage: "",
-    status: "active",
-    expirationDate: "",
   });
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingId, setEditingId] = useState(null);
 
-  // Format date cho form input
-  const formatDateForInput = (date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return "";
-    return d.toISOString().split("T")[0];
-  };
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
 
-  // Format date cho hiển thị
-  const formatDateForDisplay = (date) => {
-    if (!date) return "-";
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return "-";
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(d);
-  };
-
-  // Kiểm tra trạng thái hết hạn
-  const checkExpired = (expirationDate) => {
-    if (!expirationDate) return false;
-    try {
-      const expDate = new Date(expirationDate);
-      return expDate < new Date();
-    } catch {
-      return false;
-    }
-  };
-
-  // Fetch promotions
   const fetchPromotions = async () => {
     try {
       const response = await fetch("https://localhost:7229/api/Promotion");
       const data = await response.json();
       setPromotions(data.$values);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching promotions:", error);
+      setLoading(false);
     }
   };
 
-  // Fetch accounts
-  const fetchAccounts = async () => {
-    try {
-      const response = await fetch("https://localhost:7229/api/Accounts");
-      const data = await response.json();
-      setAccounts(data.$values);
-    } catch (error) {
-      console.error("Error fetching accounts:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchPromotions();
-    fetchAccounts();
-  }, []);
-
-  const resetForm = () => {
-    setIsEditing(false);
-    setEditingId(null);
-    setFormData({
-      point: "",
-      discountPercentage: "",
-      status: "active",
-      expirationDate: "",
-    });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
+
     try {
-      // Format date trước khi gửi lên server
-      const formattedData = {
-        ...formData,
-        expirationDate: formData.expirationDate
-          ? new Date(formData.expirationDate).toISOString()
-          : null,
-      };
-
-      const url = isEditing
-        ? `https://localhost:7229/api/Promotion/${editingId}`
-        : "https://localhost:7229/api/Promotion";
-
-      const response = await fetch(url, {
-        method: isEditing ? "PUT" : "POST",
+      const response = await fetch("https://localhost:7229/api/Promotion", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formattedData),
+        body: JSON.stringify({
+          point: Number(createForm.point),
+          discountPercentage: Number(createForm.discountPercentage),
+        }),
       });
 
       if (response.ok) {
+        setShowCreateModal(false);
+        setCreateForm({ point: "", discountPercentage: "" });
         fetchPromotions();
-        resetForm();
       }
     } catch (error) {
-      console.error("Error submitting promotion:", error);
+      console.error("Error creating promotion:", error);
     }
   };
 
-  const handleEdit = (promotion) => {
-    setIsEditing(true);
-    setEditingId(promotion.id);
-    setFormData({
-      point: promotion.point,
-      discountPercentage: promotion.discountPercentage,
-      status: promotion.status,
-      expirationDate: formatDateForInput(promotion.expirationDate),
-    });
-  };
-
-  const handleDelete = async (promotionId) => {
-    if (window.confirm("Are you sure you want to delete this promotion?")) {
-      try {
-        const response = await fetch(
-          `https://localhost:7229/api/Promotion/${promotionId}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.ok) {
-          // Xóa promotion khỏi state để UI cập nhật ngay lập tức
-          setPromotions(promotions.filter((p) => p.id !== promotionId));
-          // Fetch lại data để đảm bảo đồng bộ với server
-          fetchPromotions();
-        } else {
-          alert("Failed to delete promotion. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error deleting promotion:", error);
-        alert("Error occurred while deleting. Please try again.");
-      }
+  const getStatusBadgeVariant = (status) => {
+    switch (status?.toLowerCase()) {
+      case "active":
+        return "success";
+      case "valid":
+        return "success";
+      case "inactive":
+        return "secondary";
+      case "expired":
+        return "danger";
+      default:
+        return "warning";
     }
   };
 
-  const getEligibleAccounts = (promotion) => {
-    return accounts.filter((account) => account.point >= promotion.point);
-  };
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center h-100">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <PromotionForm
-          formData={formData}
-          setFormData={setFormData}
-          handleSubmit={handleSubmit}
-          isEditing={isEditing}
-          resetForm={resetForm}
-        />
-
-        <PromotionTable
-          promotions={promotions}
-          formatDateForDisplay={formatDateForDisplay}
-          checkExpired={checkExpired}
-          getEligibleAccounts={getEligibleAccounts}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-        />
+    <div className="container mt-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Promotion Management</h2>
+        <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+          <Plus size={16} className="me-2" />
+          Add New Promotion
+        </Button>
       </div>
+
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Points Required</th>
+            <th>Discount (%)</th>
+            <th>Status</th>
+            <th>Created Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {promotions.map((promotion) => (
+            <tr key={promotion.id}>
+              <td>{promotion.id}</td>
+              <td>{promotion.point}</td>
+              <td>{promotion.discountPercentage}%</td>
+              <td>
+                <Badge bg={getStatusBadgeVariant(promotion.status)}>
+                  {promotion.status}
+                </Badge>
+              </td>
+              <td>{new Date(promotion.createdDate).toLocaleDateString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+      {/* Create Modal */}
+      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create New Promotion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleCreate}>
+            <Form.Group className="mb-3">
+              <Form.Label>Points Required</Form.Label>
+              <Form.Control
+                type="number"
+                value={createForm.point}
+                onChange={(e) =>
+                  setCreateForm({ ...createForm, point: e.target.value })
+                }
+                required
+                min="0"
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Discount Percentage</Form.Label>
+              <Form.Control
+                type="number"
+                value={createForm.discountPercentage}
+                onChange={(e) =>
+                  setCreateForm({
+                    ...createForm,
+                    discountPercentage: e.target.value,
+                  })
+                }
+                required
+                min="0"
+                max="100"
+                step="0.1"
+              />
+            </Form.Group>
+
+            <div className="d-flex justify-content-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setShowCreateModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit">
+                Create Promotion
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

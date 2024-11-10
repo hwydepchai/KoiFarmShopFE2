@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Badge, Spinner } from "react-bootstrap";
-import { Trash2, Pencil, UploadCloud } from "lucide-react";
+import { Pencil, UploadCloud } from "lucide-react";
 
 const ConsignmentManagement = () => {
   const [consignments, setConsignments] = useState([]);
@@ -40,19 +40,6 @@ const ConsignmentManagement = () => {
       img: null,
     });
     setShowEditModal(true);
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this consignment?")) {
-      try {
-        await fetch(`https://localhost:7229/api/Consignments/${id}`, {
-          method: "DELETE",
-        });
-        fetchConsignments(); // Refresh the list
-      } catch (error) {
-        console.error("Error deleting consignment:", error);
-      }
-    }
   };
 
   const handleUpdate = async (e) => {
@@ -103,7 +90,7 @@ const ConsignmentManagement = () => {
           <tr>
             <th>ID</th>
             <th>Account ID</th>
-            <th>Koi ID</th>
+            <th>Koi Code</th>
             <th>Price</th>
             <th>Status</th>
             <th>Created Date</th>
@@ -115,7 +102,7 @@ const ConsignmentManagement = () => {
             <tr key={consignment.id}>
               <td>{consignment.id}</td>
               <td>{consignment.accountId}</td>
-              <td>{consignment.koiId}</td>
+              <td>{consignment.koiCode}</td>
               <td>${consignment.price.toLocaleString()}</td>
               <td>
                 <Badge
@@ -137,13 +124,6 @@ const ConsignmentManagement = () => {
                   onClick={() => handleEdit(consignment)}
                 >
                   <Pencil size={16} />
-                </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleDelete(consignment.id)}
-                >
-                  <Trash2 size={16} />
                 </Button>
               </td>
             </tr>
