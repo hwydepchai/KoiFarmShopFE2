@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -111,7 +112,6 @@ const User = () => {
                 { label: "Gender", key: "gender" },
                 { label: "Phone", key: "phone" },
                 { label: "Address", key: "address" },
-                { label: "Password", key: "password" },
                 { label: "Date of Birth", key: "dateOfBirth" },
                 { label: "Modified Date", key: "modifiedDate", readonly: true },
                 { label: "Points", key: "point", readonly: true },
