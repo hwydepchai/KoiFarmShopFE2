@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import axios from "axios";
 
 // Helper function to generate image URL
@@ -24,6 +24,11 @@ function KoiFishList() {
     price: 0,
     status: "",
     imgUrl: "",
+  });
+  const [searchTerm, setSearchTerm] = useState(""); // Search term for filter
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
   });
 
   const navigate = useNavigate();
@@ -52,8 +57,21 @@ function KoiFishList() {
       });
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const handleSort = (column) => {
+    let direction = "asc";
+    if (sortConfig.key === column && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+
+    const sortedKoiList = [...koiList].sort((a, b) => {
+      if (a[column] < b[column]) return direction === "asc" ? -1 : 1;
+      if (a[column] > b[column]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setKoiList(sortedKoiList);
+    setSortConfig({ key: column, direction });
+  };
 
   const handleEditClick = (koi) => {
     fetch(`https://localhost:7229/api/Image?koiId=${koi.id}`)
@@ -62,13 +80,11 @@ function KoiFishList() {
         return response.json();
       })
       .then((data) => {
-        // Find the image URL that matches the koi's ID
         const matchingImage = data.$values.find((img) => img.koiId === koi.id);
         const imageUrl = matchingImage ? matchingImage.urlPath : null;
-
         setSelectedKoi({
           ...koi,
-          imgUrl: imageUrl, // Set imgUrl to the matching image's URL
+          imgUrl: imageUrl,
         });
         setShowModal(true);
       })
@@ -142,44 +158,36 @@ function KoiFishList() {
     }
   };
 
-  const handleAddFieldChange = (field, value) => {
-    setNewKoi((prevKoi) => ({
-      ...prevKoi,
-      [field]: value,
-    }));
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
-  const handleAddImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setNewKoi((prev) => ({ ...prev, imgUrl: imageUrl }));
-      setSelectedImage(file);
-    }
-  };
-
-  const handleAddSave = async () => {
-    const formData = new FormData();
-    for (const key in newKoi) {
-      formData.append(key, newKoi[key]);
-    }
-    if (selectedImage) formData.append("Img", selectedImage);
-
-    try {
-      await axios.post("https://localhost:7229/api/KoiFish", formData);
-      fetchKoiList(); // Refresh koi list after adding new koi
-      setShowAddModal(false); // Close modal after saving
-    } catch (error) {
-      console.error("Error adding koi fish:", error);
-    }
-  };
+  const filteredKoiList = koiList.filter(
+    (koi) =>
+      koi.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      koi.species.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="container my-4">
       <h2 className="text-center mb-4">Available Koi Fish</h2>
+
+      {/* Search Bar */}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by Origin or Species"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </div>
+
       <Button
         variant="primary"
         onClick={() => navigate("/dashboard/koifish/create")}
+        className="btn btn-success btn-sm"
+        style={{ marginBottom: "10px" }}
       >
         Add New Koi
       </Button>
@@ -187,18 +195,67 @@ function KoiFishList() {
       <table className="table table-striped table-bordered mt-4">
         <thead>
           <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Origin</th>
-            <th scope="col">Gender</th>
-            <th scope="col">Species</th>
-            <th scope="col">Size (cm)</th>
-            <th scope="col">Price (VND)</th>
-            <th scope="col">Status</th>
+            <th scope="col" onClick={() => handleSort("id")}>
+              ID{" "}
+              {sortConfig.key === "id"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
+            <th scope="col" onClick={() => handleSort("origin")}>
+              Origin{" "}
+              {sortConfig.key === "origin"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
+            <th scope="col" onClick={() => handleSort("gender")}>
+              Gender{" "}
+              {sortConfig.key === "gender"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
+            <th scope="col" onClick={() => handleSort("species")}>
+              Species{" "}
+              {sortConfig.key === "species"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
+            <th scope="col" onClick={() => handleSort("size")}>
+              Size (cm){" "}
+              {sortConfig.key === "size"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
+            <th scope="col" onClick={() => handleSort("price")}>
+              Price (VND){" "}
+              {sortConfig.key === "price"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
+            <th scope="col" onClick={() => handleSort("status")}>
+              Status{" "}
+              {sortConfig.key === "status"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {koiList.map((koi) => (
+          {filteredKoiList.map((koi) => (
             <tr key={koi.id}>
               <td>{koi.id}</td>
               <td>{koi.origin}</td>
@@ -208,161 +265,227 @@ function KoiFishList() {
               <td>{koi.price}</td>
               <td>{koi.status}</td>
               <td>
-                <Link
-                  to={`/dashboard/koifish/${koi.id}`}
-                  className="btn btn-primary btn-sm"
-                >
-                  View Details
-                </Link>
-                <button
-                  className="btn btn-warning btn-sm mx-2"
-                  onClick={() => handleEditClick(koi)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn btn-danger btn-sm mx-2"
-                  onClick={() => deleteKoi(koi.id)}
-                >
-                  Delete
-                </button>
+                <Dropdown>
+                  <Dropdown.Toggle
+                    variant="link"
+                    id="dropdown-custom-components"
+                    className="text-decoration-none"
+                  >
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/128/2311/2311524.png"
+                      alt="more"
+                      style={{ height: "20px", cursor: "pointer" }}
+                    />
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      as={Link}
+                      to={`/dashboard/koifish/${koi.id}`}
+                    >
+                      View Details
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as="button"
+                      className="btn btn-warning btn-sm"
+                      onClick={() => handleEditClick(koi)}
+                    >
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => deleteKoi(koi.id)}
+                    >
+                      Delete
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <h3 className="text-center my-4">Deleted Koi Fish</h3>
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Origin</th>
-            <th scope="col">Gender</th>
-            <th scope="col">Species</th>
-            <th scope="col">Size (cm)</th>
-            <th scope="col">Price (VND)</th>
-            <th scope="col">Status</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {deletedKoi.map((koi) => (
-            <tr key={koi.id}>
-              <td>{koi.id}</td>
-              <td>{koi.origin}</td>
-              <td>{koi.gender}</td>
-              <td>{koi.species}</td>
-              <td>{koi.size}</td>
-              <td>{koi.price}</td>
-              <td>{koi.status}</td>
-              <td>
-                <button
-                  className="btn btn-success btn-sm mx-2"
-                  onClick={() => toggleKoiStatus(koi.id, koi.isDeleted)}
-                >
-                  Restore
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Edit Modal */}
-      {showModal && selectedKoi && (
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Edit Koi Fish</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Form.Group controlId="formOrigin">
-                <Form.Label>Origin</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.origin}
-                  onChange={(e) => handleFieldEdit("origin", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formGender">
-                <Form.Label>Gender</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.gender}
-                  onChange={(e) => handleFieldEdit("gender", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formSpecies">
-                <Form.Label>Species</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.species}
-                  onChange={(e) => handleFieldEdit("species", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formSize">
-                <Form.Label>Size (cm)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={selectedKoi.size}
-                  onChange={(e) => handleFieldEdit("size", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formPrice">
-                <Form.Label>Price (VND)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={selectedKoi.price}
-                  onChange={(e) => handleFieldEdit("price", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formCharacter">
-                <Form.Label>Character</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.character}
-                  onChange={(e) => handleFieldEdit("character", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formStatus">
-                <Form.Label>Status</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.status}
-                  onChange={(e) => handleFieldEdit("status", e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formImage">
-                <Form.Label>Image</Form.Label>
-                <Form.Control type="file" onChange={handleImageChange} />
-                {selectedKoi.imgUrl && (
-                  <img
-                    src={selectedKoi.imgUrl}
-                    alt="Selected Koi"
-                    className="img-fluid mt-2"
-                  />
-                )}
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              Save Changes
-            </Button>
-          </Modal.Footer>
-        </Modal>
+      {/* Show Deleted Koi Table Only if There Are Deleted Koi */}
+      {deletedKoi.length > 0 && (
+        <>
+          <h2 className="text-center mb-4 mt-5">Deleted Koi Fish</h2>
+          <table className="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Origin</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Species</th>
+                <th scope="col">Size (cm)</th>
+                <th scope="col">Price (VND)</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deletedKoi.map((koi) => (
+                <tr key={koi.id}>
+                  <td>{koi.id}</td>
+                  <td>{koi.origin}</td>
+                  <td>{koi.gender}</td>
+                  <td>{koi.species}</td>
+                  <td>{koi.size}</td>
+                  <td>{koi.price}</td>
+                  <td>{koi.status}</td>
+                  <td>
+                    <Button
+                      variant="success"
+                      onClick={() => toggleKoiStatus(koi.id, koi.isDeleted)}
+                    >
+                      Restore
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
+
+      {/* Edit Koi Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Koi Fish</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            {/* Origin Dropdown */}
+            <Form.Group controlId="formOrigin">
+              <Form.Label>Origin</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedKoi?.origin || ""}
+                onChange={(e) => handleFieldEdit("origin", e.target.value)}
+              >
+                <option value="">Select Origin</option>
+                <option value="Vietnam">Vietnam</option>
+                <option value="Japan">Japan</option>
+                <option value="Thailand">Thailand</option>
+                <option value="China">China</option>
+                <option value="South Korea">South Korea</option>
+                <option value="India">India</option>
+              </Form.Control>
+            </Form.Group>
+
+            {/* Gender Checkbox */}
+            <Form.Group controlId="formGender">
+              <Form.Label>Gender</Form.Label>
+              <div>
+                <Form.Check
+                  inline
+                  type="checkbox"
+                  label="Male"
+                  checked={selectedKoi?.gender === "Male"}
+                  onChange={(e) =>
+                    handleFieldEdit("gender", e.target.checked ? "Male" : "")
+                  }
+                />
+                <Form.Check
+                  inline
+                  type="checkbox"
+                  label="Female"
+                  checked={selectedKoi?.gender === "Female"}
+                  onChange={(e) =>
+                    handleFieldEdit("gender", e.target.checked ? "Female" : "")
+                  }
+                />
+              </div>
+            </Form.Group>
+
+            {/* Species Checkbox */}
+            <Form.Group controlId="formSpecies">
+              <Form.Label>Species</Form.Label>
+              <div>
+                {[
+                  "Showa",
+                  "Asagi",
+                  "Karashi",
+                  "Kohaku",
+                  "Shusui",
+                  "Sanke",
+                  "Tancho",
+                  "Shiro Utsuri",
+                ].map((species) => (
+                  <Form.Check
+                    key={species}
+                    inline
+                    type="checkbox"
+                    label={species}
+                    checked={selectedKoi?.species.includes(species)}
+                    onChange={(e) => {
+                      const newSpecies = e.target.checked
+                        ? [...(selectedKoi?.species || []), species]
+                        : selectedKoi?.species.filter((s) => s !== species);
+                      handleFieldEdit("species", newSpecies);
+                    }}
+                  />
+                ))}
+              </div>
+            </Form.Group>
+
+            {/* Size Input */}
+            <Form.Group controlId="formSize">
+              <Form.Label>Size (cm)</Form.Label>
+              <Form.Control
+                type="number"
+                value={selectedKoi?.size || ""}
+                onChange={(e) => {
+                  const size = e.target.value;
+                  if (size >= 0) {
+                    handleFieldEdit("size", size);
+                  }
+                }}
+              />
+            </Form.Group>
+
+            {/* Price Input */}
+            <Form.Group controlId="formPrice">
+              <Form.Label>Price (VND)</Form.Label>
+              <Form.Control
+                type="number"
+                value={selectedKoi?.price || ""}
+                onChange={(e) => {
+                  const price = e.target.value;
+                  if (price >= 10000) {
+                    handleFieldEdit("price", price);
+                  }
+                }}
+              />
+            </Form.Group>
+
+            {/* Image Upload */}
+            <Form.Group controlId="formImage">
+              <Form.Label>Image</Form.Label>
+              <Form.Control type="file" onChange={handleImageChange} />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSave}
+            disabled={
+              !selectedKoi?.origin ||
+              !selectedKoi?.gender ||
+              selectedKoi?.species.length === 0 ||
+              selectedKoi?.size < 0 ||
+              selectedKoi?.price < 10000
+            }
+          >
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

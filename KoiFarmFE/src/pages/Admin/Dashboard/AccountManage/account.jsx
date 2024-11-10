@@ -10,6 +10,7 @@ function AccountList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newAccount, setNewAccount] = useState({ email: "", password: "" });
+  const [searchQuery, setSearchQuery] = useState(""); // Added search query state
 
   useEffect(() => {
     fetchAccounts();
@@ -49,61 +50,70 @@ function AccountList() {
   };
 
   // Helper function to render tables for both active and deleted accounts
-  const AccountTable = ({ accounts, title }) => (
-    <div>
-      <h2>{title}</h2>
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Gender</th>
-            <th>Date of Birth</th>
-            <th>Status</th>
-            <th>Details</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          {accounts.map((account) => (
-            <tr key={account.id}>
-              <td>{account.id}</td>
-              <td>{account.name}</td>
-              <td>{account.email}</td>
-              <td>{account.phone}</td>
-              <td>{account.gender || "N/A"}</td>
-              <td>{account.dateOfBirth ? new Date(account.dateOfBirth).toLocaleDateString() : "N/A"}</td>
-              <td>{account.status}</td>
-              <td>
-                <Link to={`/dashboard/account/${account.id}`} className="btn btn-primary btn-sm">
-                  View Details
-                </Link>
-              </td>
-              <td>
-                {!account.isDeleted ? (
-                  <button onClick={() => deleteAccount(account.id)} className="btn">
-                    <label className="switch">
-                      <input type="checkbox"></input>
-                      <span className="slider"></span>
-                    </label>
-                  </button>
-                ) : (
-                  <button onClick={() => toggleAccountStatus(account.id, false)} className="btn">
-                    <label className="switch">
-                      <input type="checkbox" checked></input>
-                      <span className="slider"></span>
-                    </label>
-                  </button>
-                )}
-              </td>
+  const AccountTable = ({ accounts, title }) => {
+    const filteredAccounts = accounts.filter((account) => {
+      return (
+        account.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        account.email.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    });
+
+    return (
+      <div>
+        <h2>{title}</h2>
+        <table className="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Gender</th>
+              <th>Date of Birth</th>
+              <th>Status</th>
+              <th>Details</th>
+              <th>Delete</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+          </thead>
+          <tbody>
+            {filteredAccounts.map((account) => (
+              <tr key={account.id}>
+                <td>{account.id}</td>
+                <td>{account.name}</td>
+                <td>{account.email}</td>
+                <td>{account.phone}</td>
+                <td>{account.gender || "N/A"}</td>
+                <td>{account.dateOfBirth ? new Date(account.dateOfBirth).toLocaleDateString() : "N/A"}</td>
+                <td>{account.status}</td>
+                <td>
+                  <Link to={`/dashboard/account/${account.id}`} className="btn btn-primary btn-sm">
+                    View Details
+                  </Link>
+                </td>
+                <td>
+                  {!account.isDeleted ? (
+                    <button onClick={() => deleteAccount(account.id)} className="btn">
+                      <label className="switch">
+                        <input type="checkbox"></input>
+                        <span className="slider"></span>
+                      </label>
+                    </button>
+                  ) : (
+                    <button onClick={() => toggleAccountStatus(account.id, false)} className="btn">
+                      <label className="switch">
+                        <input type="checkbox" checked></input>
+                        <span className="slider"></span>
+                      </label>
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   // Function to delete an account (soft-delete)
   const deleteAccount = async (id) => {
@@ -127,6 +137,17 @@ function AccountList() {
   return (
     <div className="container my-4">
       <h2 className="text-center mb-4">Account Management</h2>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by Name or Email"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
       {/* Active Accounts Table */}
       <AccountTable accounts={accounts.active} title="Active Accounts" />

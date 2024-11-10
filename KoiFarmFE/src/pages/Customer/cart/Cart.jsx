@@ -117,7 +117,7 @@ const Cart = () => {
           <tr>
             <th>#</th>
             <th>Species</th>
-            <th>Price</th>
+            <th>Price (VND)</th>
             <th>Status</th>
             <th>Purchase</th>
             <th>Cancel</th>
@@ -139,7 +139,7 @@ const Cart = () => {
               <tr key={order.id}>
                 <td>{index + 1}</td>
                 <td>{species}</td>
-                <td>${order.price.toLocaleString()}</td>{" "}
+                <td>{order.price.toLocaleString()}</td>{" "}
                 {/* Use price directly from the order */}
                 <td>{order.status}</td>
                 <td>
