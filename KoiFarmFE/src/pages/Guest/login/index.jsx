@@ -25,7 +25,8 @@ function LoginPage() {
     fullname: "",
     phone: "",
     birthday: "",
-    gender: "", // Track selected gender
+    gender: "male", // Default gender set to "male"
+    address: "", // New field for address
   });
 
   const [formError, setFormError] = useState(""); // New state for form error
@@ -51,6 +52,17 @@ function LoginPage() {
       gender: e.target.value,
     }));
     setFormError(""); // Reset form error on gender change
+  };
+
+  const isAtLeast18 = (birthday) => {
+    const today = new Date();
+    const birthDate = new Date(birthday);
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    return (
+      age > 18 ||
+      (age === 18 && monthDiff >= 0 && today.getDate() >= birthDate.getDate())
+    );
   };
 
   const handleLoginSubmit = async (e) => {
@@ -94,18 +106,22 @@ function LoginPage() {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+
     if (registerData.password !== registerData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
-    // Check if gender is selected
+    if (!isAtLeast18(registerData.birthday)) {
+      alert("You must be at least 18 years old to register.");
+      return;
+    }
+
     if (!registerData.gender) {
       setFormError("Please select a gender.");
       return;
     }
 
-    // Format fullname before sending to API
     const formattedFullname = formatFullname(registerData.fullname);
 
     const api = "https://localhost:7229/api/Auth/register";
@@ -165,7 +181,7 @@ function LoginPage() {
           </form>
         ) : (
           <form onSubmit={handleRegisterSubmit} className="register-form">
-            <div className="form-group mb-3">
+            <div className="form-group mb-2">
               <label>Email</label>
               <input
                 type="email"
@@ -177,8 +193,7 @@ function LoginPage() {
                 placeholder="Email"
               />
             </div>
-            {/* Fullname field */}
-            <div className="form-group mb-3">
+            <div className="form-group mb-2">
               <label>Fullname</label>
               <input
                 type="text"
@@ -187,15 +202,13 @@ function LoginPage() {
                 value={registerData.fullname}
                 onChange={handleRegisterChange}
                 required
-                pattern="^[A-Za-z]+(?: [A-Za-z]+)*$" // Allow only letters and spaces
-                title="Full name should only contain letters and spaces, and the first letter of each word must be capitalized."
+                pattern="^[A-Za-z]+(?: [A-Za-z]+)*$"
+                title="Full name should only contain letters and spaces."
                 placeholder="Full name"
               />
             </div>
-
-            <div className="d-flex justify-content-center">
-              {/* Phone field */}
-              <div className="form-group mb-3 me-3">
+            <div className="d-flex gap-4 mb-2">
+              <div className="form-group me-1">
                 <label>Phone</label>
                 <input
                   type="text"
@@ -204,13 +217,11 @@ function LoginPage() {
                   value={registerData.phone}
                   onChange={handleRegisterChange}
                   required
-                  pattern="^0[0-9]{9}$" // Phone number must start with 0 and be 10 digits long
+                  pattern="^0[0-9]{9}$"
                   title="Phone number must start with 0 and contain exactly 10 digits."
                 />
               </div>
-
-              {/* Birthday field */}
-              <div className="form-group mb-3 ms-1">
+              <div className="form-group">
                 <label>Birthday</label>
                 <input
                   type="date"
@@ -222,9 +233,19 @@ function LoginPage() {
                 />
               </div>
             </div>
-
-            {/* Gender radio buttons */}
-            <div className="form-group mb-3 d-flex align-items-center">
+            <div className="form-group mb-2">
+              <label>Address</label>
+              <input
+                type="text"
+                name="address"
+                className="form-control"
+                value={registerData.address}
+                onChange={handleRegisterChange}
+                required
+                placeholder="Address"
+              />
+            </div>
+            <div className="form-group mb-2 d-flex align-items-center">
               <div className="d-flex">
                 <div className="form-check me-3">
                   <input
@@ -265,9 +286,7 @@ function LoginPage() {
               </div>
             </div>
             {formError && <div className="text-danger">{formError}</div>}
-
-            {/* Password field */}
-            <div className="form-group mb-3">
+            <div className="form-group mb-2">
               <label>Password</label>
               <input
                 type="password"
@@ -276,13 +295,11 @@ function LoginPage() {
                 value={registerData.password}
                 onChange={handleRegisterChange}
                 required
-                pattern="^(?=.*[A-Z]).{8,}$" // At least 8 characters and 1 uppercase letter
+                pattern="^(?=.*[A-Z]).{8,}$"
                 title="Password must contain at least 8 characters, including one uppercase letter."
               />
             </div>
-
-            {/* Confirm Password field */}
-            <div className="form-group mb-3">
+            <div className="form-group mb-4">
               <label>Confirm Password</label>
               <input
                 type="password"
@@ -293,18 +310,19 @@ function LoginPage() {
                 required
               />
             </div>
-
             <button type="submit" className="btn btn-primary w-100">
               Register
             </button>
           </form>
         )}
 
-        <button onClick={togglePage} className="btn btn-link mt-3 w-100 toggle">
-          {isLogin
-            ? "Don't have an account? Register here"
-            : "Already have an account? Login here"}
-        </button>
+        <div className="text-center">
+          <button onClick={togglePage} className="btn btn-link">
+            {isLogin
+              ? "Don't have an account? Register"
+              : "Already have an account? Login"}
+          </button>
+        </div>
       </div>
     </div>
   );
