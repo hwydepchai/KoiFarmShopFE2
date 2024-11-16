@@ -9,7 +9,7 @@ const ProtectedRoute = ({ element: Element, ...rest }) => {
 
   // Kiểm tra quyền truy cập của user
   if (!user || (user.roleId !== 1 && user.roleId !== 2)) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Element {...rest} />;
