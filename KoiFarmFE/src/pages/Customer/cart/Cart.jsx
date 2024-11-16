@@ -139,7 +139,11 @@ const Cart = () => {
               <tr key={order.id}>
                 <td>{index + 1}</td>
                 <td>{species}</td>
+<<<<<<< Updated upstream
                 <td>{order.price.toLocaleString()} VND</td>{" "}
+=======
+                <td>{order.price.toLocaleString()}</td>{" "}
+>>>>>>> Stashed changes
                 {/* Use price directly from the order */}
                 <td>{order.status}</td>
                 <td>
