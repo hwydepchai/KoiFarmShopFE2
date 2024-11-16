@@ -70,6 +70,9 @@ const Header = () => {
           <Nav.Link as={Link} to="/history" className="text-white">
             History
           </Nav.Link>
+          <Nav.Link as={Link} to="/card" className="text-white">
+            Card
+          </Nav.Link>
         </Nav>
         <Nav className="ms-auto">
           {userName ? (
