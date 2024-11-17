@@ -130,43 +130,68 @@ const CreateConsignment = ({
             </Form.Select>
           </Form.Group>
 
+          {/* Origin Dropdown */}
           <Form.Group className="mb-3">
             <Form.Label>Origin</Form.Label>
-            <Form.Control
-              type="text"
+            <Form.Select
               value={createForm.origin}
               onChange={(e) =>
                 setCreateForm({ ...createForm, origin: e.target.value })
               }
               required
-              placeholder="Enter koi origin"
-            />
+            >
+              <option value="">Select an origin</option>
+              <option value="vietnam">Vietnam</option>
+              <option value="japan">Japan</option>
+              <option value="thailand">Thailand</option>
+              <option value="china">China</option>
+              <option value="southafrica">South Africa</option>
+              <option value="india">India</option>
+            </Form.Select>
           </Form.Group>
 
+          {/* Variety Dropdown */}
           <Form.Group className="mb-3">
             <Form.Label>Variety</Form.Label>
-            <Form.Control
-              type="text"
+            <Form.Select
               value={createForm.variety}
               onChange={(e) =>
                 setCreateForm({ ...createForm, variety: e.target.value })
               }
               required
-              placeholder="Enter koi variety"
-            />
+            >
+              <option value="">Select a variety</option>
+              <option value="Kohaku">Kohaku</option>
+              <option value="Showa Sanke">Showa Sanke</option>
+              <option value="Utsuri">Utsuri</option>
+              <option value="Asagi">Asagi</option>
+              <option value="Shusui">Shusui</option>
+              <option value="Ginrin">Ginrin</option>
+              <option value="Ogon">Ogon</option>
+              <option value="Tancho">Tancho</option>
+            </Form.Select>
           </Form.Group>
 
+          {/* Character Dropdown */}
           <Form.Group className="mb-3">
             <Form.Label>Character</Form.Label>
-            <Form.Control
-              type="text"
+            <Form.Select
               value={createForm.character}
               onChange={(e) =>
                 setCreateForm({ ...createForm, character: e.target.value })
               }
               required
-              placeholder="Enter koi character"
-            />
+            >
+              <option value="">Select a character</option>
+              <option value="Friendly">Friendly</option>
+              <option value="Curious">Curious</option>
+              <option value="Shy">Shy</option>
+              <option value="Aggressive">Aggressive</option>
+              <option value="Calm">Calm</option>
+              <option value="Playful">Playful</option>
+              <option value="Adaptable">Adaptable</option>
+              <option value="Showy">Showy</option>
+            </Form.Select>
           </Form.Group>
 
           <Form.Group className="mb-3">
