@@ -286,11 +286,12 @@ function AddKoi() {
                 <option value="" disabled>
                   Select origin
                 </option>
-                <option value="Japan">Japan</option>
-                <option value="China">China</option>
-                <option value="USA">USA</option>
-                <option value="Thailand">Thailand</option>
                 <option value="Vietnam">Vietnam</option>
+                <option value="Japan">Japan</option>
+                <option value="Thailand">Thailand</option>
+                <option value="China">China</option>
+                <option value="South Korea">South Korea</option>
+                <option value="India">India</option>
               </select>
             </div>
 

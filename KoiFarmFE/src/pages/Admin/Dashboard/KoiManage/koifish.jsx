@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Modal, Button, Form, Dropdown } from "react-bootstrap";
+import { Modal, Button, Form, Dropdown, Row, Col } from "react-bootstrap";
 import axios from "axios";
 
 // Helper function to generate image URL
@@ -203,6 +203,14 @@ function KoiFishList() {
                   : "↓"
                 : ""}
             </th>
+            <th scope="col" onClick={() => handleSort("name")}>
+              Name{" "}
+              {sortConfig.key === "name"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
             <th scope="col" onClick={() => handleSort("origin")}>
               Origin{" "}
               {sortConfig.key === "origin"
@@ -220,16 +228,8 @@ function KoiFishList() {
                 : ""}
             </th>
             <th scope="col" onClick={() => handleSort("variety")}>
-              variety{" "}
+              Variety{" "}
               {sortConfig.key === "variety"
-                ? sortConfig.direction === "asc"
-                  ? "↑"
-                  : "↓"
-                : ""}
-            </th>
-            <th scope="col" onClick={() => handleSort("size")}>
-              Size (cm){" "}
-              {sortConfig.key === "size"
                 ? sortConfig.direction === "asc"
                   ? "↑"
                   : "↓"
@@ -258,10 +258,10 @@ function KoiFishList() {
           {filteredKoiList.map((koi) => (
             <tr key={koi.id}>
               <td>{koi.id}</td>
+              <td>{koi.name}</td>
               <td>{koi.origin}</td>
               <td>{koi.gender}</td>
               <td>{koi.variety}</td>
-              <td>{koi.size}</td>
               <td>{koi.price}</td>
               <td>{koi.status}</td>
               <td>
@@ -315,10 +315,10 @@ function KoiFishList() {
             <thead>
               <tr>
                 <th scope="col">ID</th>
+                <th scope="col">Name</th>
                 <th scope="col">Origin</th>
                 <th scope="col">Gender</th>
                 <th scope="col">Variety</th>
-                <th scope="col">Size (cm)</th>
                 <th scope="col">Price (VND)</th>
                 <th scope="col">Status</th>
                 <th scope="col">Actions</th>
@@ -328,10 +328,10 @@ function KoiFishList() {
               {deletedKoi.map((koi) => (
                 <tr key={koi.id}>
                   <td>{koi.id}</td>
+                  <td>{koi.name}</td>
                   <td>{koi.origin}</td>
                   <td>{koi.gender}</td>
                   <td>{koi.variety}</td>
-                  <td>{koi.size}</td>
                   <td>{koi.price}</td>
                   <td>{koi.status}</td>
                   <td>
@@ -356,103 +356,217 @@ function KoiFishList() {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            {/* Origin Dropdown */}
-            <Form.Group controlId="formOrigin">
-              <Form.Label>Origin</Form.Label>
+            <Form.Group controlId="formName">
+              <Form.Label>Name</Form.Label>
               <Form.Control
-                as="select"
-                value={selectedKoi?.origin || ""}
-                onChange={(e) => handleFieldEdit("origin", e.target.value)}
-              >
-                <option value="">Select Origin</option>
-                <option value="Vietnam">Vietnam</option>
-                <option value="Japan">Japan</option>
-                <option value="Thailand">Thailand</option>
-                <option value="China">China</option>
-                <option value="South Korea">South Korea</option>
-                <option value="India">India</option>
-              </Form.Control>
-            </Form.Group>
-
-            {/* Gender Checkbox */}
-            <Form.Group controlId="formGender">
-              <Form.Label>Gender</Form.Label>
-              <div>
-                <Form.Check
-                  inline
-                  type="checkbox"
-                  label="Male"
-                  checked={selectedKoi?.gender === "Male"}
-                  onChange={(e) =>
-                    handleFieldEdit("gender", e.target.checked ? "Male" : "")
-                  }
-                />
-                <Form.Check
-                  inline
-                  type="checkbox"
-                  label="Female"
-                  checked={selectedKoi?.gender === "Female"}
-                  onChange={(e) =>
-                    handleFieldEdit("gender", e.target.checked ? "Female" : "")
-                  }
-                />
-              </div>
-            </Form.Group>
-
-            {/* Variety Dropdown */}
-            <Form.Group controlId="formvariety">
-              <Form.Label>Variety</Form.Label>
-              <Form.Control
-                as="select"
-                value={selectedKoi?.variety || ""}
-                onChange={(e) => handleFieldEdit("variety", e.target.value)}
-              >
-                <option value="" disabled>
-                  Select a variety
-                </option>
-                <option value="Kohaku">Kohaku</option>
-                <option value="Showa Sanke">Showa Sanke</option>
-                <option value="Utsuri">Utsuri</option>
-                <option value="Asagi">Asagi</option>
-                <option value="Shusui">Shusui</option>
-                <option value="Ginrin">Ginrin</option>
-                <option value="Ogon">Ogon</option>
-                <option value="Tancho">Tancho</option>
-              </Form.Control>
-            </Form.Group>
-
-            {/* Size Input */}
-            <Form.Group controlId="formSize">
-              <Form.Label>Size (cm)</Form.Label>
-              <Form.Control
-                type="number"
-                value={selectedKoi?.size || ""}
-                onChange={(e) => {
-                  const size = e.target.value;
-                  if (size >= 0) {
-                    handleFieldEdit("size", size);
-                  }
-                }}
+                type="text"
+                value={selectedKoi?.name || ""}
+                onChange={(e) => handleFieldEdit("name", e.target.value)}
               />
             </Form.Group>
+            {/* Dropdown Inputs */}
+            <Row>
+              <Col md={6}>
+                {/* Origin Dropdown */}
+                <Form.Group controlId="formOrigin">
+                  <Form.Label>Origin</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={selectedKoi?.origin || ""}
+                    onChange={(e) => handleFieldEdit("origin", e.target.value)}
+                  >
+                    <option value="Vietnam">Vietnam</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Thailand">Thailand</option>
+                    <option value="China">China</option>
+                    <option value="South Korea">South Korea</option>
+                    <option value="India">India</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Variety Dropdown */}
+                <Form.Group controlId="formVariety">
+                  <Form.Label>Variety</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={selectedKoi?.variety || ""}
+                    onChange={(e) => handleFieldEdit("variety", e.target.value)}
+                  >
+                    <option value="Kohaku">Kohaku</option>
+                    <option value="Showa Sanke">Showa Sanke</option>
+                    <option value="Utsuri">Utsuri</option>
+                    <option value="Asagi">Asagi</option>
+                    <option value="Shusui">Shusui</option>
+                    <option value="Ginrin">Ginrin</option>
+                    <option value="Ogon">Ogon</option>
+                    <option value="Tancho">Tancho</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Character Dropdown */}
+                <Form.Group controlId="formCharacter">
+                  <Form.Label>Character</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={selectedKoi?.character || ""}
+                    onChange={(e) =>
+                      handleFieldEdit("character", e.target.value)
+                    }
+                  >
+                    <option value="Calm">Calm</option>
+                    <option value="Aggressive">Aggressive</option>
+                    <option value="Playful">Playful</option>
+                    <option value="Shy">Shy</option>
+                    <option value="Curious">Curious</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Type Dropdown */}
+                <Form.Group controlId="formType">
+                  <Form.Label>Type</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={selectedKoi?.type || ""}
+                    onChange={(e) => handleFieldEdit("type", e.target.value)}
+                  >
+                    <option value="Imported">Imported</option>
+                    <option value="F1">F1</option>
+                    <option value="Native">Native</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+            </Row>
 
-            {/* Price Input */}
-            <Form.Group controlId="formPrice">
-              <Form.Label>Price (VND)</Form.Label>
+            {/* Number Inputs */}
+            <Row>
+              <Col md={6}>
+                {/* Year of Birth Input */}
+                <Form.Group controlId="formYearOfBirth">
+                  <Form.Label>Year of Birth</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={selectedKoi?.yearOfBirth || ""}
+                    onChange={(e) =>
+                      handleFieldEdit("yearOfBirth", e.target.value)
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Size Input */}
+                <Form.Group controlId="formSize">
+                  <Form.Label>Size (cm)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={selectedKoi?.size || ""}
+                    onChange={(e) => handleFieldEdit("size", e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Amount of Food Input */}
+                <Form.Group controlId="formAmountFood">
+                  <Form.Label>Amount of Food (kg)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.1"
+                    value={selectedKoi?.amountFood || ""}
+                    onChange={(e) =>
+                      handleFieldEdit("amountFood", e.target.value)
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Screening Rate Input */}
+                <Form.Group controlId="formScreeningRate">
+                  <Form.Label>Screening Rate (%)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.1"
+                    value={selectedKoi?.screeningRate || ""}
+                    onChange={(e) =>
+                      handleFieldEdit("screeningRate", e.target.value)
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Price Input */}
+                <Form.Group controlId="formPrice">
+                  <Form.Label>Price (VND)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={selectedKoi?.price || ""}
+                    onChange={(e) => handleFieldEdit("price", e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                {/* Gender Radio Buttons */}
+                <Form.Group controlId="formGender">
+                  <Form.Label>Gender</Form.Label>
+                  <div>
+                    <Form.Check
+                      inline
+                      type="radio"
+                      label="Male"
+                      name="gender"
+                      value="Male"
+                      checked={selectedKoi?.gender === "Male"}
+                      onChange={(e) =>
+                        handleFieldEdit("gender", e.target.value)
+                      }
+                    />
+                    <Form.Check
+                      inline
+                      type="radio"
+                      label="Female"
+                      name="gender"
+                      value="Female"
+                      checked={selectedKoi?.gender === "Female"}
+                      onChange={(e) =>
+                        handleFieldEdit("gender", e.target.value)
+                      }
+                    />
+                  </div>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Remaining Inputs */}
+
+            {/* Diet Inputs */}
+
+            <Form.Group controlId="formDiet">
+              <Form.Label>Diet</Form.Label>
               <Form.Control
-                type="number"
-                value={selectedKoi?.price || ""}
-                onChange={(e) => {
-                  const price = e.target.value;
-                  if (price >= 10000) {
-                    handleFieldEdit("price", price);
-                  }
-                }}
+                type="text"
+                value={selectedKoi?.diet || ""}
+                onChange={(e) => handleFieldEdit("diet", e.target.value)}
               />
+            </Form.Group>
+            {/* Image Display */}
+            <Form.Group controlId="formImgDisplay">
+              <Form.Label>Current Image</Form.Label>
+              {selectedKoi?.imgUrl && (
+                <img
+                  src={selectedKoi.imgUrl}
+                  alt="Koi"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    marginBottom: "10px",
+                  }}
+                />
+              )}
             </Form.Group>
 
             {/* Image Upload */}
-            <Form.Group controlId="formImage">
+            <Form.Group controlId="formImg">
               <Form.Label>Image</Form.Label>
               <Form.Control type="file" onChange={handleImageChange} />
             </Form.Group>
@@ -466,11 +580,12 @@ function KoiFishList() {
             variant="primary"
             onClick={handleSave}
             disabled={
+              !selectedKoi?.name ||
               !selectedKoi?.origin ||
               !selectedKoi?.gender ||
-              selectedKoi?.variety.length === 0 ||
+              !selectedKoi?.variety ||
               selectedKoi?.size < 0 ||
-              selectedKoi?.price < 10000
+              selectedKoi?.price < 0
             }
           >
             Save Changes

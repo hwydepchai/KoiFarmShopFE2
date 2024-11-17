@@ -3,8 +3,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./origin.css";
+import { useNavigate } from "react-router-dom";
 
 const CertificateManager = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     variety: "",
     gender: "Male",
@@ -125,6 +127,7 @@ const CertificateManager = () => {
       setMessage("Certificate updated successfully!");
       setShowModal(false);
       fetchCertificates();
+      navigate(0);
     } catch (error) {
       console.error("Error updating certificate:", error);
       setMessage("Failed to update certificate.");
