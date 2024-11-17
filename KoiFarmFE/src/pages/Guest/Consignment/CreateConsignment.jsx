@@ -11,7 +11,7 @@ const CreateConsignment = ({
   const [createForm, setCreateForm] = useState({
     name: "",
     yearOfBirth: 2022,
-    gender: "male", // Default value
+    gender: "male",
     origin: "",
     variety: "",
     character: "",
@@ -30,7 +30,6 @@ const CreateConsignment = ({
     setSubmitLoading(true);
     setErrorMessage(null);
 
-    // Kiểm tra các giá trị không hợp lệ
     if (createForm.size <= 0 || createForm.amountFood <= 0) {
       setErrorMessage("Size and Amount of Food must be positive numbers.");
       setSubmitLoading(false);
@@ -39,8 +38,8 @@ const CreateConsignment = ({
 
     try {
       const formData = new FormData();
-      formData.append("accountId", userData.userId); // Gửi `accountId`
-      formData.append("koiCode", `K${Date.now()}`); // Sinh mã Koi tự động
+      formData.append("accountId", userData.userId);
+      formData.append("koiCode", `K${Date.now()}`);
       formData.append("name", createForm.name);
       formData.append("yearOfBirth", createForm.yearOfBirth);
       formData.append("gender", createForm.gender);
@@ -49,9 +48,9 @@ const CreateConsignment = ({
       formData.append("character", createForm.character);
       formData.append("size", createForm.size);
       formData.append("amountFood", createForm.amountFood);
-      formData.append("status", "Pending"); // Trạng thái mặc định
+      formData.append("status", "Pending");
       if (selectedFile) {
-        formData.append("img", selectedFile); // Gửi file ảnh
+        formData.append("img", selectedFile);
       }
 
       const config = {
@@ -71,8 +70,8 @@ const CreateConsignment = ({
         showAlert(
           "Consignment created successfully! Waiting for admin approval."
         );
-        onConsignmentCreated(); // Refresh danh sách consignment
-        onHide(); // Đóng modal
+        onConsignmentCreated();
+        onHide();
       }
     } catch (error) {
       console.error("Error creating consignment:", error);
