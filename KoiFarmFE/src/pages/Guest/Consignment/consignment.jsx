@@ -4,27 +4,24 @@ import {
   Card,
   Button,
   Table,
-  Modal,
   Badge,
   Spinner,
   Alert,
-  Form,
 } from "react-bootstrap";
 import axios from "axios";
 import { Plus, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import DetailsConsign from "./DetailsConsign";
+import CreateConsignment from "./CreateConsignment";
 
 const UserConsignment = () => {
   const navigate = useNavigate();
   const [consignments, setConsignments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [alert, setAlert] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedConsignment, setSelectedConsignment] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [submitLoading, setSubmitLoading] = useState(false);
-  const [alert, setAlert] = useState(null);
-  const [createForm, setCreateForm] = useState({ price: "" });
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const userData = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
@@ -55,8 +52,7 @@ const UserConsignment = () => {
           (cons) => cons.accountId === userData.userId
         );
 
-        // Check and create orders for newly approved consignments
-        userConsignments.forEach(async (consignment) => {
+        for (const consignment of userConsignments) {
           if (consignment.status === "Active") {
             try {
               const orderResponse = await axios.get(
@@ -72,7 +68,7 @@ const UserConsignment = () => {
                   consignmentId: consignment.id,
                   accountId: userData.userId,
                   type: true,
-                  price: consignment.price,
+                  price: consignment.price || 0,
                   status: "Pending",
                 };
 
@@ -81,13 +77,13 @@ const UserConsignment = () => {
                   orderData,
                   config
                 );
-                navigate("/cart");
+                showAlert("Order created for active consignment.");
               }
             } catch (error) {
               console.error("Error checking/creating order:", error);
             }
           }
-        });
+        }
 
         setConsignments(userConsignments);
       }
@@ -99,77 +95,9 @@ const UserConsignment = () => {
     }
   };
 
-  const handleCreateSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("accountId", userData.userId);
-      formData.append("price", createForm.price);
-      formData.append("status", "Pending");
-      if (selectedFile) {
-        formData.append("img", selectedFile);
-      }
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      };
-
-      const response = await axios.post(
-        "https://localhost:7229/api/Consignments",
-        formData,
-        config
-      );
-
-      if (response.data) {
-        showAlert(
-          "Consignment created successfully! Waiting for admin approval."
-        );
-        setConsignments((prev) => [...prev, response.data]);
-        setShowCreateModal(false);
-        setCreateForm({ price: "" });
-        setSelectedFile(null);
-      }
-    } catch (error) {
-      console.error("Error creating consignment:", error);
-      showAlert("Failed to create consignment", "danger");
-    } finally {
-      setSubmitLoading(false);
-    }
-  };
-
-  const handleViewDetails = async (consignment) => {
-    try {
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const response = await axios.get(
-        `https://localhost:7229/api/Consignments/${consignment.id}`,
-        config
-      );
-
-      if (response.data) {
-        const consignmentData = response.data;
-        if (
-          consignmentData.images &&
-          consignmentData.images.$values.length > 0
-        ) {
-          const imageId = consignmentData.images.$values[0].id;
-          const imageResponse = await axios.get(
-            `https://localhost:7229/api/Image/${imageId}`,
-            config
-          );
-          consignmentData.imageUrl = imageResponse.data.urlPath;
-        }
-        setSelectedConsignment(consignmentData);
-        setShowDetailsModal(true);
-      }
-    } catch (error) {
-      console.error("Error fetching consignment details:", error);
-      showAlert("Failed to load consignment details", "danger");
-    }
+  const handleViewDetails = (consignment) => {
+    setSelectedConsignment(consignment);
+    setShowDetailsModal(true);
   };
 
   if (loading) {
@@ -213,7 +141,9 @@ const UserConsignment = () => {
             <Table hover className="mb-0">
               <thead className="bg-light">
                 <tr>
-                  <th>Price</th>
+                  <th>Name</th>
+                  <th>Gender</th>
+                  <th>Size (cm)</th>
                   <th>Status</th>
                   <th>Created Date</th>
                   <th className="text-center">Actions</th>
@@ -222,7 +152,9 @@ const UserConsignment = () => {
               <tbody>
                 {consignments.map((consignment) => (
                   <tr key={consignment.id}>
-                    <td>{consignment.price.toLocaleString()} VND</td>
+                    <td>{consignment.name}</td>
+                    <td>{consignment.gender}</td>
+                    <td>{consignment.size} cm</td>
                     <td>
                       <Badge
                         bg={
@@ -253,7 +185,7 @@ const UserConsignment = () => {
                 ))}
                 {consignments.length === 0 && (
                   <tr>
-                    <td colSpan="4" className="text-center py-4">
+                    <td colSpan="6" className="text-center py-4">
                       No consignments found
                     </td>
                   </tr>
@@ -264,128 +196,17 @@ const UserConsignment = () => {
         </Card.Body>
       </Card>
 
-      {/* Create Modal */}
-      <Modal
+      <CreateConsignment
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Create New Consignment</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleCreateSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Price</Form.Label>
-              <Form.Control
-                type="number"
-                value={createForm.price}
-                onChange={(e) => setCreateForm({ price: e.target.value })}
-                required
-                min="0"
-                placeholder="Enter price"
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Koi Image</Form.Label>
-              <Form.Control
-                type="file"
-                onChange={(e) => setSelectedFile(e.target.files[0])}
-                accept="image/*"
-                required
-              />
-              <Form.Text className="text-muted">
-                Please upload a clear image of your koi
-              </Form.Text>
-            </Form.Group>
-
-            <div className="d-grid">
-              <Button type="submit" variant="primary" disabled={submitLoading}>
-                {submitLoading ? (
-                  <>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"
-                    />
-                    Creating...
-                  </>
-                ) : (
-                  "Create Consignment"
-                )}
-              </Button>
-            </div>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      {/* Details Modal */}
-      <Modal
+        onConsignmentCreated={fetchUserConsignments}
+        showAlert={showAlert}
+      />
+      <DetailsConsign
+        consignmentId={selectedConsignment?.id}
         show={showDetailsModal}
         onHide={() => setShowDetailsModal(false)}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Consignment Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedConsignment ? (
-            <div className="row">
-              <div className="col-md-6">
-                <p>
-                  <strong>Price:</strong>{" "}
-                  {selectedConsignment.price.toLocaleString()} VND
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  <Badge
-                    bg={
-                      selectedConsignment.status === "Active"
-                        ? "success"
-                        : selectedConsignment.status === "Pending"
-                        ? "warning"
-                        : "secondary"
-                    }
-                    className="ms-2 rounded-pill"
-                  >
-                    {selectedConsignment.status}
-                  </Badge>
-                </p>
-                <p>
-                  <strong>Created Date:</strong>{" "}
-                  {new Date(
-                    selectedConsignment.createdDate
-                  ).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="col-md-6">
-                {selectedConsignment.imageUrl ? (
-                  <div>
-                    <p>
-                      <strong>Koi Image:</strong>
-                    </p>
-                    <img
-                      src={selectedConsignment.imageUrl}
-                      alt="Koi"
-                      className="img-fluid rounded"
-                      style={{ maxHeight: "300px", objectFit: "contain" }}
-                    />
-                  </div>
-                ) : (
-                  <p>No image available</p>
-                )}
-              </div>
-            </div>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </Modal.Body>
-      </Modal>
+      />
     </Container>
   );
 };

@@ -16,21 +16,45 @@ const ProductCard = () => {
 
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get("https://localhost:7229/api/CartItem");
-      const items = response.data.$values.filter((item) => !item.isDeleted);
+      // Fetch cart items
+      const cartResponse = await axios.get(
+        "https://localhost:7229/api/CartItem"
+      );
+      const items = cartResponse.data.$values.filter((item) => !item.isDeleted);
 
-      setCartItems(items);
+      // Fetch orders to get statuses
+      const orderResponse = await axios.get("https://localhost:7229/api/Order");
+      const orders = orderResponse.data.$values;
 
-      const totalPrice = items.reduce(
+      // Map order statuses to cart items
+      const enrichedItems = items.map((item) => {
+        const relatedOrder = orders.find(
+          (order) => order.cartId === item.cartId
+        );
+        return {
+          ...item,
+          status: relatedOrder?.status || "Pending",
+        };
+      });
+
+      // Filter for pending status
+      const pendingItems = enrichedItems.filter(
+        (item) => item.status === "Pending"
+      );
+
+      setCartItems(pendingItems);
+
+      // Calculate total price and total koi
+      const totalPrice = pendingItems.reduce(
         (sum, item) => sum + (item.price || 0),
         0
       );
-      const totalKoi = items.length;
+      const totalKoi = pendingItems.length;
 
       setTotalPrice(totalPrice);
       setTotalKoi(totalKoi);
     } catch (error) {
-      console.error("Error fetching cart items:", error);
+      console.error("Error fetching cart items or orders:", error);
       setAlertMessage("Failed to load cart items. Please try again.");
     }
   };
@@ -130,6 +154,7 @@ const ProductCard = () => {
             <th>STT</th>
             <th>Name</th>
             <th>Price</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -141,6 +166,7 @@ const ProductCard = () => {
                 Koi Fish {item.koiFishId || item.koiFishyId || "Unknown Item"}
               </td>
               <td>{(item.price || 0).toLocaleString()} VND</td>
+              <td>{item.status}</td>
               <td>
                 <Button
                   variant="danger"
