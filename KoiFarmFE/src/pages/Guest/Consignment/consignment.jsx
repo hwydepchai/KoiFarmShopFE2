@@ -52,7 +52,6 @@ const UserConsignment = () => {
           (cons) => cons.accountId === userData.userId
         );
 
-        // Check and create orders for newly approved consignments
         for (const consignment of userConsignments) {
           if (consignment.status === "Active") {
             try {
@@ -68,8 +67,8 @@ const UserConsignment = () => {
                 const orderData = {
                   consignmentId: consignment.id,
                   accountId: userData.userId,
-                  type: true, // `true` để đánh dấu đây là Order liên quan đến consignment
-                  price: consignment.price || 0, // Giá chỉ mang tính tham khảo
+                  type: true,
+                  price: consignment.price || 0,
                   status: "Pending",
                 };
 
@@ -197,15 +196,12 @@ const UserConsignment = () => {
         </Card.Body>
       </Card>
 
-      {/* Create Consignment Modal */}
       <CreateConsignment
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
         onConsignmentCreated={fetchUserConsignments}
         showAlert={showAlert}
       />
-
-      {/* Details Consignment Modal */}
       <DetailsConsign
         consignmentId={selectedConsignment?.id}
         show={showDetailsModal}
