@@ -207,10 +207,13 @@ const CertificateManager = () => {
                 Select variety
               </option>
               <option value="Kohaku">Kohaku</option>
-              <option value="Sanke">Sanke</option>
-              <option value="Showa">Showa</option>
-              <option value="Utsurimono">Utsurimono</option>
+              <option value="Showa Sanke">Showa Sanke</option>
+              <option value="Utsuri">Utsuri</option>
               <option value="Asagi">Asagi</option>
+              <option value="Shusui">Shusui</option>
+              <option value="Ginrin">Ginrin</option>
+              <option value="Ogon">Ogon</option>
+              <option value="Tancho">Tancho</option>
             </select>
           </div>
 

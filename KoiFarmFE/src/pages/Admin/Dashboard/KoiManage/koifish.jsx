@@ -399,35 +399,26 @@ function KoiFishList() {
               </div>
             </Form.Group>
 
-            {/* variety Checkbox */}
+            {/* Variety Dropdown */}
             <Form.Group controlId="formvariety">
               <Form.Label>Variety</Form.Label>
-              <div>
-                {[
-                  "Showa",
-                  "Asagi",
-                  "Karashi",
-                  "Kohaku",
-                  "Shusui",
-                  "Sanke",
-                  "Tancho",
-                  "Shiro Utsuri",
-                ].map((variety) => (
-                  <Form.Check
-                    key={variety}
-                    inline
-                    type="checkbox"
-                    label={variety}
-                    checked={selectedKoi?.variety.includes(variety)}
-                    onChange={(e) => {
-                      const newvariety = e.target.checked
-                        ? [...(selectedKoi?.variety || []), variety]
-                        : selectedKoi?.variety.filter((s) => s !== variety);
-                      handleFieldEdit("variety", newvariety);
-                    }}
-                  />
-                ))}
-              </div>
+              <Form.Control
+                as="select"
+                value={selectedKoi?.variety || ""}
+                onChange={(e) => handleFieldEdit("variety", e.target.value)}
+              >
+                <option value="" disabled>
+                  Select a variety
+                </option>
+                <option value="Kohaku">Kohaku</option>
+                <option value="Showa Sanke">Showa Sanke</option>
+                <option value="Utsuri">Utsuri</option>
+                <option value="Asagi">Asagi</option>
+                <option value="Shusui">Shusui</option>
+                <option value="Ginrin">Ginrin</option>
+                <option value="Ogon">Ogon</option>
+                <option value="Tancho">Tancho</option>
+              </Form.Control>
             </Form.Group>
 
             {/* Size Input */}
