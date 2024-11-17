@@ -19,7 +19,7 @@ function KoiFishList() {
   const [newKoi, setNewKoi] = useState({
     origin: "",
     gender: "",
-    species: "",
+    variety: "",
     size: 0,
     price: 0,
     status: "",
@@ -165,7 +165,7 @@ function KoiFishList() {
   const filteredKoiList = koiList.filter(
     (koi) =>
       koi.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      koi.species.toLowerCase().includes(searchTerm.toLowerCase())
+      koi.variety.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -177,7 +177,7 @@ function KoiFishList() {
         <input
           type="text"
           className="form-control"
-          placeholder="Search by Origin or Species"
+          placeholder="Search by Origin or variety"
           value={searchTerm}
           onChange={handleSearchChange}
         />
@@ -219,9 +219,9 @@ function KoiFishList() {
                   : "↓"
                 : ""}
             </th>
-            <th scope="col" onClick={() => handleSort("species")}>
-              Species{" "}
-              {sortConfig.key === "species"
+            <th scope="col" onClick={() => handleSort("variety")}>
+              variety{" "}
+              {sortConfig.key === "variety"
                 ? sortConfig.direction === "asc"
                   ? "↑"
                   : "↓"
@@ -260,7 +260,7 @@ function KoiFishList() {
               <td>{koi.id}</td>
               <td>{koi.origin}</td>
               <td>{koi.gender}</td>
-              <td>{koi.species}</td>
+              <td>{koi.variety}</td>
               <td>{koi.size}</td>
               <td>{koi.price}</td>
               <td>{koi.status}</td>
@@ -317,7 +317,7 @@ function KoiFishList() {
                 <th scope="col">ID</th>
                 <th scope="col">Origin</th>
                 <th scope="col">Gender</th>
-                <th scope="col">Species</th>
+                <th scope="col">Variety</th>
                 <th scope="col">Size (cm)</th>
                 <th scope="col">Price (VND)</th>
                 <th scope="col">Status</th>
@@ -330,7 +330,7 @@ function KoiFishList() {
                   <td>{koi.id}</td>
                   <td>{koi.origin}</td>
                   <td>{koi.gender}</td>
-                  <td>{koi.species}</td>
+                  <td>{koi.variety}</td>
                   <td>{koi.size}</td>
                   <td>{koi.price}</td>
                   <td>{koi.status}</td>
@@ -399,9 +399,9 @@ function KoiFishList() {
               </div>
             </Form.Group>
 
-            {/* Species Checkbox */}
-            <Form.Group controlId="formSpecies">
-              <Form.Label>Species</Form.Label>
+            {/* variety Checkbox */}
+            <Form.Group controlId="formvariety">
+              <Form.Label>Variety</Form.Label>
               <div>
                 {[
                   "Showa",
@@ -412,18 +412,18 @@ function KoiFishList() {
                   "Sanke",
                   "Tancho",
                   "Shiro Utsuri",
-                ].map((species) => (
+                ].map((variety) => (
                   <Form.Check
-                    key={species}
+                    key={variety}
                     inline
                     type="checkbox"
-                    label={species}
-                    checked={selectedKoi?.species.includes(species)}
+                    label={variety}
+                    checked={selectedKoi?.variety.includes(variety)}
                     onChange={(e) => {
-                      const newSpecies = e.target.checked
-                        ? [...(selectedKoi?.species || []), species]
-                        : selectedKoi?.species.filter((s) => s !== species);
-                      handleFieldEdit("species", newSpecies);
+                      const newvariety = e.target.checked
+                        ? [...(selectedKoi?.variety || []), variety]
+                        : selectedKoi?.variety.filter((s) => s !== variety);
+                      handleFieldEdit("variety", newvariety);
                     }}
                   />
                 ))}
@@ -477,7 +477,7 @@ function KoiFishList() {
             disabled={
               !selectedKoi?.origin ||
               !selectedKoi?.gender ||
-              selectedKoi?.species.length === 0 ||
+              selectedKoi?.variety.length === 0 ||
               selectedKoi?.size < 0 ||
               selectedKoi?.price < 10000
             }
