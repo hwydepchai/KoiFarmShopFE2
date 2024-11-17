@@ -1,28 +1,12 @@
-/* Modal transition effect */
-.modal {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .modal.show {
-    opacity: 1;
-  }
-  
-  /* Background overlay */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Darken background */
-    backdrop-filter: blur(5px); /* Optional: apply blur to background */
-    z-index: 1040;
-    transition: opacity 0.3s ease;
-  }
-  
-  .modal-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark semi-transparent overlay */
+  z-index: 1040; /* Ensure it appears above other elements */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

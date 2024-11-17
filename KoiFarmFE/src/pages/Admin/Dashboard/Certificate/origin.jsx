@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./origin.css";
 
 const CertificateManager = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +28,7 @@ const CertificateManager = () => {
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Fetch all certificates and images on component mount
   useEffect(() => {
@@ -55,6 +57,7 @@ const CertificateManager = () => {
   };
 
   const handleEditClick = (certificate) => {
+    const imageUrl = getImageUrl(certificate.id); // Fetch the existing image URL
     setEditingId(certificate.id);
     setEditData({
       variety: certificate.variety,
@@ -63,9 +66,11 @@ const CertificateManager = () => {
       yearOfBirth: certificate.yearOfBirth,
       date: certificate.date,
       placeOfIssue: certificate.placeOfIssue,
-      image: null, // Image field remains empty until changed
+      image: null, // New image input
+      existingImage: imageUrl, // Existing image URL
     });
-    setShowModal(true); // Show the modal when edit is clicked
+    setPreviewImage(imageUrl); // Initialize preview with the old image
+    setShowModal(true);
   };
 
   const handleCreateInputChange = (e) => {
@@ -83,13 +88,18 @@ const CertificateManager = () => {
   };
 
   const handleEditImageChange = (e) => {
-    setEditData({ ...editData, image: e.target.files[0] });
+    const file = e.target.files[0];
+    if (file) {
+      setEditData({ ...editData, image: file });
+      const reader = new FileReader();
+      reader.onload = () => setPreviewImage(reader.result); // Preview the new image
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare FormData for updating certificate
     const data = new FormData();
     data.append("variety", editData.variety);
     data.append("gender", editData.gender);
@@ -97,8 +107,9 @@ const CertificateManager = () => {
     data.append("yearOfBirth", parseInt(editData.yearOfBirth));
     data.append("date", editData.date);
     data.append("placeOfIssue", editData.placeOfIssue);
+
     if (editData.image) {
-      data.append("Img", editData.image); // Only append image if updated
+      data.append("Img", editData.image); // Append only if there's a new file
     }
 
     try {
@@ -112,7 +123,7 @@ const CertificateManager = () => {
         }
       );
       setMessage("Certificate updated successfully!");
-      setShowModal(false); // Close modal after update
+      setShowModal(false);
       fetchCertificates();
     } catch (error) {
       console.error("Error updating certificate:", error);
@@ -453,11 +464,20 @@ const CertificateManager = () => {
                       />
                     </div>
 
-                    <div className="form-group">
-                      <label>Image</label>
+                    <div className="form-group mt-2 text-center">
+                      {previewImage ? (
+                        <img
+                          src={previewImage}
+                          alt="Certificate Preview"
+                          width="450"
+                          className="mb-2"
+                        />
+                      ) : (
+                        <p>No image available</p>
+                      )}
                       <input
                         type="file"
-                        className="form-control"
+                        className="form-control mt-3"
                         name="image"
                         accept="image/*"
                         onChange={handleEditImageChange}
