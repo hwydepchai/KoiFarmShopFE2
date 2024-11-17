@@ -10,6 +10,7 @@ const getImageUrl = (imagePath) => `https://localhost:7229/images/${imagePath}`;
 function KoiFishList() {
   const [koiList, setKoiList] = useState([]);
   const [deletedKoi, setDeletedKoi] = useState([]);
+  const [soldKoi, setSoldKoi] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -45,9 +46,12 @@ function KoiFishList() {
         return response.json();
       })
       .then((data) => {
-        const activeKoi = data.$values.filter((koi) => !koi.isDeleted);
-        const deletedKoi = data.$values.filter((koi) => koi.isDeleted);
+        const activeKoi = data.$values.filter((koi) => koi.status === "Active" && !koi.isDeleted);
+        const soldKoi = data.$values.filter((koi) => koi.status === "Sold" && !koi.isDeleted);
+        const deletedKoi = data.$values.filter((koi) => koi.status === "Inactive" || koi.isDeleted);
+  
         setKoiList(activeKoi);
+        setSoldKoi(soldKoi);
         setDeletedKoi(deletedKoi);
         setLoading(false);
       })
@@ -56,6 +60,7 @@ function KoiFishList() {
         setLoading(false);
       });
   };
+  
 
   const handleSort = (column) => {
     let direction = "asc";

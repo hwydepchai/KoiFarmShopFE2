@@ -154,7 +154,7 @@ function KoiFishyDetails() {
 
       {/* Button Section */}
       <div className="text-center mt-4">
-        <Button variant="secondary" size="lg" href="/koifish-list">
+        <Button variant="secondary" size="lg" href="/dashboard/koifishy">
           Back to Koi Fish List
         </Button>
       </div>

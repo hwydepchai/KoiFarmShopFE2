@@ -27,20 +27,36 @@ const DashboardContent = () => {
   // Hàm gọi API lấy dữ liệu
   const fetchData = async () => {
     try {
-      const ordersResponse = await axios.get("https://localhost:7229/api/DashBoard/GetMonthlyOrders");
-      const koiResponse = await axios.get("https://localhost:7229/api/DashBoard/GetMonthlyKoiFish");
-      const koiFishyResponse = await axios.get("https://localhost:7229/api/DashBoard/GetMonthlyKoiFishy");
-      const consignmentsResponse = await axios.get("https://localhost:7229/api/DashBoard/GetMonthlyConsignments");
+      const ordersResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetMonthlyOrders"
+      );
+      const koiResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetMonthlyKoiFish"
+      );
+      const koiFishyResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetMonthlyKoiFishy"
+      );
+      const consignmentsResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetMonthlyConsignments"
+      );
 
       setMonthlyOrders(ordersResponse.data["2024"]);
       setMonthlyKoi(koiResponse.data["2024"]);
       setMonthlyKoiFishy(koiFishyResponse.data["2024"]);
       setMonthlyConsignments(consignmentsResponse.data["2024"]);
 
-      const totalOrdersResponse = await axios.get("https://localhost:7229/api/DashBoard/GetTotalPriceOrders");
-      const totalKoiResponse = await axios.get("https://localhost:7229/api/DashBoard/GetTotalPriceKoiFish");
-      const totalKoiFishyResponse = await axios.get("https://localhost:7229/api/DashBoard/GetTotalPriceKoiFishy");
-      const totalConsignmentsResponse = await axios.get("https://localhost:7229/api/DashBoard/GetTotalPriceConsignments");
+      const totalOrdersResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetTotalPriceOrders"
+      );
+      const totalKoiResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetTotalPriceKoiFish"
+      );
+      const totalKoiFishyResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetTotalPriceKoiFishy"
+      );
+      const totalConsignmentsResponse = await axios.get(
+        "https://localhost:7229/api/DashBoard/GetTotalPriceConsignments"
+      );
 
       setTotalOrders(totalOrdersResponse.data);
       setTotalKoi(totalKoiResponse.data);
@@ -53,10 +69,18 @@ const DashboardContent = () => {
 
   const fetchQuantities = async (month) => {
     try {
-      const ordersQuantity = await axios.get(`https://localhost:7229/api/DashBoard/TotalOrders/${month}`);
-      const koiQuantity = await axios.get(`https://localhost:7229/api/DashBoard/TotalKoiFish/${month}`);
-      const koiFishyQuantity = await axios.get(`https://localhost:7229/api/DashBoard/TotalKoiFishy/${month}`);
-      const consignmentsQuantity = await axios.get(`https://localhost:7229/api/DashBoard/TotalConsignments/${month}`);
+      const ordersQuantity = await axios.get(
+        `https://localhost:7229/api/DashBoard/TotalOrders/${month}`
+      );
+      const koiQuantity = await axios.get(
+        `https://localhost:7229/api/DashBoard/TotalKoiFish/${month}`
+      );
+      const koiFishyQuantity = await axios.get(
+        `https://localhost:7229/api/DashBoard/TotalKoiFishy/${month}`
+      );
+      const consignmentsQuantity = await axios.get(
+        `https://localhost:7229/api/DashBoard/TotalConsignments/${month}`
+      );
 
       setQuantityOrders(ordersQuantity.data);
       setQuantityKoi(koiQuantity.data);
@@ -91,7 +115,20 @@ const DashboardContent = () => {
     fetchQuantities(monthMapping[selectedMonth]);
   }, [selectedMonth]);
 
-  const labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const labels = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   const getDataArray = (data) => labels.map((month) => data[month] || 0);
 
@@ -110,7 +147,8 @@ const DashboardContent = () => {
 
   const handleDataChange = (event) => setSelectedData(event.target.value);
   const handleMonthChange = (event) => setSelectedMonth(event.target.value);
-  const handleTotalDataChange = (event) => setSelectedTotalData(event.target.value);
+  const handleTotalDataChange = (event) =>
+    setSelectedTotalData(event.target.value);
 
   const getTotalValue = () => {
     switch (selectedTotalData) {
@@ -130,19 +168,35 @@ const DashboardContent = () => {
   let chartData;
   switch (selectedData) {
     case "orders":
-      chartData = createChartData(monthlyOrders, "Orders", "rgba(255, 99, 132, 0.6)");
+      chartData = createChartData(
+        monthlyOrders,
+        "Orders",
+        "rgba(255, 99, 132, 0.6)"
+      );
       break;
     case "koi":
       chartData = createChartData(monthlyKoi, "Koi", "rgba(54, 162, 235, 0.6)");
       break;
     case "koifishy":
-      chartData = createChartData(monthlyKoiFishy, "KoiFishy", "rgba(75, 192, 192, 0.6)");
+      chartData = createChartData(
+        monthlyKoiFishy,
+        "KoiFishy",
+        "rgba(75, 192, 192, 0.6)"
+      );
       break;
     case "consignments":
-      chartData = createChartData(monthlyConsignments, "Consignments", "rgba(255, 159, 64, 0.6)");
+      chartData = createChartData(
+        monthlyConsignments,
+        "Consignments",
+        "rgba(255, 159, 64, 0.6)"
+      );
       break;
     default:
-      chartData = createChartData(monthlyOrders, "Orders", "rgba(255, 99, 132, 0.6)");
+      chartData = createChartData(
+        monthlyOrders,
+        "Orders",
+        "rgba(255, 99, 132, 0.6)"
+      );
   }
 
   return (
@@ -159,7 +213,10 @@ const DashboardContent = () => {
       </Form.Group>
 
       <div style={{ width: "80%", margin: "0 auto" }}>
-        <Bar data={chartData} options={{ scales: { y: { beginAtZero: true } } }} />
+        <Bar
+          data={chartData}
+          options={{ scales: { y: { beginAtZero: true } } }}
+        />
       </div>
 
       <Form.Group controlId="monthSelector" className="mt-4">
@@ -188,7 +245,9 @@ const DashboardContent = () => {
           <option value="koifishy">KoiFishy</option>
           <option value="consignments">Consignments</option>
         </Form.Select>
-        <h5 className="mt-3">Tổng Số Tiền: {getTotalValue().toLocaleString()} VND</h5>
+        <h5 className="mt-3">
+          Tổng Số Tiền: {getTotalValue().toLocaleString()} VND
+        </h5>
       </Form.Group>
     </div>
   );
