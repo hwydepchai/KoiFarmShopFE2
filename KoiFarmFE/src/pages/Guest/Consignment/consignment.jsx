@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-bootstrap";
 import axios from "axios";
-import { Plus, Eye } from "lucide-react";
+import { Plus, Eye, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DetailsConsign from "./DetailsConsign";
 import CreateConsignment from "./CreateConsignment";
@@ -34,11 +34,13 @@ const UserConsignment = () => {
     fetchUserConsignments();
   }, []);
 
+  // Hiển thị thông báo
   const showAlert = (message, type = "success") => {
     setAlert({ message, type });
     setTimeout(() => setAlert(null), 3000);
   };
 
+  // Lấy danh sách consignments của người dùng
   const fetchUserConsignments = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -52,46 +54,80 @@ const UserConsignment = () => {
           (cons) => cons.accountId === userData.userId
         );
 
-        for (const consignment of userConsignments) {
-          if (consignment.status === "Active") {
-            try {
-              const orderResponse = await axios.get(
-                "https://localhost:7229/api/Order",
-                config
-              );
-              const existingOrder = orderResponse.data.$values.find(
-                (order) => order.consignmentId === consignment.id
-              );
+        // Bao gồm trạng thái Pending, Inactive và Active
+        const filteredConsignments = userConsignments.filter(
+          (consignment) =>
+            consignment.status === "Pending" ||
+            consignment.status === "Inactive" ||
+            consignment.status === "Active"
+        );
 
-              if (!existingOrder) {
-                const orderData = {
-                  consignmentId: consignment.id,
-                  accountId: userData.userId,
-                  type: true,
-                  price: consignment.price || 0,
-                  status: "Pending",
-                };
-
-                await axios.post(
-                  "https://localhost:7229/api/Order",
-                  orderData,
-                  config
-                );
-                showAlert("Order created for active consignment.");
-              }
-            } catch (error) {
-              console.error("Error checking/creating order:", error);
-            }
-          }
-        }
-
-        setConsignments(userConsignments);
+        setConsignments(filteredConsignments);
       }
     } catch (error) {
       console.error("Error fetching consignments:", error);
       showAlert("Error fetching consignments", "danger");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Hàm thêm consignment vào cart
+  const addToCart = async (consignment) => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const userId = userData?.userId;
+
+      if (!userId) {
+        alert("You haven't logged in!");
+        navigate("/login");
+        return;
+      }
+
+      // Lấy thông tin cart hoặc tạo cart mới
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const cartRes = await axios.get(
+        "https://localhost:7229/api/Cart",
+        config
+      );
+      let userCart = cartRes.data.$values.find(
+        (cart) => cart.accountId === userId && !cart.isDeleted
+      );
+
+      if (!userCart) {
+        // Tạo cart mới nếu chưa tồn tại
+        const newCartRes = await axios.post(
+          "https://localhost:7229/api/Cart",
+          {
+            accountId: userId,
+            quantity: 0,
+            price: 0,
+          },
+          config
+        );
+        userCart = newCartRes.data;
+      }
+
+      // Tạo CartItem mới
+      const cartItem = {
+        cartId: userCart.id,
+        koiFishId: null,
+        koiFishyId: null,
+        consignmentId: consignment.id,
+        price: consignment.price,
+      };
+
+      await axios.post("https://localhost:7229/api/CartItem", cartItem, config);
+
+      // Hiển thị thông báo và làm mới danh sách
+      showAlert("Consignment added to cart successfully!");
+      fetchUserConsignments(); // Làm mới danh sách sau khi thêm vào cart
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      showAlert(
+        "There was an issue adding this consignment to your cart. Please try again.",
+        "danger"
+      );
     }
   };
 
@@ -177,8 +213,17 @@ const UserConsignment = () => {
                         variant="outline-primary"
                         size="sm"
                         onClick={() => handleViewDetails(consignment)}
+                        className="me-2"
                       >
                         <Eye size={16} />
+                      </Button>
+                      <Button
+                        variant="success"
+                        size="sm"
+                        onClick={() => addToCart(consignment)}
+                        disabled={false} // Đảm bảo nút luôn hoạt động
+                      >
+                        <ShoppingCart size={16} />
                       </Button>
                     </td>
                   </tr>
