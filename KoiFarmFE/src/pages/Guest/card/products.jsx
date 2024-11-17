@@ -14,7 +14,6 @@ const ProductCard = () => {
     fetchCartItems();
   }, []);
 
-  // Fetch cart items from the API
   const fetchCartItems = async () => {
     try {
       const response = await axios.get("https://localhost:7229/api/CartItem");
@@ -22,7 +21,6 @@ const ProductCard = () => {
 
       setCartItems(items);
 
-      // Calculate totals
       const totalPrice = items.reduce(
         (sum, item) => sum + (item.price || 0),
         0
@@ -37,28 +35,16 @@ const ProductCard = () => {
     }
   };
 
-  // Remove a cart item
   const removeCartItem = async (id) => {
     try {
       await axios.delete(`https://localhost:7229/api/CartItem/${id}`);
-      const updatedCartItems = cartItems.filter((item) => item.id !== id);
-      setCartItems(updatedCartItems);
-
-      const totalPrice = updatedCartItems.reduce(
-        (sum, item) => sum + (item.price || 0),
-        0
-      );
-      const totalKoi = updatedCartItems.length;
-
-      setTotalPrice(totalPrice);
-      setTotalKoi(totalKoi);
+      fetchCartItems();
     } catch (error) {
       console.error("Error removing cart item:", error);
       setAlertMessage("Failed to remove item. Please try again.");
     }
   };
 
-  // Checkout logic
   const handleCheckout = async () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
@@ -74,7 +60,6 @@ const ProductCard = () => {
         return;
       }
 
-      // Step 1: Create a new Cart
       const cartPayload = {
         accountId: userId,
         quantity: cartItems.length,
@@ -87,9 +72,6 @@ const ProductCard = () => {
       );
       const newCart = cartResponse.data;
 
-      console.log("New cart created:", newCart);
-
-      // Step 2: Add Cart Items to the new Cart
       const cartItemPromises = cartItems.map(async (item) => {
         const payload = {
           cartId: newCart.id,
@@ -99,22 +81,29 @@ const ProductCard = () => {
           price: item.price || 0,
         };
 
-        console.log("Creating CartItem:", payload);
-
         await axios.post("https://localhost:7229/api/CartItem", payload);
       });
 
       await Promise.all(cartItemPromises);
 
-      // Step 3: Clear the old Cart Items from the server
       const deletePromises = cartItems.map(async (item) => {
         await axios.delete(`https://localhost:7229/api/CartItem/${item.id}`);
       });
 
       await Promise.all(deletePromises);
 
-      // Step 4: Navigate to the Cart page
-      navigate("/cart");
+      const orderPayload = {
+        accountId: userId,
+        cartId: newCart.id,
+        price: totalPrice,
+        status: "Pending",
+      };
+
+      await axios.post("https://localhost:7229/api/Order", orderPayload);
+
+      fetchCartItems();
+
+      navigate("/cart", { state: { cartId: newCart.id } });
     } catch (error) {
       console.error("Error during checkout:", error);
       setAlertMessage("Failed to proceed to checkout. Please try again.");
