@@ -44,25 +44,14 @@ const UserConsignment = () => {
   const fetchUserConsignments = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const response = await axios.get(
-        `https://localhost:7229/api/Consignments`,
-        config
-      );
+      const response = await axios.get("https://localhost:7229/api/Consignments", config);
 
       if (response.data && response.data.$values) {
         const userConsignments = response.data.$values.filter(
-          (cons) => cons.accountId === userData.userId
+          (consignment) => consignment.accountId === userData.userId && consignment.status !== "Paid"
         );
 
-        // Bao gồm trạng thái Pending, Inactive và Active
-        const filteredConsignments = userConsignments.filter(
-          (consignment) =>
-            consignment.status === "Pending" ||
-            consignment.status === "Inactive" ||
-            consignment.status === "Active"
-        );
-
-        setConsignments(filteredConsignments);
+        setConsignments(userConsignments);
       }
     } catch (error) {
       console.error("Error fetching consignments:", error);
@@ -72,64 +61,87 @@ const UserConsignment = () => {
     }
   };
 
+
   // Hàm thêm consignment vào cart
   const addToCart = async (consignment) => {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
       const userId = userData?.userId;
-
+  
       if (!userId) {
         alert("You haven't logged in!");
         navigate("/login");
         return;
       }
-
-      // Lấy thông tin cart hoặc tạo cart mới
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const cartRes = await axios.get(
-        "https://localhost:7229/api/Cart",
-        config
-      );
+  
+      // Lấy thông tin giỏ hàng của người dùng
+      const cartRes = await axios.get("https://localhost:7229/api/Cart");
       let userCart = cartRes.data.$values.find(
         (cart) => cart.accountId === userId && !cart.isDeleted
       );
-
+  
+      // Nếu không có giỏ hàng, tạo một giỏ hàng mới
       if (!userCart) {
-        // Tạo cart mới nếu chưa tồn tại
         const newCartRes = await axios.post(
           "https://localhost:7229/api/Cart",
           {
             accountId: userId,
             quantity: 0,
             price: 0,
-          },
-          config
+          }
         );
         userCart = newCartRes.data;
+        console.log("New cart created:", userCart);
       }
-
-      // Tạo CartItem mới
+  
+      // Tạo item mới trong giỏ hàng
       const cartItem = {
-        cartId: userCart.id,
+        cartId: userCart.id, 
         koiFishId: null,
         koiFishyId: null,
-        consignmentId: consignment.id,
-        price: consignment.price,
+        consignmentId: consignment.id, 
+        price: consignment.price, 
       };
-
-      await axios.post("https://localhost:7229/api/CartItem", cartItem, config);
-
-      // Hiển thị thông báo và làm mới danh sách
-      showAlert("Consignment added to cart successfully!");
-      fetchUserConsignments(); // Làm mới danh sách sau khi thêm vào cart
+  
+      // Log giá trị của userCart và cartItem để kiểm tra
+      console.log("userCart", userCart);
+      console.log("cartItem", cartItem);
+  
+      // Thêm CartItem vào giỏ hàng
+      const addItemRes = await axios.post("https://localhost:7229/api/CartItem", cartItem);
+      console.log("Item added to cart:", addItemRes.data);
+  
+      // Cập nhật lại giỏ hàng với giá trị và số lượng mới
+      const updatedPrice = userCart.price + consignment.price;
+      const updatedQuantity = userCart.quantity + 1;
+  
+      await axios.put(`https://localhost:7229/api/Cart/${userCart.id}`, {
+        price: updatedPrice,
+        quantity: updatedQuantity,
+      });
+  
+      // Chuyển hướng đến trang giỏ hàng
+      navigate("/card");
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      showAlert(
-        "There was an issue adding this consignment to your cart. Please try again.",
-        "danger"
-      );
+      console.error("Error adding consignment to cart:", error);
+      setErrorMessage("There was an issue adding this consignment to your cart. Please try again.");
     }
   };
+  
+  
+  
+  if (loading) {
+    return (
+      <Container
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "100vh" }}
+      >
+        <Spinner animation="border" variant="primary" />
+      </Container>
+    );
+  }
+  
+  
 
   const handleViewDetails = (consignment) => {
     setSelectedConsignment(consignment);
@@ -197,8 +209,8 @@ const UserConsignment = () => {
                           consignment.status === "Active"
                             ? "success"
                             : consignment.status === "Pending"
-                            ? "warning"
-                            : "secondary"
+                              ? "warning"
+                              : "secondary"
                         }
                         className="rounded-pill"
                       >
@@ -220,17 +232,18 @@ const UserConsignment = () => {
                       <Button
                         variant="success"
                         size="sm"
-                        onClick={() => addToCart(consignment)}
-                        disabled={false} // Đảm bảo nút luôn hoạt động
+                        onClick={() => addToCart(consignment)} 
+                        disabled={false} 
                       >
                         <ShoppingCart size={16} />
                       </Button>
+
                     </td>
                   </tr>
                 ))}
                 {consignments.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="text-center py-4">
+                    <td colSpan="7" className="text-center py-4">
                       No consignments found
                     </td>
                   </tr>
