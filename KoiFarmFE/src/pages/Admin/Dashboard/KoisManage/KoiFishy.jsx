@@ -54,17 +54,21 @@ function KoiFishy() {
         setError(error.message);
       });
   };
-
-  // Search filter function
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category ? category.category1 : "Unknown";
+  };
   const filteredKoiList = koiList.filter((koi) => {
+    const lowerCaseSearch = searchTerm.toLowerCase();
+
     return (
-      koi.id.toString().includes(searchTerm) ||
-      getCategoryName(koi.categoryId)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      koi.quantity.toString().includes(searchTerm) ||
-      koi.price.toString().includes(searchTerm) ||
-      koi.status.toLowerCase().includes(searchTerm.toLowerCase())
+      koi.id.toString().includes(lowerCaseSearch) || // Search in ID
+      koi.name.toString().includes(lowerCaseSearch) || // Search in Name
+      getCategoryName(koi.categoryId).toLowerCase().includes(lowerCaseSearch) || // Search in Category Name
+      (koi.origin && koi.origin.toLowerCase().includes(lowerCaseSearch)) || // Search in Origin
+      koi.quantity.toString().includes(lowerCaseSearch) || // Search in Quantity
+      koi.price.toString().includes(lowerCaseSearch) || // Search in Price
+      koi.status.toLowerCase().includes(lowerCaseSearch) // Search in Status
     );
   });
 
@@ -200,12 +204,6 @@ function KoiFishy() {
     }
   };
 
-  // Function to get category name by id
-  const getCategoryName = (categoryId) => {
-    const category = categories.find((cat) => cat.id === categoryId);
-    return category ? category.category1 : "Unknown";
-  };
-
   return (
     <div className="container my-4">
       <h2 className="text-center mb-4">Available Koi Fishy</h2>
@@ -226,120 +224,144 @@ function KoiFishy() {
         Add New Koi Batch
       </Button>
       <br />
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th scope="col" onClick={() => sortKoiList("id")}>
-              ID
-              {sortConfig.key === "id" &&
-                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-            </th>
-            <th scope="col" onClick={() => sortKoiList("categoryId")}>
-              Category
-              {sortConfig.key === "categoryId" &&
-                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-            </th>
-            <th scope="col" onClick={() => sortKoiList("quantity")}>
-              Quantity
-              {sortConfig.key === "quantity" &&
-                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-            </th>
-            <th scope="col" onClick={() => sortKoiList("price")}>
-              Price (VND)
-              {sortConfig.key === "price" &&
-                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-            </th>
-            <th scope="col" onClick={() => sortKoiList("status")}>
-              Status
-              {sortConfig.key === "status" &&
-                (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-            </th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {activeKoi.map((koi) => (
-            <tr key={koi.id}>
-              <td>{koi.id}</td>
-              <td>{getCategoryName(koi.categoryId)}</td>
-              <td>{koi.quantity}</td>
-              <td>{koi.price}</td>
-              <td>{koi.status}</td>
-              <td>
-                <Dropdown>
-                  <Dropdown.Toggle
-                    variant="link"
-                    id="dropdown-custom-components"
-                    className="text-decoration-none"
-                  >
-                    <img
-                      src="https://cdn-icons-png.flaticon.com/128/2311/2311524.png"
-                      alt="more"
-                      style={{ height: "20px", cursor: "pointer" }}
-                    />
-                  </Dropdown.Toggle>
-
-                  <Dropdown.Menu>
-                    <Dropdown.Item
-                      as={Link}
-                      to={`/dashboard/koifishy/${koi.id}`}
-                    >
-                      View Details
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      as="button"
-                      className="btn btn-warning btn-sm"
-                      onClick={() => handleEditClick(koi)}
-                    >
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      as="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => deleteKoi(koi.id)}
-                    >
-                      Delete
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </td>
+      {activeKoi.length > 0 ? (
+        <table className="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" onClick={() => sortKoiList("id")}>
+                ID
+                {sortConfig.key === "id" &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+              <th scope="col" onClick={() => sortKoiList("name")}>
+                Name
+                {sortConfig.key === "name" &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+              <th scope="col" onClick={() => sortKoiList("categoryId")}>
+                Category
+                {sortConfig.key === "categoryId" &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+              <th scope="col" onClick={() => sortKoiList("origin")}>
+                Origin
+                {sortConfig.key === "origin" &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+              <th scope="col" onClick={() => sortKoiList("quantity")}>
+                Quantity
+                {sortConfig.key === "quantity" &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+              <th scope="col" onClick={() => sortKoiList("price")}>
+                Price (VND)
+                {sortConfig.key === "price" &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+              <th scope="col" onClick={() => sortKoiList("status")}>
+                Status
+                {sortConfig.key === "status" &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+              <th scope="col">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {activeKoi.map((koi) => (
+              <tr key={koi.id}>
+                <td>{koi.id}</td>
+                <td>{koi.name}</td>
+                <td>{getCategoryName(koi.categoryId)}</td>
+                <td>{koi.origin}</td>
+                <td>{koi.quantity}</td>
+                <td>{koi.price}</td>
+                <td>{koi.status}</td>
+                <td>
+                  <Dropdown>
+                    <Dropdown.Toggle
+                      variant="link"
+                      id="dropdown-custom-components"
+                      className="text-decoration-none"
+                    >
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/128/2311/2311524.png"
+                        alt="more"
+                        style={{ height: "20px", cursor: "pointer" }}
+                      />
+                    </Dropdown.Toggle>
 
-      <h3 className="text-center my-4">Deleted Koi Fish</h3>
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Category</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Price (VND)</th>
-            <th scope="col">Status</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {deletedKoi.map((koi) => (
-            <tr key={koi.id}>
-              <td>{koi.id}</td>
-              <td>{getCategoryName(koi.categoryId)}</td>
-              <td>{koi.quantity}</td>
-              <td>{koi.price}</td>
-              <td>{koi.status}</td>
-              <td>
-                <button
-                  className="btn btn-success btn-sm mx-2"
-                  onClick={() => toggleKoiStatus(koi.id, false)}
-                >
-                  Restore
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    <Dropdown.Menu>
+                      <Dropdown.Item
+                        as={Link}
+                        to={`/dashboard/koifishy/${koi.id}`}
+                      >
+                        View Details
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        as="button"
+                        className="btn btn-warning btn-sm"
+                        onClick={() => handleEditClick(koi)}
+                      >
+                        Edit
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        as="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() => deleteKoi(koi.id)}
+                      >
+                        Delete
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="text-center">No available fishes</p>
+      )}
+
+      {deletedKoi.length > 0 && (
+        <>
+          <h3 className="text-center my-4">Deleted Koi Fish</h3>
+          <table className="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Origin</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price (VND)</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deletedKoi.map((koi) => (
+                <tr key={koi.id}>
+                  <td>{koi.id}</td>
+                  <td>{koi.name}</td>
+                  <td>{getCategoryName(koi.categoryId)}</td>
+                  <td>{koi.origin}</td>
+                  <td>{koi.quantity}</td>
+                  <td>{koi.price}</td>
+                  <td>{koi.status}</td>
+                  <td>
+                    <button
+                      className="btn btn-success btn-sm mx-2"
+                      onClick={() => toggleKoiStatus(koi.id, false)}
+                    >
+                      Restore
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
 
       {/* Modal for editing Koi details */}
       {selectedKoi && (
@@ -349,48 +371,191 @@ function KoiFishy() {
           </Modal.Header>
           <Modal.Body>
             <Form>
-              <Form.Group controlId="formPrice">
-                <Form.Label>Price</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.price}
-                  onChange={(e) => handleFieldEdit("price", e.target.value)}
-                />
-              </Form.Group>
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group controlId="formName">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={selectedKoi.name || ""}
+                      onChange={(e) => handleFieldEdit("name", e.target.value)}
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group controlId="formGender">
+                    <Form.Label>Gender</Form.Label>
+                    <div className="d-flex">
+                      <Form.Check
+                        type="radio"
+                        label="Male"
+                        name="gender"
+                        value="Male"
+                        checked={selectedKoi.gender === "Male"}
+                        onChange={(e) =>
+                          handleFieldEdit("gender", e.target.value)
+                        }
+                        className="me-3"
+                      />
+                      <Form.Check
+                        type="radio"
+                        label="Female"
+                        name="gender"
+                        value="Female"
+                        checked={selectedKoi.gender === "Female"}
+                        onChange={(e) =>
+                          handleFieldEdit("gender", e.target.value)
+                        }
+                      />
+                    </div>
+                  </Form.Group>
+                </div>
+              </div>
 
-              <Form.Group controlId="formQuantity">
-                <Form.Label>Quantity</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.quantity}
-                  onChange={(e) => handleFieldEdit("quantity", e.target.value)}
-                />
-              </Form.Group>
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group controlId="formVariety">
+                    <Form.Label>Variety</Form.Label>
+                    <Form.Select
+                      value={selectedKoi.variety || ""}
+                      onChange={(e) =>
+                        handleFieldEdit("variety", e.target.value)
+                      }
+                    >
+                      <option value="">Select Variety</option>
+                      <option value="Kohaku">Kohaku</option>
+                      <option value="Showa Sanke">Showa Sanke</option>
+                      <option value="Utsuri">Utsuri</option>
+                      <option value="Asagi">Asagi</option>
+                      <option value="Shusui">Shusui</option>
+                      <option value="Ginrin">Ginrin</option>
+                      <option value="Ogon">Ogon</option>
+                      <option value="Tancho">Tancho</option>
+                    </Form.Select>
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group controlId="formSize">
+                    <Form.Label>Size</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={selectedKoi.size || ""}
+                      onChange={(e) => handleFieldEdit("size", e.target.value)}
+                    />
+                  </Form.Group>
+                </div>
+              </div>
 
-              <Form.Group controlId="formStatus">
-                <Form.Label>Status</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedKoi.status}
-                  onChange={(e) => handleFieldEdit("status", e.target.value)}
-                />
-              </Form.Group>
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group controlId="formOrigin">
+                    <Form.Label>Origin</Form.Label>
+                    <Form.Select
+                      value={selectedKoi.origin || ""}
+                      onChange={(e) =>
+                        handleFieldEdit("origin", e.target.value)
+                      }
+                    >
+                      <option value="">Select Origin</option>
+                      <option value="Vietnam">Vietnam</option>
+                      <option value="Japan">Japan</option>
+                      <option value="Thailand">Thailand</option>
+                      <option value="China">China</option>
+                      <option value="South Korea">South Korea</option>
+                      <option value="India">India</option>
+                    </Form.Select>
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group controlId="formYearOfBirth">
+                    <Form.Label>Year of Birth</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={selectedKoi.yearOfBirth || ""}
+                      onChange={(e) =>
+                        handleFieldEdit("yearOfBirth", e.target.value)
+                      }
+                    />
+                  </Form.Group>
+                </div>
+              </div>
 
-              <Form.Group controlId="formImage">
-                <Form.Label>Image</Form.Label>
-                <input
-                  type="file"
-                  onChange={handleImageChange}
-                  className="form-control"
-                />
-                <img
-                  src={selectedKoi.imgUrl || placeholderImage}
-                  alt="Koi"
-                  className="img-fluid mt-2"
-                />
-              </Form.Group>
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group controlId="formCharacter">
+                    <Form.Label>Character</Form.Label>
+                    <Form.Select
+                      value={selectedKoi.character || ""}
+                      onChange={(e) =>
+                        handleFieldEdit("character", e.target.value)
+                      }
+                    >
+                      <option value="">Select Character</option>
+                      <option value="Calm">Calm</option>
+                      <option value="Aggressive">Aggressive</option>
+                      <option value="Playful">Playful</option>
+                      <option value="Shy">Shy</option>
+                      <option value="Curious">Curious</option>
+                    </Form.Select>
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group controlId="formPrice">
+                    <Form.Label>Price</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={selectedKoi.price || ""}
+                      onChange={(e) => handleFieldEdit("price", e.target.value)}
+                    />
+                  </Form.Group>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group controlId="formDiet">
+                    <Form.Label>Diet</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={selectedKoi.diet || ""}
+                      onChange={(e) => handleFieldEdit("diet", e.target.value)}
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group controlId="formQuantity">
+                    <Form.Label>Quantity</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={selectedKoi.quantity || ""}
+                      onChange={(e) =>
+                        handleFieldEdit("quantity", e.target.value)
+                      }
+                    />
+                  </Form.Group>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-12">
+                  <Form.Group controlId="formImage">
+                    <Form.Label>Image</Form.Label>
+                    <input
+                      type="file"
+                      onChange={handleImageChange}
+                      className="form-control"
+                    />
+                    <img
+                      src={selectedKoi.imgUrl || placeholderImage}
+                      alt="Koi"
+                      className="img-fluid mt-2"
+                    />
+                  </Form.Group>
+                </div>
+              </div>
             </Form>
           </Modal.Body>
+
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowModal(false)}>
               Close

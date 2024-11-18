@@ -57,7 +57,7 @@ function KoiFishDetails() {
       >
         <div className="row">
           {/* Left Column with Image */}
-          <div className="col-md-4 mb-4">
+          <div className="col-md-4 mt-4 d-flex flex-column justify-content-between">
             {images.length > 0 ? (
               <img
                 key={images[0].id}
@@ -96,19 +96,21 @@ function KoiFishDetails() {
             {/* Koi Name and Type */}
             <div className="mb-4">
               <h4 className="text-primary mb-2">
-                <strong>{koiDetails.name}</strong>
-                {koiDetails.type}
+                <strong>
+                  {koiDetails.name} - {koiDetails.type}{" "}
+                  {categoryDetails?.category1}
+                </strong>
               </h4>
             </div>
 
             {/* Price */}
-            <p className="text-danger fs-4 mb-3">
+            <p className="text-success fs-4 mb-3">
               <strong>Price:</strong> {koiDetails.price} VND
             </p>
 
             {/* Category */}
             <p className="card-text mb-3">
-              <strong>Category:</strong> {categoryDetails?.category1}
+              <strong>Category:</strong>
             </p>
             <div className="">
               <div className="row">
@@ -153,9 +155,6 @@ function KoiFishDetails() {
                   <p className="card-text">
                     <strong>Origin Certificate ID:</strong>{" "}
                     {koiDetails.originCertificateId}
-                  </p>
-                  <p>
-                    <strong>Variety:</strong> {koiDetails.variety}
                   </p>
                 </div>
               </div>
