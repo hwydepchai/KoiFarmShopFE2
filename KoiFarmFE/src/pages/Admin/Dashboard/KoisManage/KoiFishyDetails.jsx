@@ -67,16 +67,40 @@ function KoiFishyDetails() {
                     <td>{koiDetails.id}</td>
                   </tr>
                   <tr>
+                    <th>Name</th>
+                    <td>{koiDetails.name || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Gender</th>
+                    <td>{koiDetails.gender || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Size</th>
+                    <td>{koiDetails.size || "N/A"} cm</td>
+                  </tr>
+                  <tr>
+                    <th>Year of Birth</th>
+                    <td>{koiDetails.yearOfBirth || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Variety</th>
+                    <td>{koiDetails.variety || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Origin</th>
+                    <td>{koiDetails.origin || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Diet</th>
+                    <td>{koiDetails.diet || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Character</th>
+                    <td>{koiDetails.character || "N/A"}</td>
+                  </tr>
+                  <tr>
                     <th>Price</th>
                     <td>{`$${koiDetails.price}`}</td>
-                  </tr>
-                  <tr>
-                    <th>Category</th>
-                    <td>{categoryName}</td>
-                  </tr>
-                  <tr>
-                    <th>Category ID</th>
-                    <td>{koiDetails.categoryId}</td>
                   </tr>
                   <tr>
                     <th>Quantity</th>
@@ -85,30 +109,6 @@ function KoiFishyDetails() {
                   <tr>
                     <th>Status</th>
                     <td>{koiDetails.status}</td>
-                  </tr>
-                  <tr>
-                    <th>Created Date</th>
-                    <td>
-                      {new Date(koiDetails.createdDate).toLocaleDateString()}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Modified Date</th>
-                    <td>
-                      {new Date(koiDetails.modifiedDate).toLocaleDateString()}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Deleted Date</th>
-                    <td>
-                      {koiDetails.deletedDate
-                        ? new Date(koiDetails.deletedDate).toLocaleDateString()
-                        : "N/A"}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Is Deleted</th>
-                    <td>{koiDetails.isDeleted ? "True" : "False"}</td>
                   </tr>
                 </tbody>
               </Table>
