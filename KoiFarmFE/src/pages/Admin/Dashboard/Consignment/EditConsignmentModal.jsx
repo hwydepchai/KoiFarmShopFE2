@@ -38,7 +38,7 @@ const EditConsignmentModal = ({ show, handleClose, consignment, onSave }) => {
     formData.append("size", editForm.size);
     formData.append("amountFood", editForm.amountFood);
     formData.append("price", editForm.price);
-    formData.append("status", editForm.status); // Include status
+    formData.append("status", editForm.status);
 
     if (selectedFile) {
       formData.append("img", selectedFile);
@@ -145,7 +145,7 @@ const EditConsignmentModal = ({ show, handleClose, consignment, onSave }) => {
               }
             />
           </Form.Group>
-          <Form.Group className="mb-3">
+          {/* <Form.Group className="mb-3">
             <Form.Label>Status</Form.Label>
             <Form.Select
               value={editForm.status}
@@ -153,11 +153,9 @@ const EditConsignmentModal = ({ show, handleClose, consignment, onSave }) => {
                 setEditForm({ ...editForm, status: e.target.value })
               }
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
               <option value="pending">Pending</option>
             </Form.Select>
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group className="mb-3">
             <Form.Label>Image</Form.Label>
             <div className="d-flex align-items-center">

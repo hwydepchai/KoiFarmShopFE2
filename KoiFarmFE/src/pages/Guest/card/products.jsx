@@ -69,8 +69,33 @@ const ProductCard = () => {
     }
   };
 
+  // const removeCartItem = async (id) => {
+  //   try {
+  //     // Update the item's status to "Active"
+  //     const updatePayload = { status: "Active" };
+  //     await axios.put(
+  //       `https://localhost:7229/api/CartItem/${id}`,
+  //       updatePayload
+  //     );
+
+  //     // Refresh the cart items
+  //     fetchCartItems();
+  //   } catch (error) {
+  //     console.error("Error updating cart item status:", error);
+  //     setAlertMessage("Failed to update item status. Please try again.");
+  //   }
+  // };
+
   const handleCheckout = async () => {
     try {
+      // Check if total price is greater than 0 before proceeding
+      if (totalPrice <= 0) {
+        setAlertMessage(
+          "Your total is too low to proceed with checkout. Add more items."
+        );
+        return; // Stop further execution
+      }
+
       const user = JSON.parse(localStorage.getItem("user"));
       const userId = user?.userId;
 

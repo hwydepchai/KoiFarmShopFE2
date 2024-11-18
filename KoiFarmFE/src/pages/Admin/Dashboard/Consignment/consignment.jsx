@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Badge, Spinner } from "react-bootstrap";
 import { Pencil } from "lucide-react";
 import EditConsignmentModal from "./EditConsignmentModal";
+import { useNavigate } from "react-router-dom";
 
 const ConsignmentManagement = () => {
   const [consignments, setConsignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedConsignment, setSelectedConsignment] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchConsignments();
@@ -18,10 +20,17 @@ const ConsignmentManagement = () => {
       const response = await fetch("https://localhost:7229/api/Consignments");
       const data = await response.json();
 
-      const processedData = data.$values.map((item) => ({
-        ...item,
-        price: item.price || 0,
-      }));
+      // const processedData = data.$values.map((item) => ({
+      //   ...item,
+      //   price: item.price || 0,
+      // }));
+
+      const processedData = data.$values
+        .filter((item) => !item.isDeleted)
+        .map((item) => ({
+          ...item,
+          price: item.price || 0,
+        }));
 
       setConsignments(processedData);
       setLoading(false);
@@ -34,6 +43,29 @@ const ConsignmentManagement = () => {
   const handleEdit = (consignment) => {
     setSelectedConsignment(consignment);
     setShowEditModal(true);
+  };
+
+  const handleApprove = (consignmentId) => {
+    navigate(`/consignment`, { state: { consignmentId } }); // Use navigate to redirect
+  };
+
+  const handleReject = async (consignmentId) => {
+    try {
+      const response = await fetch(
+        `https://localhost:7229/api/Consignments/${consignmentId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        fetchConsignments();
+      } else {
+        console.error("Failed to delete consignment:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error rejecting consignment:", error);
+    }
   };
 
   const handleSave = async (formData) => {
@@ -114,6 +146,22 @@ const ConsignmentManagement = () => {
                   onClick={() => handleEdit(consignment)}
                 >
                   <Pencil size={16} />
+                </Button>
+
+                <Button
+                  variant="success"
+                  size="sm"
+                  onClick={() => handleApprove(consignment.id)}
+                >
+                  Approve
+                </Button>
+
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => handleReject(consignment.id)}
+                >
+                  Reject
                 </Button>
               </td>
             </tr>

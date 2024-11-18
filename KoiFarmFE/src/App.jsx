@@ -16,7 +16,7 @@ import PaymentReturn from "./pages/Customer/payment/payment";
 import KoiyList from "./pages/Guest/Koiy/KoiyList";
 import KoiyDetails from "./pages/Guest/Koiy/KoiyDetails";
 import History from "./pages/Customer/cart/history";
-import ProtectedRoute from "./pages/Guest/login/auth"; // Import ProtectedRoute
+import ProtectedRoute from "./pages/Guest/login/auth";
 import User from "./pages/Customer/user/user";
 import ProductCard from "./pages/Guest/card/products";
 

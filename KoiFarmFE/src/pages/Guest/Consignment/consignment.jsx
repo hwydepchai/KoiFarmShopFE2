@@ -221,7 +221,7 @@ const UserConsignment = () => {
                         variant="success"
                         size="sm"
                         onClick={() => addToCart(consignment)}
-                        disabled={false} // Đảm bảo nút luôn hoạt động
+                        disabled={false}
                       >
                         <ShoppingCart size={16} />
                       </Button>
