@@ -71,7 +71,7 @@ const Header = () => {
             History
           </Nav.Link>
           <Nav.Link as={Link} to="/card" className="text-white">
-            Card
+            Cart
           </Nav.Link>
         </Nav>
         <Nav className="ms-auto">

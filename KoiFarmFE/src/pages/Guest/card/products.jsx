@@ -27,15 +27,48 @@ const ProductCard = () => {
       const orders = orderResponse.data.$values;
 
       // Map order statuses to cart items
-      const enrichedItems = items.map((item) => {
-        const relatedOrder = orders.find(
-          (order) => order.cartId === item.cartId
-        );
-        return {
-          ...item,
-          status: relatedOrder?.status || "Pending",
-        };
-      });
+      // const enrichedItems = items.map((item) => {
+      //   const relatedOrder = orders.find(
+      //     (order) => order.cartId === item.cartId
+      //   );
+      //   return {
+      //     ...item,
+      //     status: relatedOrder?.status || "Pending",
+      //   };
+      // });
+
+      const enrichedItems = await Promise.all(
+        items.map(async (item) => {
+          const relatedOrder = orders.find(
+            (order) => order.cartId === item.cartId
+          );
+
+          // Fetch name from the appropriate API
+          let name = "Unknown Item";
+          if (item.koiFishId) {
+            const koiResponse = await axios.get(
+              `https://localhost:7229/api/KoiFish/${item.koiFishId}`
+            );
+            name = koiResponse.data.name || "Unknown Koi Fish";
+          } else if (item.koiFishyId) {
+            const koiFishyResponse = await axios.get(
+              `https://localhost:7229/api/KoiFishy/${item.koiFishyId}`
+            );
+            name = koiFishyResponse.data.name || "Unknown Koi Fishy";
+          } else if (item.consignmentId) {
+            const consignmentResponse = await axios.get(
+              `https://localhost:7229/api/Consignments/${item.consignmentId}`
+            );
+            name = consignmentResponse.data.name || "Unknown Consignment";
+          }
+
+          return {
+            ...item,
+            status: relatedOrder?.status || "Pending",
+            name,
+          };
+        })
+      );
 
       // Filter for pending status
       const pendingItems = enrichedItems.filter(
@@ -68,23 +101,6 @@ const ProductCard = () => {
       setAlertMessage("Failed to remove item. Please try again.");
     }
   };
-
-  // const removeCartItem = async (id) => {
-  //   try {
-  //     // Update the item's status to "Active"
-  //     const updatePayload = { status: "Active" };
-  //     await axios.put(
-  //       `https://localhost:7229/api/CartItem/${id}`,
-  //       updatePayload
-  //     );
-
-  //     // Refresh the cart items
-  //     fetchCartItems();
-  //   } catch (error) {
-  //     console.error("Error updating cart item status:", error);
-  //     setAlertMessage("Failed to update item status. Please try again.");
-  //   }
-  // };
 
   const handleCheckout = async () => {
     try {
@@ -176,7 +192,7 @@ const ProductCard = () => {
       <Table bordered hover>
         <thead>
           <tr>
-            <th>STT</th>
+            <th>No</th>
             <th>Name</th>
             <th>Price</th>
             <th>Status</th>
@@ -187,9 +203,7 @@ const ProductCard = () => {
           {cartItems.map((item, index) => (
             <tr key={item.id}>
               <td>{index + 1}</td>
-              <td>
-                Koi Fish {item.koiFishId || item.koiFishyId || "Unknown Item"}
-              </td>
+              <td>{item.name}</td>
               <td>{(item.price || 0).toLocaleString()} VND</td>
               <td>{item.status}</td>
               <td>
