@@ -9,6 +9,7 @@ const Cart = () => {
   const [orders, setOrders] = useState([]);
   const [koiDetails, setKoiDetails] = useState({});
   const [koiFishyDetails, setKoiFishyDetails] = useState({});
+  const [accountDetails, setAccountDetails] = useState({}); // Lưu thông tin account
 
   useEffect(() => {
     const fetchOrdersAndDetails = async () => {
@@ -52,6 +53,16 @@ const Cart = () => {
                 }));
               });
           }
+
+          // Fetch account details for each order
+          axios
+            .get(`https://localhost:7229/api/Accounts/${order.accountId}`)
+            .then((response) => {
+              setAccountDetails((prev) => ({
+                ...prev,
+                [order.accountId]: response.data,
+              }));
+            });
         });
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -85,26 +96,27 @@ const Cart = () => {
       <Table striped bordered hover responsive>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Species</th>
+            <th>No</th>
             <th>Price (VND)</th>
             <th>Status</th>
+            <th>Address</th>
+            <th>Phone</th>
             <th>Purchase</th>
           </tr>
         </thead>
         <tbody>
           {orders.map((order, index) => {
-            const species =
-              koiDetails[order.koiId]?.species ||
-              koiFishyDetails[order.koiFishyId]?.species ||
-              "Unknown Species";
+            const account = accountDetails[order.accountId] || {};
+            const address = account.address || "Unknown Address";
+            const phone = account.phone || "Unknown Phone";
 
             return (
               <tr key={order.id}>
                 <td>{index + 1}</td>
-                <td>{species}</td>
                 <td>{order.price.toLocaleString()} VND</td>
                 <td>{order.status}</td>
+                <td>{address}</td>
+                <td>{phone}</td>
                 <td>
                   {order.status === "Pending" && (
                     <Button
