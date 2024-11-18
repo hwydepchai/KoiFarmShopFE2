@@ -62,7 +62,7 @@ const KoiList = () => {
   // Apply filters based on state
   useEffect(() => {
     const filtered = koiFish.filter((koi) => {
-      const matchSpecies = !filters.species || koi.species.toLowerCase().includes(filters.species.toLowerCase());
+      const matchSpecies = !filters.species || koi.variety.toLowerCase().includes(filters.species.toLowerCase());
       const matchGender = !filters.gender || koi.gender === filters.gender;
       const matchCategory = !filters.category || koi.categoryId === parseInt(filters.category);
       const matchType = !filters.type || koi.type === filters.type;

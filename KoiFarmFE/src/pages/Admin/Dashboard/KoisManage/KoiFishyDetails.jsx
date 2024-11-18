@@ -100,7 +100,7 @@ function KoiFishyDetails() {
                   </tr>
                   <tr>
                     <th>Price</th>
-                    <td>{`$${koiDetails.price}`}</td>
+                    <td>{`${koiDetails.price}`}</td>
                   </tr>
                   <tr>
                     <th>Quantity</th>

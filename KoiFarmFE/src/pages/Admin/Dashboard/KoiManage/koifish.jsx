@@ -14,18 +14,9 @@ function KoiFishList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showSoldKoiModal, setShowSoldKoiModal] = useState(false); // New state for sold koi modal
   const [selectedKoi, setSelectedKoi] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newKoi, setNewKoi] = useState({
-    origin: "",
-    gender: "",
-    variety: "",
-    size: 0,
-    price: 0,
-    status: "",
-    imgUrl: "",
-  });
   const [searchTerm, setSearchTerm] = useState(""); // Search term for filter
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -60,7 +51,13 @@ function KoiFishList() {
         setLoading(false);
       });
   };
-  
+
+  // New function to sort sold koi by modified date
+  const sortedSoldKoi = soldKoi.sort((a, b) => new Date(b.modifiedDate) - new Date(a.modifiedDate));
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const handleSort = (column) => {
     let direction = "asc";
@@ -111,7 +108,7 @@ function KoiFishList() {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(file);
-      setSelectedKoi((prev) => ({ ...prev, imgUrl: imageUrl }));
+      setSelectedKoi((prev ) => ({ ...prev, imgUrl: imageUrl }));
     }
   };
 
@@ -163,10 +160,6 @@ function KoiFishList() {
     }
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
   const filteredKoiList = koiList.filter(
     (koi) =>
       koi.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -197,6 +190,50 @@ function KoiFishList() {
         Add New Koi
       </Button>
 
+      {/* Button to Show Sold Koi Modal */}
+      <Button
+        variant="info"
+        onClick={() => setShowSoldKoiModal(true)}
+        className="btn btn-info btn-sm"
+        style={{ marginBottom: "10px", marginLeft: "10px" }}
+      >
+        View Sold Koi
+      </Button>
+
+      {/* Sold Koi Modal */}
+      <Modal show={showSoldKoiModal} onHide={() => setShowSoldKoiModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Sold Koi Fish</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <table className="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price (VND)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedSoldKoi.map((koi) => (
+                <tr key={koi.id}>
+                  <td>{koi.id}</td>
+                  <td>{koi.name}</td>
+                  <td>{koi.variety}</td>
+                  <td>{koi.price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowSoldKoiModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <table className="table table-striped table-bordered mt-4">
         <thead>
           <tr>
@@ -208,7 +245,8 @@ function KoiFishList() {
                   : "↓"
                 : ""}
             </th>
-            <th scope="col" onClick={() => handleSort("name")}>
+            <th scope="col ```javascriptreact
+              " onClick={() => handleSort("name")}>
               Name{" "}
               {sortConfig.key === "name"
                 ? sortConfig.direction === "asc"
@@ -345,7 +383,8 @@ function KoiFishList() {
                       onClick={() => toggleKoiStatus(koi.id, koi.isDeleted)}
                     >
                       Restore
-                    </Button>
+                     
+                      </Button>
                   </td>
                 </tr>
               ))}
@@ -545,7 +584,6 @@ function KoiFishList() {
             {/* Remaining Inputs */}
 
             {/* Diet Inputs */}
-
             <Form.Group controlId="formDiet">
               <Form.Label>Diet</Form.Label>
               <Form.Control
@@ -554,6 +592,7 @@ function KoiFishList() {
                 onChange={(e) => handleFieldEdit("diet", e.target.value)}
               />
             </Form.Group>
+
             {/* Image Display */}
             <Form.Group controlId="formImgDisplay">
               <Form.Label>Current Image</Form.Label>
