@@ -32,38 +32,38 @@ label {
 }
 
 /* Style for valid input */
-input:valid {
+input:user-valid {
     border: 1px solid green;
 }
 
 /* Style for invalid input */
-input:invalid {
+input:user-invalid {
     border: 1px solid red;
 }
 
 /* Style for required inputs when they are invalid */
-input:required:invalid {
+input:required:user-invalid {
     background-color: #ffe6e6;
 }
 
 /* Optional: To improve user experience */
-input:focus:invalid {
+input:focus:user-invalid {
     border-color: red;
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
 }
 
 /* Prevent placeholder from affecting validation */
-input:placeholder-shown:valid {
+input:placeholder-shown:user-valid {
     border: 1px solid #ccc;
     /* Set default border if placeholder is shown */
 }
 
 /* When the input is focused and has no placeholder, show it as valid or invalid */
-input:focus:placeholder-shown:valid {
+input:focus:placeholder-shown:user-valid {
     border: 2px solid #ccc;
 }
 
-input:focus:placeholder-shown:invalid {
+input:focus:placeholder-shown:user-invalid {
     border: 2px solid red;
 }
 

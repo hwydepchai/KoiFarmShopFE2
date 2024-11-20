@@ -11,6 +11,7 @@ function KoiFishy() {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedKoi, setSelectedKoi] = useState(null);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for the search input
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" }); // Sorting state
@@ -94,8 +95,11 @@ function KoiFishy() {
 
   const placeholderImage = "https://via.placeholder.com/300?text=No+Image"; // Placeholder
 
-  const activeKoi = filteredKoiList.filter((koi) => !koi.isDeleted);
+  const activeKoi = filteredKoiList.filter(
+    (koi) => koi.status.toLowerCase() === "active"
+  );
   const deletedKoi = filteredKoiList.filter((koi) => koi.isDeleted);
+  const soldKoi = koiList.filter((koi) => koi.status.toLowerCase() === "sold");
 
   const handleEditClick = (koi) => {
     fetch(`https://localhost:7229/api/Image?koiFishyId=${koi.id}`)
@@ -215,14 +219,19 @@ function KoiFishy() {
         onChange={(e) => setSearchTerm(e.target.value)}
         style={{ marginBottom: "20px" }}
       />
-      <Button
-        variant="primary"
-        onClick={() => navigate("/dashboard/koifishy/create")}
-        className="btn btn-success btn-sm"
-        style={{ marginBottom: "10px" }}
-      >
-        Add New Koi Batch
-      </Button>
+      <div className="d-flex">
+        <Button
+          variant="primary"
+          onClick={() => navigate("/dashboard/koifishy/create")}
+          className="btn btn-success mb-2 me-2"
+          style={{ marginBottom: "10px" }}
+        >
+          Add New Koi Batch
+        </Button>
+        <Button className="mb-2" onClick={() => setShowHistoryModal(true)}>
+          View Sold Koi Batch
+        </Button>
+      </div>
       <br />
       {activeKoi.length > 0 ? (
         <table className="table table-striped table-bordered">
@@ -566,6 +575,54 @@ function KoiFishy() {
           </Modal.Footer>
         </Modal>
       )}
+      {/* History Modal */}
+      <Modal
+        show={showHistoryModal}
+        onHide={() => setShowHistoryModal(false)}
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Sold Koi History</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {soldKoi.length > 0 ? (
+            <table className="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Origin</th>
+                  <th>Quantity</th>
+                  <th>Price (VND)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {soldKoi.map((koi) => (
+                  <tr key={koi.id}>
+                    <td>{koi.id}</td>
+                    <td>{koi.name}</td>
+                    <td>{getCategoryName(koi.categoryId)}</td>
+                    <td>{koi.origin}</td>
+                    <td>{koi.quantity}</td>
+                    <td>{koi.price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-center">No sold koi records found</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowHistoryModal(false)}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

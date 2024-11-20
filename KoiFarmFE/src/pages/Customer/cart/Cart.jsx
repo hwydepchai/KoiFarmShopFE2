@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Import thêm useNavigate
 import axios from "axios";
