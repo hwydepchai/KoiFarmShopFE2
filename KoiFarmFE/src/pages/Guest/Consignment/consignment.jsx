@@ -54,6 +54,8 @@ const UserConsignment = () => {
           (cons) => cons.accountId === userData.userId
         );
 
+        console.log("User consignments:", userConsignments);
+
         // Bao gồm trạng thái Pending, Inactive và Active
         const filteredConsignments = userConsignments.filter(
           (consignment) =>
@@ -75,6 +77,14 @@ const UserConsignment = () => {
   // Hàm thêm consignment vào cart
   const addToCart = async (consignment) => {
     try {
+      if (consignment.price <= 0) {
+        showAlert(
+          "The consignment price must be greater than 0 to add to cart.",
+          "danger"
+        );
+        return;
+      }
+
       const userData = JSON.parse(localStorage.getItem("user"));
       const userId = userData?.userId;
 
@@ -119,9 +129,14 @@ const UserConsignment = () => {
 
       await axios.post("https://localhost:7229/api/CartItem", cartItem, config);
 
+      // await axios.put(
+      //   `https://localhost:7229/api/Consignments/${consignment.id}`,
+      //   { status: "Active" },
+      //   config
+      // );
       // Hiển thị thông báo và làm mới danh sách
       showAlert("Consignment added to cart successfully!");
-      fetchUserConsignments(); // Làm mới danh sách sau khi thêm vào cart
+      fetchUserConsignments();
     } catch (error) {
       console.error("Error adding to cart:", error);
       showAlert(
@@ -221,7 +236,7 @@ const UserConsignment = () => {
                         variant="success"
                         size="sm"
                         onClick={() => addToCart(consignment)}
-                        disabled={false}
+                        disabled={consignment.price <= 0} // Disable nếu price <= 0
                       >
                         <ShoppingCart size={16} />
                       </Button>

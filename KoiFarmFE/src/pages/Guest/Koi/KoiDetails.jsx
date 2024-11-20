@@ -81,13 +81,15 @@ const KoiDetails = () => {
       // Create the CartItem
       const cartItem = {
         cartId: userCart.id,
-        koiFishId: koi.id, // koiFishId is selected
-        koiFishyId: null, // koiFishyId is null
-        consignmentId: null, // consignmentId is null
+        koiFishId: koi.id,
         price: koi.price,
       };
 
       await axios.post("https://localhost:7229/api/CartItem", cartItem);
+
+      // Store the koi ID in localStorage to track added items
+      const addedKoi = JSON.parse(localStorage.getItem("addedKoi")) || [];
+      localStorage.setItem("addedKoi", JSON.stringify([...addedKoi, koi.id]));
 
       // Redirect to cart page
       navigate("/card");
@@ -112,11 +114,9 @@ const KoiDetails = () => {
 
   return (
     <Container className="mt-4">
-      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}{" "}
-      {/* Display error message */}
+      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
       <Card className="shadow-sm">
         <Row>
-          {/* Left Column: Image */}
           <Col
             md={5}
             className="d-flex justify-content-center align-items-center"
@@ -146,8 +146,6 @@ const KoiDetails = () => {
               </div>
             )}
           </Col>
-
-          {/* Right Column: Details */}
           <Col md={7}>
             <Card.Body>
               <Card.Title className="text-center">
@@ -156,7 +154,6 @@ const KoiDetails = () => {
                 </h2>
               </Card.Title>
 
-              {/* Details Section */}
               <Row className="mb-3">
                 <Col xs={6}>
                   <strong>Origin:</strong> {koi.origin}
@@ -183,23 +180,14 @@ const KoiDetails = () => {
                     ?.category1 || "Unknown"}
                 </Col>
               </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <strong>Character:</strong> {koi.character}
-                </Col>
-                <Col xs={6}>
-                  <strong>Status:</strong> {koi.status}
-                </Col>
-              </Row>
 
-              {/* Action Buttons */}
               <Row>
                 <Col xs={6} className="text-end">
                   <Button
                     variant="primary"
                     onClick={addToCart}
                     className="w-100"
-                    disabled={koi.isDeleted} // Disable button if koi is deleted
+                    disabled={koi.isDeleted}
                   >
                     Add to Cart
                   </Button>
