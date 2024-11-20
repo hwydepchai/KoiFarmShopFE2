@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -18,28 +19,43 @@ const KoiDetails = () => {
   const [koi, setKoi] = useState(null);
   const [categories, setCategories] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [certificate, setCertificate] = useState(null); // Certificate data
+  const [certificateImages, setCertificateImages] = useState([]); // Images linked to certificate
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(""); // For displaying errors (if any)
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch koi details, categories, and images concurrently
         const [koiRes, categoriesRes, imagesRes] = await Promise.all([
           axios.get(`https://localhost:7229/api/KoiFish/${id}`),
           axios.get("https://localhost:7229/api/Category"),
           axios.get("https://localhost:7229/api/Image"),
         ]);
 
-        setKoi(koiRes.data);
+        const koiData = koiRes.data;
+        setKoi(koiData);
         setCategories(categoriesRes.data.$values);
 
         const koiImage = imagesRes.data.$values.find(
           (img) => img.koiId === parseInt(id)
         );
         setImageUrl(koiImage?.urlPath || "");
+
+        if (koiData.originCertificateId) {
+          const certRes = await axios.get(
+            `https://localhost:7229/api/OriginCertificate/${koiData.originCertificateId}`
+          );
+          setCertificate(certRes.data);
+
+          // Filter images linked to the certificate
+          const certImages = imagesRes.data.$values.filter(
+            (img) => img.originCertificateId === koiData.originCertificateId
+          );
+          setCertificateImages(certImages);
+        }
       } catch (error) {
-        console.error("Error fetching koi details:", error);
+        console.error("Error fetching data:", error);
         setErrorMessage(
           "There was an error fetching koi details. Please try again later."
         );
@@ -62,14 +78,12 @@ const KoiDetails = () => {
         return;
       }
 
-      // Fetch or create a cart for the user
       const cartRes = await axios.get("https://localhost:7229/api/Cart");
       let userCart = cartRes.data.$values.find(
         (cart) => cart.accountId === userId && !cart.isDeleted
       );
 
       if (!userCart) {
-        // Create a new cart if none exists
         const newCartRes = await axios.post("https://localhost:7229/api/Cart", {
           accountId: userId,
           quantity: 0,
@@ -78,20 +92,15 @@ const KoiDetails = () => {
         userCart = newCartRes.data;
       }
 
-      // Create the CartItem
       const cartItem = {
         cartId: userCart.id,
         koiFishId: koi.id,
+        koiFishyId: null,
+        consignmentId: null,
         price: koi.price,
       };
 
       await axios.post("https://localhost:7229/api/CartItem", cartItem);
-
-      // Store the koi ID in localStorage to track added items
-      const addedKoi = JSON.parse(localStorage.getItem("addedKoi")) || [];
-      localStorage.setItem("addedKoi", JSON.stringify([...addedKoi, koi.id]));
-
-      // Redirect to cart page
       navigate("/card");
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -115,6 +124,7 @@ const KoiDetails = () => {
   return (
     <Container className="mt-4">
       {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+
       <Card className="shadow-sm">
         <Row>
           <Col
@@ -124,7 +134,7 @@ const KoiDetails = () => {
             {imageUrl ? (
               <Card.Img
                 src={imageUrl}
-                alt={koi.species}
+                alt={koi.name}
                 style={{
                   width: "100%",
                   height: "auto",
@@ -146,14 +156,16 @@ const KoiDetails = () => {
               </div>
             )}
           </Col>
+
           <Col md={7}>
             <Card.Body>
               <Card.Title className="text-center">
                 <h2>
-                  {koi.species} - {koi.type}
+                  {koi.name} - {koi.variety}
                 </h2>
               </Card.Title>
 
+              {/* Koi Details */}
               <Row className="mb-3">
                 <Col xs={6}>
                   <strong>Origin:</strong> {koi.origin}
@@ -164,7 +176,7 @@ const KoiDetails = () => {
               </Row>
               <Row className="mb-3">
                 <Col xs={6}>
-                  <strong>Age:</strong> {koi.age}
+                  <strong>Year of Birth:</strong> {koi.yearOfBirth}
                 </Col>
                 <Col xs={6}>
                   <strong>Size:</strong> {koi.size} cm
@@ -178,6 +190,14 @@ const KoiDetails = () => {
                   <strong>Category:</strong>{" "}
                   {categories.find((cat) => cat.id === koi.categoryId)
                     ?.category1 || "Unknown"}
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col xs={6}>
+                  <strong>Character:</strong> {koi.character}
+                </Col>
+                <Col xs={6}>
+                  <strong>Diet:</strong> {koi.diet}
                 </Col>
               </Row>
 
@@ -206,6 +226,38 @@ const KoiDetails = () => {
           </Col>
         </Row>
       </Card>
+
+      {/* Certificate Details */}
+      {certificate && (
+        <Card className="mt-4">
+          <Card.Header>Origin Certificate</Card.Header>
+          <Card.Body>
+            {/* Certificate Images */}
+            <Row className="mt-2">
+              {certificateImages.length > 0 ? (
+                certificateImages.map((img) => (
+                  <Col key={img.id} xs={6} md={4} lg={3} className="mb-3">
+                    <Card.Img
+                      src={img.urlPath}
+                      alt={`Certificate Image ${img.id}`}
+                      className="rounded shadow-sm"
+                      style={{ width: "100%", height: "auto" }}
+                    />
+                  </Col>
+                ))
+              ) : (
+                <Col>No images available</Col>
+              )}
+              <Col xs={6}>
+                <strong>Date:</strong>{" "}
+                {new Date(certificate.date).toLocaleDateString()}
+                <br />
+                <strong>Place of Issue:</strong> {certificate.placeOfIssue}
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      )}
     </Container>
   );
 };
