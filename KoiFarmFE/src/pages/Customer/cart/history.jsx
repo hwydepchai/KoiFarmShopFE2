@@ -41,48 +41,11 @@ const History = () => {
         const userOrders = response.data.$values.filter(
           (order) =>
             order.accountId === user.userId &&
-            (order.status === "Canceled" ||
-              order.status === "Completed" ||
-              order.status === "Paid" ||
-              order.status === "Deleted")
+            ["Canceled", "Completed", "Paid", "Deleted"].includes(order.status)
         );
 
-        const ordersWithDetails = await Promise.all(
-          userOrders.map(async (order) => {
-            try {
-              if (order.koiId) {
-                const koiResponse = await axios.get(
-                  `https://localhost:7229/api/KoiFish/${order.koiId}`,
-                  config
-                );
-                return {
-                  ...order,
-                  price: koiResponse.data.price || order.price,
-                  species: koiResponse.data.species,
-                };
-              } else if (order.koiFishyId) {
-                const fishyResponse = await axios.get(
-                  `https://localhost:7229/api/KoiFishy/${order.koiFishyId}`,
-                  config
-                );
-                return {
-                  ...order,
-                  price: fishyResponse.data.price || order.price,
-                  species: `KoiFishy #${fishyResponse.data.id}`,
-                };
-              }
-              return order;
-            } catch (err) {
-              console.error("Error fetching details:", err);
-              return {
-                ...order,
-                species: "Unknown Species",
-              };
-            }
-          })
-        );
-
-        setOrders(ordersWithDetails);
+        // Không cần biến `ordersWithDetails`, gán trực tiếp vào state
+        setOrders(userOrders);
       }
     } catch (error) {
       console.error("Error fetching order history:", error);
@@ -119,17 +82,30 @@ const History = () => {
             <thead className="bg-light">
               <tr>
                 <th>#</th>
-                <th>Species</th>
-                <th>Price (VND)</th>
+                <th>Order Items</th>
+                <th>Total Price (VND)</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order, index) => (
-                <tr key={order.id}>
+                <tr key={order.orderId}>
                   <td>{index + 1}</td>
-                  <td>{order.species || "Unknown Species"}</td>
-                  <td>{(order.price || 0).toLocaleString()}</td>
+                  <td>
+                    <ul>
+                      {order.items?.$values &&
+                      order.items.$values.length > 0 ? (
+                        order.items.$values.map((item, i) => (
+                          <li key={i}>
+                            {item.name}: {item.price.toLocaleString()} VND
+                          </li>
+                        ))
+                      ) : (
+                        <li>No items</li>
+                      )}
+                    </ul>
+                  </td>
+                  <td>{(order.totalPrice || 0).toLocaleString()} VND</td>
                   <td>
                     <Badge
                       bg={
