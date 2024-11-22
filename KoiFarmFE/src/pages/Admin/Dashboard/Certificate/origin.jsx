@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const CertificateManager = () => {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
   const [formData, setFormData] = useState({
     variety: "",
     gender: "Male",
@@ -32,7 +33,6 @@ const CertificateManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
 
-  // Fetch all certificates and images on component mount
   useEffect(() => {
     fetchCertificates();
     fetchImages();
@@ -58,99 +58,84 @@ const CertificateManager = () => {
     }
   };
 
-  const handleEditClick = (certificate) => {
-    const imageUrl = getImageUrl(certificate.id); // Fetch the existing image URL
-    setEditingId(certificate.id);
-    setEditData({
-      variety: certificate.variety,
-      gender: certificate.gender,
-      size: certificate.size,
-      yearOfBirth: certificate.yearOfBirth,
-      date: certificate.date,
-      placeOfIssue: certificate.placeOfIssue,
-      image: null, // New image input
-      existingImage: imageUrl, // Existing image URL
-    });
-    setPreviewImage(imageUrl); // Initialize preview with the old image
-    setShowModal(true);
+  const validateFormData = () => {
+    const { yearOfBirth, date, placeOfIssue } = formData;
+    const birthYear = parseInt(yearOfBirth);
+    const selectedDate = new Date(date);
+
+    if (birthYear < 2000 || birthYear > currentYear) {
+      setMessage("Year of Birth must be between 2000 and the current year.");
+      return false;
+    }
+
+    if (
+      selectedDate <= new Date(`${birthYear}-01-01`) ||
+      selectedDate > new Date()
+    ) {
+      setMessage(
+        "Date must be after Year of Birth and cannot exceed current date."
+      );
+      return false;
+    }
+
+    if (placeOfIssue.trim() === "") {
+      setMessage("Place of Issue is required.");
+      return false;
+    }
+
+    return true;
   };
+
+  const capitalizePlaceOfIssue = (input) =>
+    input
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
 
   const handleCreateInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleEditInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditData({ ...editData, [name]: value });
-  };
-
   const handleCreateImageChange = (e) => {
     setFormData({ ...formData, image: e.target.files[0] });
   };
 
-  const handleEditImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setEditData({ ...editData, image: file });
-      const reader = new FileReader();
-      reader.onload = () => setPreviewImage(reader.result); // Preview the new image
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleUpdateSubmit = async (e) => {
-    e.preventDefault();
-
-    const data = new FormData();
-    data.append("variety", editData.variety);
-    data.append("gender", editData.gender);
-    data.append("size", parseFloat(editData.size));
-    data.append("yearOfBirth", parseInt(editData.yearOfBirth));
-    data.append("date", editData.date);
-    data.append("placeOfIssue", editData.placeOfIssue);
-
-    if (editData.image) {
-      data.append("Img", editData.image); // Append only if there's a new file
-    }
-
-    try {
-      await axios.put(
-        `https://localhost:7229/api/OriginCertificate/${editingId}`,
-        data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      setMessage("Certificate updated successfully!");
-      setShowModal(false);
-      fetchCertificates();
-      navigate(0);
-    } catch (error) {
-      console.error("Error updating certificate:", error);
-      setMessage("Failed to update certificate.");
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate Year of Birth and Date
+    const birthYear = parseInt(formData.yearOfBirth);
+    const selectedDate = new Date(formData.date);
+
+    if (birthYear < 2000 || birthYear > currentYear) {
+      setMessage("Year of Birth must be between 2000 and the current year.");
+      return;
+    }
+
+    if (
+      selectedDate <= new Date(`${birthYear}-01-01`) ||
+      selectedDate > new Date()
+    ) {
+      setMessage(
+        "Date must be after Year of Birth and cannot exceed current date."
+      );
+      return;
+    }
 
     if (!formData.image) {
       setMessage("Image is required.");
       return;
     }
 
-    // Prepare FormData to send image and other data
     const data = new FormData();
     data.append("variety", formData.variety);
     data.append("gender", formData.gender);
     data.append("size", parseFloat(formData.size));
-    data.append("yearOfBirth", parseInt(formData.yearOfBirth));
+    data.append("yearOfBirth", birthYear);
     data.append("date", formData.date);
     data.append("placeOfIssue", formData.placeOfIssue);
-    data.append("Img", formData.image); // Append the image with the correct name
+    data.append("Img", formData.image);
 
     try {
       const response = await axios.post(
@@ -172,10 +157,83 @@ const CertificateManager = () => {
         placeOfIssue: "",
         image: null,
       });
-      fetchCertificates();
+
+      // Wait for the backend to process before fetching data
+      setTimeout(() => {
+        fetchCertificates();
+        fetchImages();
+      }, 500); // Adjust the delay as needed
     } catch (error) {
       console.error("Error creating certificate:", error);
       setMessage("Failed to create certificate.");
+    }
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+
+    const selectedYearOfBirth = parseInt(editData.yearOfBirth);
+    const selectedDate = new Date(editData.date);
+    const currentDate = new Date();
+
+    // Validate Year of Birth
+    if (selectedYearOfBirth < 2000 || selectedYearOfBirth > currentYear) {
+      setMessage("Year of Birth must be between 2000 and the current year.");
+      return;
+    }
+
+    // Validate Date
+    if (
+      selectedDate <= new Date(`${selectedYearOfBirth}-01-01`) ||
+      selectedDate > currentDate
+    ) {
+      setMessage(
+        "Date must be after the Year of Birth and cannot exceed current date."
+      );
+      return;
+    }
+
+    // Capitalize Place of Issue
+    const capitalizePlaceOfIssue = (text) =>
+      text
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    const formattedPlaceOfIssue = capitalizePlaceOfIssue(editData.placeOfIssue);
+
+    // FormData Preparation
+    const data = new FormData();
+    data.append("variety", editData.variety);
+    data.append("gender", editData.gender);
+    data.append("size", parseFloat(editData.size));
+    data.append("yearOfBirth", selectedYearOfBirth);
+    data.append("date", editData.date);
+    data.append("placeOfIssue", formattedPlaceOfIssue);
+
+    if (editData.image) {
+      data.append("Img", editData.image);
+    }
+
+    try {
+      await axios.put(
+        `https://localhost:7229/api/OriginCertificate/${editingId}`,
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setMessage("Certificate updated successfully!");
+      setShowModal(false);
+      // Wait for the backend to process before fetching data
+      setTimeout(() => {
+        fetchCertificates();
+        fetchImages();
+      }, 500); // Adjust the delay as needed
+    } catch (error) {
+      console.error("Error updating certificate:", error);
+      setMessage("Failed to update certificate.");
     }
   };
 
@@ -184,12 +242,46 @@ const CertificateManager = () => {
     const relatedImages = images.filter(
       (image) => image.originCertificateId === certificateId
     );
-    return relatedImages.length > 0 ? relatedImages[0].urlPath : null;
+    return relatedImages.length > 0
+      ? `${relatedImages[0].urlPath}?t=${new Date().getTime()}`
+      : null;
   };
 
   const formatDate = (date) => {
     const newDate = new Date(date);
-    return newDate.toLocaleDateString("en-CA"); // This will format it as YYYY-MM-DD
+    return newDate.toLocaleDateString("en-CA");
+  };
+
+  const handleEditClick = (certificate) => {
+    const imageUrl = getImageUrl(certificate.id); // Fetch the existing image URL
+    setEditingId(certificate.id);
+    setEditData({
+      variety: certificate.variety,
+      gender: certificate.gender,
+      size: certificate.size,
+      yearOfBirth: certificate.yearOfBirth,
+      date: certificate.date,
+      placeOfIssue: certificate.placeOfIssue,
+      image: null, // New image input
+      existingImage: imageUrl, // Existing image URL
+    });
+    setPreviewImage(imageUrl); // Initialize preview with the old image
+    setShowModal(true);
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({ ...editData, [name]: value });
+  };
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditData({ ...editData, image: file });
+      const reader = new FileReader();
+      reader.onload = () => setPreviewImage(reader.result); // Preview the new image
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -279,7 +371,7 @@ const CertificateManager = () => {
             />
           </div>
           <div className="form-group">
-            <label>Date</label>
+            <label>Date of Issue</label>
             <input
               type="date"
               className="form-control"
@@ -298,6 +390,7 @@ const CertificateManager = () => {
               name="placeOfIssue"
               value={formData.placeOfIssue}
               onChange={handleCreateInputChange}
+              style={{ textTransform: "capitalize" }}
               required
             />
           </div>
@@ -314,6 +407,8 @@ const CertificateManager = () => {
           </div>
         </div>
 
+        {message && <p>{message}</p>}
+
         <button type="submit" className="btn btn-primary mt-3">
           Create Certificate
         </button>
@@ -323,6 +418,7 @@ const CertificateManager = () => {
       <table className="table">
         <thead>
           <tr>
+            <th>ID</th>
             <th>Variety</th>
             <th>Gender</th>
             <th>Size (cm)</th>
@@ -336,6 +432,7 @@ const CertificateManager = () => {
         <tbody>
           {certificates.map((certificate) => (
             <tr key={certificate.id}>
+              <td>{certificate.id}</td>
               <td>{certificate.variety}</td>
               <td>{certificate.gender}</td>
               <td>{certificate.size}</td>
@@ -370,6 +467,7 @@ const CertificateManager = () => {
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">Edit Certificate</h5>
+
                   <button
                     type="button"
                     className="btn-close"
@@ -378,7 +476,7 @@ const CertificateManager = () => {
                 </div>
                 <div className="modal-body">
                   <form onSubmit={handleUpdateSubmit}>
-                    <div className="form-group">
+                    <div className="form-group mt-1">
                       <label>Variety</label>
                       <select
                         className="form-select"
@@ -470,6 +568,7 @@ const CertificateManager = () => {
                         name="placeOfIssue"
                         value={editData.placeOfIssue}
                         onChange={handleEditInputChange}
+                        style={{ textTransform: "capitalize" }}
                       />
                     </div>
 
@@ -493,6 +592,7 @@ const CertificateManager = () => {
                       />
                     </div>
 
+                    {message && <p className="mt-1 mb-1">{message}</p>}
                     <button type="submit" className="btn btn-primary mt-3">
                       Update Certificate
                     </button>
@@ -503,8 +603,6 @@ const CertificateManager = () => {
           </div>
         </div>
       )}
-
-      {message && <p>{message}</p>}
     </div>
   );
 };

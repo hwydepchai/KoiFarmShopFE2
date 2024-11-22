@@ -19,8 +19,12 @@ import History from "./pages/Customer/cart/history";
 import ProtectedRoute from "./pages/Guest/login/auth";
 import User from "./pages/Customer/user/user";
 import ProductCard from "./pages/Guest/card/products";
+import Footer from "./pages/Guest/Component/Footer";
 
 function App() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const shouldShowFooter = !user || (user.roleId !== 1 && user.roleId !== 2);
+
   return (
     <>
       <Router>
@@ -30,7 +34,6 @@ function App() {
           <Route path="/koifish" element={<KoiList />} />
           <Route path="/koifish/:id" element={<KoiDetails />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* Sử dụng ProtectedRoute với element */}
           <Route
             path="/dashboard/*"
             element={<ProtectedRoute element={Dashboard} />}
@@ -46,6 +49,7 @@ function App() {
           <Route path="/user" element={<User />} />
           <Route path="/card" element={<ProductCard />} />
         </Routes>
+        {shouldShowFooter && <Footer />}{" "}
       </Router>
     </>
   );
