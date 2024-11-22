@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 function KoiFishyAdd() {
   const [formData, setFormData] = useState({
     name: "",
-    gender: "",
+    gender: "Male", // Default gender set to Male
     size: "",
     yearOfBirth: "",
     variety: "",
@@ -41,9 +41,17 @@ function KoiFishyAdd() {
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
+
+    let updatedValue = value; // Create a new variable to hold the modified value
+
+    if (name === "name") {
+      // Capitalize the first letter of name
+      updatedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
     setFormData({
       ...formData,
-      [name]: type === "file" ? files[0] : value,
+      [name]: type === "file" ? files[0] : updatedValue, // Use updatedValue
     });
 
     if (type === "file" && files.length > 0) {
@@ -55,18 +63,38 @@ function KoiFishyAdd() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate quantity (ensure it's 10 or above)
+    // Validate Size (ensure it's > 0 and < 100)
+    if (parseInt(formData.size) <= 0 || parseInt(formData.size) >= 100) {
+      setError("Size must be between 0 and 100.");
+      return;
+    }
+
+    // Validate Year of Birth (ensure it's after 2000)
+    const currentYear = new Date().getFullYear();
+    if (
+      parseInt(formData.yearOfBirth) < 2000 ||
+      parseInt(formData.yearOfBirth) > currentYear
+    ) {
+      setError("Year of birth must be after 2000 and before the current year.");
+      return;
+    }
+
+    // Validate Quantity (ensure it's >= 10)
     if (parseInt(formData.quantity) < 10) {
       setError("Quantity must be 10 or above.");
       return;
     }
 
-    // Validate price (ensure it's at least 10,000)
-    if (parseInt(formData.price) < 10000) {
-      setError("Price must be at least 10,000.");
+    // Validate Price (ensure it's between 10,000 and 100,000,000)
+    if (
+      parseInt(formData.price) < 10000 ||
+      parseInt(formData.price) > 100000000
+    ) {
+      setError("Price must be between 10,000 and 100,000,000.");
       return;
     }
 
+    // Clear errors if validation passes
     setError("");
 
     const data = new FormData();
@@ -140,17 +168,28 @@ function KoiFishyAdd() {
               Female
             </label>
           </div>
-          {/* Diet Input */}
+
+          {/* Diet Dropdown */}
           <div className="form-group col-md-6">
             <label>Diet</label>
-            <input
-              type="text"
+            <select
               className="form-control"
               name="diet"
               value={formData.diet}
               onChange={handleChange}
-              placeholder="Enter the diet of the koi fish"
-            />
+              required
+            >
+              <option value="">Select a diet</option>
+              <option value="Pellets">Pellets</option>
+              <option value="Flakes">Flakes</option>
+              <option value="Vegetables">Vegetables</option>
+              <option value="Fruits">Fruits</option>
+              <option value="Shrimp">Shrimp</option>
+              <option value="Worms">Worms</option>
+              <option value="Insects">Insects</option>
+              <option value="Cheerios">Cheerios</option>
+              <option value="Rice">Rice</option>
+            </select>
           </div>
         </div>
 
@@ -165,6 +204,8 @@ function KoiFishyAdd() {
                 value={formData.size}
                 onChange={handleChange}
                 required
+                min="1"
+                max="100"
                 placeholder="Enter size in cm"
               />
             </div>
@@ -178,6 +219,8 @@ function KoiFishyAdd() {
                 value={formData.yearOfBirth}
                 onChange={handleChange}
                 required
+                min="2000"
+                max={new Date().getFullYear()}
                 placeholder="Enter year of birth"
               />
             </div>
@@ -192,7 +235,8 @@ function KoiFishyAdd() {
                 onChange={handleChange}
                 required
                 min="10000"
-                placeholder="Enter price (at least 10,000)"
+                max="100000000"
+                placeholder="Enter price (10,000 - 100,000,000)"
               />
             </div>
 
@@ -223,50 +267,10 @@ function KoiFishyAdd() {
               >
                 <option value="">Select a variety</option>
                 <option value="Kohaku">Kohaku</option>
-                <option value="Showa Sanke">Showa Sanke</option>
+                <option value="Sanke">Sanke</option>
+                <option value="Showa">Showa</option>
                 <option value="Utsuri">Utsuri</option>
-                <option value="Asagi">Asagi</option>
-                <option value="Shusui">Shusui</option>
-                <option value="Ginrin">Ginrin</option>
-                <option value="Ogon">Ogon</option>
-                <option value="Tancho">Tancho</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Origin</label>
-              <select
-                className="form-control"
-                name="origin"
-                value={formData.origin}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select an origin</option>
-                <option value="Vietnam">Vietnam</option>
-                <option value="Japan">Japan</option>
-                <option value="Thailand">Thailand</option>
-                <option value="China">China</option>
-                <option value="South Korea">South Korea</option>
-                <option value="India">India</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Character</label>
-              <select
-                className="form-control"
-                name="character"
-                value={formData.character}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select a character</option>
-                <option value="Calm">Calm</option>
-                <option value="Aggressive">Aggressive</option>
-                <option value="Playful">Playful</option>
-                <option value="Shy">Shy</option>
-                <option value="Curious">Curious</option>
+                <option value="Shiro Utsuri">Shiro Utsuri</option>
               </select>
             </div>
 
@@ -282,39 +286,30 @@ function KoiFishyAdd() {
                 <option value="">Select a category</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.category1}
+                    {category.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Image Preview */}
             <div className="form-group">
               <label>Image</label>
               <input
                 type="file"
-                className="form-control"
+                className="form-control-file"
                 name="img"
                 onChange={handleChange}
-                accept="image/*"
               />
               {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Image preview"
-                  className="mt-3"
-                  style={{ width: "200px" }}
-                />
+                <img src={imagePreview} alt="Preview" width="100" />
               )}
             </div>
           </div>
         </div>
 
-        <div className="form-group">
-          <button type="submit" className="btn btn-primary">
-            Add Koi Fishy
-          </button>
-        </div>
+        <button type="submit" className="btn btn-primary">
+          Add Koi Fishy
+        </button>
       </form>
     </div>
   );
