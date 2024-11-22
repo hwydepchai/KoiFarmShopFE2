@@ -20,7 +20,12 @@ function HomePage() {
         const koiArray = koiData.$values || [];
         const imageArray = imageData.$values || [];
 
-        const koiWithImages = koiArray.map((koi) => {
+        // Filter koi with status = Active
+        const activeKoiArray = koiArray.filter(
+          (koi) => koi.status === "Active"
+        );
+
+        const koiWithImages = activeKoiArray.map((koi) => {
           const matchedImage = imageArray.find(
             (image) => image.koiId === koi.id
           );
@@ -48,9 +53,7 @@ function HomePage() {
   if (error) return <div>Error: {error.message}</div>;
 
   // Sort koi by price in descending order and get the top 3
-  const topKoi = [...koiList]
-    .sort((a, b) => b.price - a.price)
-    .slice(0, 3);
+  const topKoi = [...koiList].sort((a, b) => b.price - a.price).slice(0, 3);
 
   return (
     <div className="homepage-container">
