@@ -33,7 +33,9 @@ const KoiList = () => {
     axios
       .get("https://localhost:7229/api/KoiFish")
       .then((response) => {
-        const koiData = response.data.$values.filter((koi) => !koi.isDeleted);
+        const koiData = response.data.$values.filter(
+          (koi) => koi.status === "Active"
+        );
         setKoiFish(koiData);
       })
       .catch((error) => {
