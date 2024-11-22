@@ -8,7 +8,7 @@ const KoiyList = () => {
   const [koiFishList, setKoiFishList] = useState([]);
   const [filteredKoi, setFilteredKoi] = useState([]);
   const [categories, setCategories] = useState({});
-  const [images, setImages] = useState([]); // State to store images
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     category: "",
@@ -16,18 +16,22 @@ const KoiyList = () => {
     maxPrice: "",
     minQuantity: "",
     maxQuantity: "",
-    status: "",
+    searchName: "", // New field for name search
   });
 
   useEffect(() => {
     const fetchKoiFishData = async () => {
       try {
         // Fetch koi fish data
-        const koiResponse = await axios.get("https://localhost:7229/api/KoiFishy");
+        const koiResponse = await axios.get(
+          "https://localhost:7229/api/KoiFishy"
+        );
         const koiFishList = koiResponse.data.$values;
 
         // Fetch categories
-        const categoryResponse = await axios.get("https://localhost:7229/api/Category");
+        const categoryResponse = await axios.get(
+          "https://localhost:7229/api/Category"
+        );
         const categoryMap = {};
         categoryResponse.data.$values.forEach((category) => {
           categoryMap[category.id] = category.category1;
@@ -35,13 +39,15 @@ const KoiyList = () => {
         setCategories(categoryMap);
 
         // Fetch images
-        const imageResponse = await axios.get("https://localhost:7229/api/Image");
-        setImages(imageResponse.data.$values); // Store images in state
+        const imageResponse = await axios.get(
+          "https://localhost:7229/api/Image"
+        );
+        setImages(imageResponse.data.$values);
 
         setKoiFishList(koiFishList);
-        setFilteredKoi(koiFishList); // Initialize filtered list
+        setFilteredKoi(koiFishList);
       } catch (error) {
-        console.error("Error fetching koi fish, category, or image data:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -57,14 +63,17 @@ const KoiyList = () => {
   const applyFilters = () => {
     const filtered = koiFishList.filter((koi) => {
       return (
-        koi.status === "Active" && // Only active status
+        koi.status === "Active" && // Only active koi
         koi.isDeleted === false && // Only non-deleted items
         (!filters.category || koi.categoryId === parseInt(filters.category)) &&
         (!filters.minPrice || koi.price >= parseFloat(filters.minPrice)) &&
         (!filters.maxPrice || koi.price <= parseFloat(filters.maxPrice)) &&
-        (!filters.minQuantity || koi.quantity >= parseInt(filters.minQuantity)) &&
-        (!filters.maxQuantity || koi.quantity <= parseInt(filters.maxQuantity)) &&
-        (!filters.status || koi.status.toLowerCase().includes(filters.status.toLowerCase()))
+        (!filters.minQuantity ||
+          koi.quantity >= parseInt(filters.minQuantity)) &&
+        (!filters.maxQuantity ||
+          koi.quantity <= parseInt(filters.maxQuantity)) &&
+        (!filters.searchName || // Filter by name
+          koi.name.toLowerCase().includes(filters.searchName.toLowerCase()))
       );
     });
     setFilteredKoi(filtered);
@@ -75,7 +84,6 @@ const KoiyList = () => {
   };
 
   const getKoiImages = (koiId) => {
-    // Filter the images to match the koiFishyId
     return images.filter((image) => image.koiFishyId === koiId);
   };
 
@@ -86,7 +94,7 @@ const KoiyList = () => {
       <h2 className="my-4">Koi Fish List</h2>
       <Row>
         {/* Sidebar with Filters */}
-        <Col md={3}>
+        <Col md={2}>
           <Form>
             {/* Category Filter */}
             <Form.Group controlId="filter-category">
@@ -155,44 +163,49 @@ const KoiyList = () => {
                 </Col>
               </Row>
             </Form.Group>
-
-            {/* Status Filter */}
-            <Form.Group controlId="filter-status">
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                type="text"
-                name="status"
-                value={filters.status}
-                onChange={handleFilterChange}
-                placeholder="Search by Status"
-              />
-            </Form.Group>
           </Form>
         </Col>
 
         {/* Main Content */}
         <Col md={9}>
           <Row>
+            {/* Search by Name */}
+            <Row controlId="filter-name" className="mb-2">
+              <Form.Control
+                type="text"
+                name="searchName"
+                value={filters.searchName}
+                onChange={handleFilterChange}
+                placeholder="Enter name"
+                style={{ maxWidth: "400px" }}
+              />
+            </Row>
             {filteredKoi.map((koi) => {
-              const koiImages = getKoiImages(koi.id); // Get koi images for this koi
+              const koiImages = getKoiImages(koi.id);
               return (
                 <Col md={4} key={koi.id} className="mb-4">
                   <Card>
-                    {/* Display the first image (or a placeholder if no image available) */}
                     <Card.Img
                       variant="top"
-                      src={koiImages.length > 0 ? koiImages[0].urlPath : "https://via.placeholder.com/150"}
+                      src={
+                        koiImages.length > 0
+                          ? koiImages[0].urlPath
+                          : "https://via.placeholder.com/150"
+                      }
                       alt={`Koi ID: ${koi.id}`}
                       style={{ height: "150px", objectFit: "cover" }}
                     />
                     <Card.Body>
+                      <Card.Title>{koi.name}</Card.Title>
                       <Card.Text>Price: {koi.price} VND</Card.Text>
                       <Card.Text>Quantity: {koi.quantity}</Card.Text>
-                      <Card.Text>Status: {koi.status}</Card.Text>
                       <Card.Text>
                         Category: {categories[koi.categoryId] || "Unknown"}
                       </Card.Text>
-                      <Link to={`/koifishy/${koi.id}`} className="btn btn-primary">
+                      <Link
+                        to={`/koifishy/${koi.id}`}
+                        className="btn btn-primary"
+                      >
                         View Details
                       </Link>
                     </Card.Body>

@@ -11,7 +11,7 @@ const KoiList = () => {
   const [categories, setCategories] = useState([]);
   const [images, setImages] = useState([]);
   const [filters, setFilters] = useState({
-    species: "",
+    name: "",
     gender: "",
     category: "",
     type: "",
@@ -54,9 +54,9 @@ const KoiList = () => {
   useEffect(() => {
     const filtered = koiFish.filter((koi) => {
       const matchNameOrOrigin =
-        !filters.species ||
-        koi.name.toLowerCase().includes(filters.species.toLowerCase()) ||
-        koi.origin.toLowerCase().includes(filters.species.toLowerCase());
+        !filters.name ||
+        koi.name.toLowerCase().includes(filters.name.toLowerCase()) ||
+        koi.origin.toLowerCase().includes(filters.name.toLowerCase());
       const matchGender = !filters.gender || koi.gender === filters.gender;
       const matchCategory =
         !filters.category || koi.categoryId === parseInt(filters.category);
@@ -193,11 +193,11 @@ const KoiList = () => {
 
         {/* Main Content */}
         <Col md={9}>
-          <Form.Group controlId="filter-species" className="mb-4">
+          <Form.Group controlId="filter-name" className="mb-4">
             <Form.Control
               type="text"
-              name="species"
-              value={filters.species}
+              name="name"
+              value={filters.name}
               onChange={handleFilterChange}
               placeholder="Search by Name or Origin"
             />
@@ -214,14 +214,14 @@ const KoiList = () => {
                       <Card.Img
                         variant="top"
                         src={koiImage.urlPath}
-                        alt={`${koi.species} Image`}
+                        alt={`${koi.name} Image`}
                         className="koiList-card"
                       />
                     ) : (
                       <Card.Img alt="img" className="koiList-card" />
                     )}
                     <Card.Body>
-                      <Card.Title>{koi.species}</Card.Title>
+                      <Card.Title>{koi.name}</Card.Title>
                       <Card.Text>Price: {koi.price} VND</Card.Text>
                       <Card.Text>
                         Category:{" "}

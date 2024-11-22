@@ -37,7 +37,7 @@ function KoiFishList() {
         return response.json();
       })
       .then((data) => {
-        const activeKoi = data.$values.filter((koi) => koi.status === "Active" && !koi.isDeleted);
+        const activeKoi = data.$values.filter((koi) => koi.status === "Active" || koi.status === "Pending");
         const soldKoi = data.$values.filter((koi) => koi.status === "Sold" && !koi.isDeleted);
         const deletedKoi = data.$values.filter((koi) => koi.status === "Inactive" || koi.isDeleted);
   
