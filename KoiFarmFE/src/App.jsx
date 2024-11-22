@@ -19,6 +19,7 @@ import History from "./pages/Customer/cart/history";
 import ProtectedRoute from "./pages/Guest/login/auth";
 import User from "./pages/Customer/user/user";
 import ProductCard from "./pages/Guest/card/products";
+import Footer from "./pages/Guest/Component/Footer";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/user" element={<User />} />
           <Route path="/card" element={<ProductCard />} />
         </Routes>
+        <Footer />
       </Router>
     </>
   );
