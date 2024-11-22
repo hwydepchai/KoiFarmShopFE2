@@ -245,8 +245,10 @@ function AddKoi() {
                 value={newKoi.Name}
                 onChange={handleChange}
                 required
+                style={{ textTransform: "capitalize" }} 
               />
             </div>
+
             {/* Category */}
             <div className="col-md-2">
               <label htmlFor="CategoryId" className="form-label">
@@ -359,20 +361,33 @@ function AddKoi() {
                 required
               />
             </div>
+
             {/* Diet */}
             <div className="col-md-2">
               <label htmlFor="Diet" className="form-label">
                 Diet
               </label>
-              <input
-                type="text"
-                className="form-control"
+              <select
+                className="form-select"
                 id="Diet"
                 name="Diet"
                 value={newKoi.Diet}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Diet
+                </option>
+                <option value="Pellets">Pellets</option>
+                <option value="Flakes">Flakes</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Shrimp">Shrimp</option>
+                <option value="Worms">Worms</option>
+                <option value="Insects">Insects</option>
+                <option value="Cheerios">Cheerios</option>
+                <option value="Rice">Rice</option>
+              </select>
             </div>
 
             {/* Amount of Food */}
@@ -387,6 +402,7 @@ function AddKoi() {
                 name="AmountFood"
                 value={newKoi.AmountFood}
                 onChange={handleChange}
+                placeholder="(g)"
                 required
               />
             </div>
