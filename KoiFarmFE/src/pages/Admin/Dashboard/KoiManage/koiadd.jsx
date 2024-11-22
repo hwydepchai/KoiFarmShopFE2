@@ -245,7 +245,7 @@ function AddKoi() {
                 value={newKoi.Name}
                 onChange={handleChange}
                 required
-                style={{ textTransform: "capitalize" }} 
+                style={{ textTransform: "capitalize" }}
               />
             </div>
 
@@ -413,6 +413,8 @@ function AddKoi() {
                 name="ScreeningRate"
                 value={newKoi.ScreeningRate}
                 onChange={handleChange}
+                min="0"
+                max="100"
                 placeholder="%"
                 required
               />
@@ -428,15 +430,13 @@ function AddKoi() {
                 name="Price"
                 value={newKoi.Price}
                 onChange={handleChange}
+                min="10000"
                 placeholder="VND"
                 required
               />
             </div>
           </div>
         </div>
-
-        {/* Price */}
-        <div className="col-12"></div>
 
         {/* Submit Button */}
         <div className="col-12">
