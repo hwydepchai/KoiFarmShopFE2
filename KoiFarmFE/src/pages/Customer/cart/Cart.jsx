@@ -9,8 +9,6 @@ const Cart = () => {
   const navigate = useNavigate(); // Sử dụng navigate để điều hướng
   const { cartId } = location.state || {};
   const [orders, setOrders] = useState([]);
-  const [koiDetails, setKoiDetails] = useState({});
-  const [koiFishyDetails, setKoiFishyDetails] = useState({});
   const [accountDetails, setAccountDetails] = useState({});
 
   useEffect(() => {
@@ -33,25 +31,25 @@ const Cart = () => {
         setOrders(pendingOrders);
 
         pendingOrders.forEach((order) => {
-          if (order.koiId != null) {
-            axios
-              .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
-              .then((response) => {
-                setKoiDetails((prev) => ({
-                  ...prev,
-                  [order.koiId]: response.data,
-                }));
-              });
-          } else if (order.koiFishyId != null) {
-            axios
-              .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
-              .then((response) => {
-                setKoiFishyDetails((prev) => ({
-                  ...prev,
-                  [order.koiFishyId]: response.data,
-                }));
-              });
-          }
+          // if (order.koiId != null) {
+          //   axios
+          //     .get(`https://localhost:7229/api/KoiFish/${order.koiId}`)
+          //     .then((response) => {
+          //       setKoiDetails((prev) => ({
+          //         ...prev,
+          //         [order.koiId]: response.data,
+          //       }));
+          //     });
+          // } else if (order.koiFishyId != null) {
+          //   axios
+          //     .get(`https://localhost:7229/api/KoiFishy/${order.koiFishyId}`)
+          //     .then((response) => {
+          //       setKoiFishyDetails((prev) => ({
+          //         ...prev,
+          //         [order.koiFishyId]: response.data,
+          //       }));
+          //     });
+          // }
 
           axios
             .get(`https://localhost:7229/api/Accounts/${order.accountId}`)
@@ -109,6 +107,7 @@ const Cart = () => {
         <thead>
           <tr>
             <th>No</th>
+            <th>Name</th>
             <th>Price (VND)</th>
             <th>Status</th>
             <th>Address</th>
@@ -125,7 +124,21 @@ const Cart = () => {
             return (
               <tr key={order.id}>
                 <td>{index + 1}</td>
-                <td>{order.price.toLocaleString()} VND</td>
+                <td>
+                  <ul>
+                    {order.items?.$values && order.items.$values.length > 0 ? (
+                      order.items.$values.map((item, i) => (
+                        <li key={i}>{item.name}</li>
+                      ))
+                    ) : (
+                      <li>No items</li>
+                    )}
+                  </ul>
+                </td>
+                <td>
+                  {order.totalPrice ? order.totalPrice.toLocaleString() : "0"}{" "}
+                  VND
+                </td>
                 <td>{order.status}</td>
                 <td>{address}</td>
                 <td>{phone}</td>
