@@ -12,7 +12,7 @@ function KoiFishyAdd() {
     yearOfBirth: "",
     variety: "",
     origin: "",
-    diet: "",
+    diet: "", // Add diet here
     character: "",
     categoryId: "",
     price: "",
@@ -20,17 +20,16 @@ function KoiFishyAdd() {
     status: "Active",
     img: null,
   });
-  const [categories, setCategories] = useState([]); // State to store categories
-  const [error, setError] = useState(""); // State for error message
-  const [imagePreview, setImagePreview] = useState(""); // State for image preview
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
   const navigate = useNavigate();
 
-  // Fetch categories from the API when the component mounts
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get("https://localhost:7229/api/Category");
-        setCategories(response.data.$values); // Set categories from API response
+        setCategories(response.data.$values);
       } catch (error) {
         console.error("Error fetching categories:", error);
         alert("Failed to load categories. Please try again.");
@@ -47,7 +46,6 @@ function KoiFishyAdd() {
       [name]: type === "file" ? files[0] : value,
     });
 
-    // If the input is an image, update the preview
     if (type === "file" && files.length > 0) {
       const file = files[0];
       setImagePreview(URL.createObjectURL(file));
@@ -60,7 +58,7 @@ function KoiFishyAdd() {
     // Validate quantity (ensure it's 10 or above)
     if (parseInt(formData.quantity) < 10) {
       setError("Quantity must be 10 or above.");
-      return; // Prevent form submission
+      return;
     }
 
     // Validate price (ensure it's at least 10,000)
@@ -69,7 +67,6 @@ function KoiFishyAdd() {
       return;
     }
 
-    // Clear error if validation passes
     setError("");
 
     const data = new FormData();
@@ -79,7 +76,7 @@ function KoiFishyAdd() {
     data.append("yearOfBirth", formData.yearOfBirth);
     data.append("variety", formData.variety);
     data.append("origin", formData.origin);
-    data.append("diet", formData.diet);
+    data.append("diet", formData.diet); // Add diet to form data
     data.append("character", formData.character);
     data.append("categoryId", formData.categoryId);
     data.append("price", formData.price);
@@ -94,7 +91,7 @@ function KoiFishyAdd() {
         },
       });
       alert("Koi Fishy added successfully!");
-      navigate("/dashboard/KoiFishy"); // Redirect to the list page
+      navigate("/dashboard/KoiFishy");
     } catch (error) {
       console.error("Error adding new koi fishy:", error);
       alert("Failed to add new Koi Fishy. Please try again.");
@@ -104,10 +101,8 @@ function KoiFishyAdd() {
   return (
     <div className="container mt-4">
       <h2>Add New Koi Fishy</h2>
-      {error && <div className="alert alert-danger">{error}</div>}{" "}
-      {/* Show error message */}
+      {error && <div className="alert alert-danger">{error}</div>}
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        {/* Name Input */}
         <div className="row">
           <div className="form-group col-md-4">
             <label>Name</label>
@@ -122,7 +117,6 @@ function KoiFishyAdd() {
             />
           </div>
 
-          {/* Gender Radio Buttons */}
           <div className="form-group col-md-2 d-flex flex-column">
             <br />
             <label className="mr-3">
@@ -146,12 +140,22 @@ function KoiFishyAdd() {
               Female
             </label>
           </div>
+          {/* Diet Input */}
+          <div className="form-group col-md-6">
+            <label>Diet</label>
+            <input
+              type="text"
+              className="form-control"
+              name="diet"
+              value={formData.diet}
+              onChange={handleChange}
+              placeholder="Enter the diet of the koi fish"
+            />
+          </div>
         </div>
 
         <div className="row">
-          {/* Left Column (Number Inputs) */}
           <div className="col-md-6">
-            {/* Size Input */}
             <div className="form-group">
               <label>Size (cm)</label>
               <input
@@ -165,7 +169,6 @@ function KoiFishyAdd() {
               />
             </div>
 
-            {/* Year of Birth Input */}
             <div className="form-group">
               <label>Year of Birth</label>
               <input
@@ -179,7 +182,6 @@ function KoiFishyAdd() {
               />
             </div>
 
-            {/* Price Input */}
             <div className="form-group">
               <label>Price</label>
               <input
@@ -194,7 +196,6 @@ function KoiFishyAdd() {
               />
             </div>
 
-            {/* Quantity Input */}
             <div className="form-group">
               <label>Quantity</label>
               <input
@@ -210,9 +211,7 @@ function KoiFishyAdd() {
             </div>
           </div>
 
-          {/* Right Column (Dropdown Inputs) */}
           <div className="col-md-6">
-            {/* Variety Dropdown */}
             <div className="form-group">
               <label>Variety</label>
               <select
@@ -234,7 +233,6 @@ function KoiFishyAdd() {
               </select>
             </div>
 
-            {/* Origin Dropdown */}
             <div className="form-group">
               <label>Origin</label>
               <select
@@ -254,7 +252,6 @@ function KoiFishyAdd() {
               </select>
             </div>
 
-            {/* Character Dropdown */}
             <div className="form-group">
               <label>Character</label>
               <select
@@ -273,7 +270,6 @@ function KoiFishyAdd() {
               </select>
             </div>
 
-            {/* Category Dropdown */}
             <div className="form-group">
               <label>Category</label>
               <select
@@ -291,31 +287,34 @@ function KoiFishyAdd() {
                 ))}
               </select>
             </div>
+
+            {/* Image Preview */}
+            <div className="form-group">
+              <label>Image</label>
+              <input
+                type="file"
+                className="form-control"
+                name="img"
+                onChange={handleChange}
+                accept="image/*"
+              />
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Image preview"
+                  className="mt-3"
+                  style={{ width: "200px" }}
+                />
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Image Input and Preview */}
         <div className="form-group">
-          <label>Image</label>
-          <input
-            type="file"
-            className="form-control"
-            name="img"
-            onChange={handleChange}
-          />
-          {imagePreview && (
-            <img
-              src={imagePreview}
-              alt="Image Preview"
-              className="mt-3"
-              style={{ maxHeight: "200px" }}
-            />
-          )}
+          <button type="submit" className="btn btn-primary">
+            Add Koi Fishy
+          </button>
         </div>
-
-        <button type="submit" className="btn btn-primary mt-3">
-          Add Koi Fishy
-        </button>
       </form>
     </div>
   );

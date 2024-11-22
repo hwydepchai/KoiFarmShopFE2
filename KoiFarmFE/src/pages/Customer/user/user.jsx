@@ -14,13 +14,22 @@ const User = () => {
   // Function to format date to "HH:mm dd/MM/yyyy"
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
     const year = date.getFullYear();
-    
+
     return `${hours}:${minutes} ${day}/${month}/${year}`;
+  };
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
   };
 
   useEffect(() => {
@@ -54,11 +63,7 @@ const User = () => {
   const validateField = (name, value) => {
     let error = "";
 
-    if (name === "name") {
-      error = /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(value)
-        ? ""
-        : "Each word should start with an uppercase letter.";
-    } else if (name === "email") {
+    if (name === "email") {
       error = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)
         ? ""
         : "Enter a valid email format.";
@@ -82,12 +87,17 @@ const User = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Auto uppercase for 'name' field
+    const updatedValue = name === "name" ? value.toUpperCase() : value;
+
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: updatedValue,
       modifiedDate: new Date().toISOString(), // Update modifiedDate to the current date
     }));
-    validateField(name, value);
+
+    validateField(name, updatedValue);
   };
 
   const handleSave = async () => {
@@ -139,7 +149,11 @@ const User = () => {
                 { label: "Gender", key: "gender" },
                 { label: "Phone", key: "phone" },
                 { label: "Address", key: "address" },
-                { label: "Date of Birth", key: "dateOfBirth" },
+                {
+                  label: "Date of Birth",
+                  key: "dateOfBirth",
+                  value: formatTime(userData.dateOfBirth),
+                },
                 {
                   label: "Last Update",
                   key: "modifiedDate",
