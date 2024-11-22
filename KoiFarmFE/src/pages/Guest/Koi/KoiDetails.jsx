@@ -19,8 +19,8 @@ const KoiDetails = () => {
   const [koi, setKoi] = useState(null);
   const [categories, setCategories] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
-  const [certificate, setCertificate] = useState(null);
-  const [certificateImages, setCertificateImages] = useState([]);
+  const [certificate, setCertificate] = useState(null); // Certificate data
+  const [certificateImages, setCertificateImages] = useState([]); // Images linked to certificate
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -31,7 +31,6 @@ const KoiDetails = () => {
           axios.get(`https://localhost:7229/api/KoiFish/${id}`),
           axios.get("https://localhost:7229/api/Category"),
           axios.get("https://localhost:7229/api/Image"),
-          axios.get("https://localhost:7229/api/Cart"),
         ]);
 
         const koiData = koiRes.data;
@@ -49,23 +48,7 @@ const KoiDetails = () => {
           );
           setCertificate(certRes.data);
 
-          const userData = JSON.parse(localStorage.getItem("user"));
-          const userId = userData?.userId;
-          const userCart = cartRes.data.$values.find(
-            (cart) => cart.accountId === userId && !cart.isDeleted
-          );
-
-          if (userCart) {
-            const cartItemsRes = await axios.get(
-              `https://localhost:7229/api/CartItem?cartId=${userCart.id}`
-            );
-            const isInCart = cartItemsRes.data.$values.some(
-              (item) => item.koiFishId === koiData.id
-            );
-            setKoi({ ...koiData, isInCart });
-          }
-
-          // Filter images
+          // Filter images linked to the certificate
           const certImages = imagesRes.data.$values.filter(
             (img) => img.originCertificateId === koiData.originCertificateId
           );
@@ -86,11 +69,6 @@ const KoiDetails = () => {
 
   const addToCart = async () => {
     try {
-      if (koi.status === "pending") {
-        setErrorMessage("This koi is pending and cannot be added to the cart.");
-        return;
-      }
-
       const userData = JSON.parse(localStorage.getItem("user"));
       const userId = userData?.userId;
 
@@ -112,18 +90,6 @@ const KoiDetails = () => {
           price: 0,
         });
         userCart = newCartRes.data;
-      }
-
-      const cartItemsRes = await axios.get(
-        `https://localhost:7229/api/CartItem?cartId=${userCart.id}`
-      );
-      const isAlreadyInCart = cartItemsRes.data.$values.some(
-        (item) => item.koiFishId === koi.id
-      );
-
-      if (isAlreadyInCart) {
-        setErrorMessage("This koi has already been added to the cart.");
-        return;
       }
 
       const cartItem = {
@@ -241,9 +207,7 @@ const KoiDetails = () => {
                     variant="primary"
                     onClick={addToCart}
                     className="w-100"
-                    disabled={
-                      koi.isDeleted || koi.status === "pending" || koi.isInCart
-                    }
+                    disabled={koi.isDeleted}
                   >
                     Add to Cart
                   </Button>
@@ -291,6 +255,7 @@ const KoiDetails = () => {
                 <strong>Place of Issue:</strong> {certificate.placeOfIssue}
               </Col>
             </Row>
+            <Row></Row>
           </Card.Body>
         </Card>
       )}

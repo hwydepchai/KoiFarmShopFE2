@@ -205,6 +205,7 @@ function LoginPage() {
                 pattern="^[A-Za-z]+(?: [A-Za-z]+)*$"
                 title="Full name should only contain letters and spaces."
                 placeholder="Full name"
+                style={{ textTransform: "capitalize" }}
               />
             </div>
             <div className="d-flex gap-4 mb-2">
@@ -243,6 +244,7 @@ function LoginPage() {
                 onChange={handleRegisterChange}
                 required
                 placeholder="Address"
+                style={{ textTransform: "capitalize" }}
               />
             </div>
             <div className="form-group mb-2 d-flex align-items-center">
