@@ -28,6 +28,31 @@ const KoiyDetails = () => {
         );
         setImages(koiImages);
 
+        const userData = JSON.parse(localStorage.getItem("user"));
+        const userId = userData?.userId;
+
+        if (userId) {
+          const cartResponse = await axios.get(
+            "https://localhost:7229/api/Cart"
+          );
+          const userCart = cartResponse.data.$values.find(
+            (cart) => cart.accountId === userId && !cart.isDeleted
+          );
+
+          if (userCart) {
+            const cartItemsResponse = await axios.get(
+              `https://localhost:7229/api/CartItem?cartId=${userCart.id}`
+            );
+            const isInCart = cartItemsResponse.data.$values.some(
+              (item) => item.koiFishyId === parseInt(id)
+            );
+            setKoiyDetails((prevDetails) => ({
+              ...prevDetails,
+              isInCart,
+            }));
+          }
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching koi fish details:", error);
@@ -133,10 +158,25 @@ const KoiyDetails = () => {
                 <button
                   className="btn btn-lg btn-success"
                   onClick={handleAddToCart}
-                  disabled={koiyDetails.isDeleted}
+                  disabled={
+                    koiyDetails.isDeleted ||
+                    koiyDetails.status === "pending" ||
+                    koiyDetails.isInCart
+                  }
                 >
                   Add to Cart
                 </button>
+                {koiyDetails.isInCart && (
+                  <p className="text-success text-center mt-2">
+                    This koi is already in your cart.
+                  </p>
+                )}
+                {koiyDetails.status === "pending" && (
+                  <p className="text-danger text-center mt-2">
+                    This koi is currently pending and cannot be added to the
+                    cart.
+                  </p>
+                )}
               </div>
             </div>
           </div>
