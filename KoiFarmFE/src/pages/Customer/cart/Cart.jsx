@@ -86,19 +86,19 @@ const Cart = () => {
     }
   };
 
-  const handleCancel = async (orderId) => {
-    try {
-      // Gửi yêu cầu cập nhật trạng thái đơn hàng thành "Canceled"
-      await axios.put(`https://localhost:7229/api/Order/${orderId}`, {
-        status: "Canceled",
-      });
+  // const handleCancel = async (orderId) => {
+  //   try {
+  //     // Gửi yêu cầu cập nhật trạng thái đơn hàng thành "Canceled"
+  //     await axios.put(`https://localhost:7229/api/Order/${orderId}`, {
+  //       status: "Canceled",
+  //     });
 
-      navigate("/history");
-    } catch (error) {
-      console.error("Error canceling order:", error);
-      alert("Failed to cancel the order. Please try again.");
-    }
-  };
+  //     navigate("/history");
+  //   } catch (error) {
+  //     console.error("Error canceling order:", error);
+  //     alert("Failed to cancel the order. Please try again.");
+  //   }
+  // };
 
   return (
     <Container>
@@ -148,16 +148,18 @@ const Cart = () => {
                       <Button
                         variant="success"
                         className="me-2"
-                        onClick={() => handlePurchase(order.id)}
+                        onClick={() =>
+                          handlePurchase(order.id || order.orderId)
+                        }
                       >
                         Purchase
                       </Button>
-                      <Button
+                      {/* <Button
                         variant="danger"
-                        onClick={() => handleCancel(order.id)}
+                        onClick={() => handleCancel(order.id || order.orderId)}
                       >
                         Cancel
-                      </Button>
+                      </Button> */}
                     </>
                   )}
                 </td>
