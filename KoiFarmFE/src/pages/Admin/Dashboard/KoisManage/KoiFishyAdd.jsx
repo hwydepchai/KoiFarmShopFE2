@@ -266,6 +266,7 @@ function KoiFishyAdd() {
               >
                 <option value="">Select a character</option>
                 <option value="Calm">Calm</option>
+                <option value="Friendly">Friendly</option>
                 <option value="Aggressive">Aggressive</option>
                 <option value="Playful">Playful</option>
                 <option value="Shy">Shy</option>

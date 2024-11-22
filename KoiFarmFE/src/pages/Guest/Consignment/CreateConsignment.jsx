@@ -209,7 +209,7 @@ const CreateConsignment = ({
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Amount of Food (kg)</Form.Label>
+            <Form.Label>Amount of Food (gram)</Form.Label>
             <Form.Control
               type="number"
               value={createForm.amountFood}

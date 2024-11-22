@@ -93,10 +93,9 @@ const DashboardContent = () => {
 
   useEffect(() => {
     fetchData();
-    fetchQuantities(11); // Mặc định là tháng 11
+    fetchQuantities(11); 
   }, []);
 
-  // Thay đổi số lượng khi chọn tháng mới
   useEffect(() => {
     const monthMapping = {
       January: 1,
@@ -201,9 +200,9 @@ const DashboardContent = () => {
 
   return (
     <div>
-      <h2>Biểu đồ Doanh số Theo Tháng</h2>
+      <h2>Monthly Sales Chart</h2>
       <Form.Group controlId="dataSelector" className="mb-3">
-        <Form.Label>Chọn Loại Dữ Liệu</Form.Label>
+        <Form.Label>Select Data Type</Form.Label>
         <Form.Select onChange={handleDataChange}>
           <option value="orders">Orders</option>
           <option value="koi">Koi</option>
@@ -220,7 +219,7 @@ const DashboardContent = () => {
       </div>
 
       <Form.Group controlId="monthSelector" className="mt-4">
-        <Form.Label>Chọn Tháng</Form.Label>
+        <Form.Label>Select Month</Form.Label>
         <Form.Select onChange={handleMonthChange}>
           {labels.map((month, index) => (
             <option value={month} key={index}>
@@ -238,7 +237,7 @@ const DashboardContent = () => {
       </Row>
 
       <Form.Group controlId="totalDataSelector" className="mt-4">
-        <Form.Label>Chọn Loại Dữ Liệu để Xem Tổng Số Tiền</Form.Label>
+        <Form.Label>Select Data Type to View Total Amount</Form.Label>
         <Form.Select onChange={handleTotalDataChange}>
           <option value="orders">Orders</option>
           <option value="koi">Koi</option>

@@ -314,6 +314,7 @@ function AddKoi() {
                   Select character
                 </option>
                 <option value="Calm">Calm</option>
+                <option value="Friendly">Friendly</option>
                 <option value="Aggressive">Aggressive</option>
                 <option value="Playful">Playful</option>
                 <option value="Shy">Shy</option>
@@ -378,15 +379,9 @@ function AddKoi() {
                 <option value="" disabled>
                   Select Diet
                 </option>
-                <option value="Pellets">Pellets</option>
-                <option value="Flakes">Flakes</option>
-                <option value="Vegetables">Vegetables</option>
-                <option value="Fruits">Fruits</option>
-                <option value="Shrimp">Shrimp</option>
-                <option value="Worms">Worms</option>
-                <option value="Insects">Insects</option>
-                <option value="Cheerios">Cheerios</option>
-                <option value="Rice">Rice</option>
+                <option value="Omnivorous ">Omnivorous </option>
+                <option value="Easy to feed">Easy to feed</option>
+                <option value="Fussy eater">Fussy eater</option>
               </select>
             </div>
 
@@ -402,7 +397,7 @@ function AddKoi() {
                 name="AmountFood"
                 value={newKoi.AmountFood}
                 onChange={handleChange}
-                placeholder="(g)"
+                placeholder="(gram)"
                 required
               />
             </div>

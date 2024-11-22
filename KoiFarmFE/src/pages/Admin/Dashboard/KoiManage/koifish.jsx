@@ -460,6 +460,7 @@ function KoiFishList() {
                     }
                   >
                     <option value="Calm">Calm</option>
+                    <option value="Friendly">Friendly</option>
                     <option value="Aggressive">Aggressive</option>
                     <option value="Playful">Playful</option>
                     <option value="Shy">Shy</option>
