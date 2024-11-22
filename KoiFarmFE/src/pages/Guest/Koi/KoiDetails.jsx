@@ -78,6 +78,11 @@ const KoiDetails = () => {
         return;
       }
 
+      if (koi.status === "Pending" || koi.status === "Sold" || koi.isDeleted) {
+        setErrorMessage("This koi is not available for purchase.");
+        return;
+      }
+
       const cartRes = await axios.get("https://localhost:7229/api/Cart");
       let userCart = cartRes.data.$values.find(
         (cart) => cart.accountId === userId && !cart.isDeleted
@@ -207,9 +212,15 @@ const KoiDetails = () => {
                     variant="primary"
                     onClick={addToCart}
                     className="w-100"
-                    disabled={koi.isDeleted}
+                    disabled={
+                      koi.isDeleted ||
+                      koi.status === "Pending" ||
+                      koi.status === "Sold"
+                    } // Disable
                   >
-                    Add to Cart
+                    {koi.status === "Pending" || koi.status === "Sold"
+                      ? "Koi unavailable"
+                      : "Add to Cart"}
                   </Button>
                 </Col>
                 <Col xs={6}>
