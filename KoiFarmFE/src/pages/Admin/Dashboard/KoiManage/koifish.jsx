@@ -37,10 +37,16 @@ function KoiFishList() {
         return response.json();
       })
       .then((data) => {
-        const activeKoi = data.$values.filter((koi) => koi.status === "Active" || koi.status === "Pending");
-        const soldKoi = data.$values.filter((koi) => koi.status === "Sold" && !koi.isDeleted);
-        const deletedKoi = data.$values.filter((koi) => koi.status === "Inactive" || koi.isDeleted);
-  
+        const activeKoi = data.$values.filter(
+          (koi) => koi.status === "Active" || koi.status === "Pending"
+        );
+        const soldKoi = data.$values.filter(
+          (koi) => koi.status === "Sold" && !koi.isDeleted
+        );
+        const deletedKoi = data.$values.filter(
+          (koi) => koi.status === "Inactive" || koi.isDeleted
+        );
+
         setKoiList(activeKoi);
         setSoldKoi(soldKoi);
         setDeletedKoi(deletedKoi);
@@ -53,7 +59,9 @@ function KoiFishList() {
   };
 
   // New function to sort sold koi by modified date
-  const sortedSoldKoi = soldKoi.sort((a, b) => new Date(b.modifiedDate) - new Date(a.modifiedDate));
+  const sortedSoldKoi = soldKoi.sort(
+    (a, b) => new Date(b.modifiedDate) - new Date(a.modifiedDate)
+  );
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -108,7 +116,7 @@ function KoiFishList() {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(file);
-      setSelectedKoi((prev ) => ({ ...prev, imgUrl: imageUrl }));
+      setSelectedKoi((prev) => ({ ...prev, imgUrl: imageUrl }));
     }
   };
 
@@ -228,7 +236,10 @@ function KoiFishList() {
           </table>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowSoldKoiModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowSoldKoiModal(false)}
+          >
             Close
           </Button>
         </Modal.Footer>
@@ -245,8 +256,11 @@ function KoiFishList() {
                   : "↓"
                 : ""}
             </th>
-            <th scope="col ```javascriptreact
-              " onClick={() => handleSort("name")}>
+            <th
+              scope="col ```javascriptreact
+              "
+              onClick={() => handleSort("name")}
+            >
               Name{" "}
               {sortConfig.key === "name"
                 ? sortConfig.direction === "asc"
@@ -383,8 +397,7 @@ function KoiFishList() {
                       onClick={() => toggleKoiStatus(koi.id, koi.isDeleted)}
                     >
                       Restore
-                     
-                      </Button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -582,16 +595,23 @@ function KoiFishList() {
               </Col>
             </Row>
 
-            {/* Remaining Inputs */}
-
             {/* Diet Inputs */}
             <Form.Group controlId="formDiet">
               <Form.Label>Diet</Form.Label>
-              <Form.Control
-                type="text"
+              <Form.Select
                 value={selectedKoi?.diet || ""}
                 onChange={(e) => handleFieldEdit("diet", e.target.value)}
-              />
+              >
+                <option value="Pellets">Pellets</option>
+                <option value="Flakes">Flakes</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Shrimp">Shrimp</option>
+                <option value="Worms">Worms</option>
+                <option value="Insects">Insects</option>
+                <option value="Cheerios">Cheerios</option>
+                <option value="Rice">Rice</option>
+              </Form.Select>
             </Form.Group>
 
             {/* Image Display */}

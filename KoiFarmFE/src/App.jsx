@@ -1,7 +1,11 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import HomePage from "./pages/Guest/home";
 import LoginPage from "./pages/Guest/login";
 import Dashboard from "./pages/Admin/Dashboard";
@@ -21,37 +25,48 @@ import User from "./pages/Customer/user/user";
 import ProductCard from "./pages/Guest/card/products";
 import Footer from "./pages/Guest/Component/Footer";
 
-function App() {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const shouldShowFooter = !user || (user.roleId !== 1 && user.roleId !== 2);
+function FooterWrapper() {
+  const location = useLocation();
 
+  // Hide footer on /dashboard/* and its subroutes
+  if (location.pathname.startsWith("/dashboard")) {
+    return null;
+  }
+
+  return <Footer />; // Show footer on all other pages
+}
+
+function App() {
   return (
-    <>
-      <Router>
+    <Router>
+      <div className="app-container">
         <Header />
-        <Routes>
-          <Route path="/*" element={<HomePage />} />
-          <Route path="/koifish" element={<KoiList />} />
-          <Route path="/koifish/:id" element={<KoiDetails />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/dashboard/*"
-            element={<ProtectedRoute element={Dashboard} />}
-          />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/payment/return" element={<PaymentReturn />} />
-          <Route path="/koifishy" element={<KoiyList />} />
-          <Route path="/koifishy/:id" element={<KoiyDetails />} />
-          <Route path="/consignment" element={<Consign />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/user" element={<User />} />
-          <Route path="/card" element={<ProductCard />} />
-        </Routes>
-        {shouldShowFooter && <Footer />}{" "}
-      </Router>
-    </>
+        <div className="main-content">
+          <Routes>
+            <Route path="/*" element={<HomePage />} />
+            <Route path="/koifish" element={<KoiList />} />
+            <Route path="/koifish/:id" element={<KoiDetails />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/dashboard/*"
+              element={<ProtectedRoute element={Dashboard} />}
+            />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/payment/return" element={<PaymentReturn />} />
+            <Route path="/koifishy" element={<KoiyList />} />
+            <Route path="/koifishy/:id" element={<KoiyDetails />} />
+            <Route path="/consignment" element={<Consign />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/user" element={<User />} />
+            <Route path="/cart" element={<ProductCard />} />
+            <Route path="/feedback" element={<Feedback />} />
+          </Routes>
+        </div>
+        <FooterWrapper /> {/* Conditionally render the Footer */}
+      </div>
+    </Router>
   );
 }
 
