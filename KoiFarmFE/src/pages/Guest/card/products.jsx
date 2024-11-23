@@ -17,13 +17,11 @@ const ProductCard = () => {
 
   const fetchCartItems = async () => {
     try {
-      // Fetch cart items
       const cartResponse = await axios.get(
         "https://localhost:7229/api/CartItem"
       );
       const items = cartResponse.data.$values.filter((item) => !item.isDeleted);
 
-      // Fetch orders to get statuses
       const orderResponse = await axios.get("https://localhost:7229/api/Order");
       const orders = orderResponse.data.$values;
 
@@ -44,7 +42,6 @@ const ProductCard = () => {
             (order) => order.cartId === item.cartId
           );
 
-          // Fetch name from the appropriate API
           let name = "Unknown Item";
           if (item.koiFishId) {
             const koiResponse = await axios.get(
@@ -71,14 +68,12 @@ const ProductCard = () => {
         })
       );
 
-      // Filter for pending status
       const pendingItems = enrichedItems.filter(
         (item) => item.status === "Pending"
       );
 
       setCartItems(pendingItems);
 
-      // Calculate total price and total koi
       const totalPrice = pendingItems.reduce(
         (sum, item) => sum + (item.price || 0),
         0
@@ -93,24 +88,24 @@ const ProductCard = () => {
     }
   };
 
-  const removeCartItem = async (id) => {
-    try {
-      await axios.delete(`https://localhost:7229/api/CartItem/${id}`);
-      fetchCartItems();
-    } catch (error) {
-      console.error("Error removing cart item:", error);
-      setAlertMessage("Failed to remove item. Please try again.");
-    }
-  };
+  // const removeCartItem = async (id) => {
+  //   try {
+  //     await axios.delete(`https://localhost:7229/api/CartItem/${id}`);
+  //     fetchCartItems();
+  //   } catch (error) {
+  //     console.error("Error removing cart item:", error);
+  //     setAlertMessage("Failed to remove item. Please try again.");
+  //   }
+  // };
 
   const handleCheckout = async () => {
     try {
-      // Check if total price is greater than 0 before proceeding
+      
       if (totalPrice <= 0) {
         setAlertMessage(
           "Your total is too low to proceed with checkout. Add more items."
         );
-        return; // Stop further execution
+        return; 
       }
 
       const user = JSON.parse(localStorage.getItem("user"));
@@ -197,7 +192,7 @@ const ProductCard = () => {
             <th>Name</th>
             <th>Price</th>
             <th>Status</th>
-            <th>Actions</th>
+            {/* <th>Actions</th> */}
           </tr>
         </thead>
         <tbody>
@@ -207,7 +202,7 @@ const ProductCard = () => {
               <td>{item.name}</td>
               <td>{(item.price || 0).toLocaleString()} VND</td>
               <td>{item.status}</td>
-              <td>
+              {/* <td>
                 <Button
                   variant="danger"
                   size="sm"
@@ -215,7 +210,7 @@ const ProductCard = () => {
                 >
                   Remove
                 </Button>
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>
