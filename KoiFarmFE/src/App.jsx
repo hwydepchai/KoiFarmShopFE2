@@ -61,6 +61,7 @@ function App() {
             <Route path="/history" element={<History />} />
             <Route path="/user" element={<User />} />
             <Route path="/cart" element={<ProductCard />} />
+            <Route path="/feedback" element={<Feedback />} />
           </Routes>
         </div>
         <FooterWrapper /> {/* Conditionally render the Footer */}
