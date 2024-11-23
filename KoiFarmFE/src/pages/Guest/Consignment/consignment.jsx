@@ -127,13 +127,14 @@ const UserConsignment = () => {
         price: consignment.price,
       };
 
-      await axios.post("https://localhost:7229/api/CartItem", cartItem, config);
-
       // await axios.put(
       //   `https://localhost:7229/api/Consignments/${consignment.id}`,
       //   { status: "Active" },
       //   config
       // );
+
+      await axios.post("https://localhost:7229/api/CartItem", cartItem, config);
+
       // Hiển thị thông báo và làm mới danh sách
       showAlert("Consignment added to cart successfully!");
       fetchUserConsignments();

@@ -51,7 +51,7 @@ const EditConsignmentModal = ({ show, handleClose, consignment, onSave }) => {
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Consignment</Modal.Title>
+        <Modal.Title>Update Consignment</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
@@ -181,7 +181,7 @@ const EditConsignmentModal = ({ show, handleClose, consignment, onSave }) => {
               Cancel
             </Button>
             <Button variant="primary" type="submit">
-              Save Changes
+              Approve
             </Button>
           </div>
         </Form>

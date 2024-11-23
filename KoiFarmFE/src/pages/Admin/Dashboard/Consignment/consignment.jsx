@@ -45,9 +45,9 @@ const ConsignmentManagement = () => {
     setShowEditModal(true);
   };
 
-  const handleApprove = (consignmentId) => {
-    navigate(`/consignment`, { state: { consignmentId } }); // Use navigate to redirect
-  };
+  // const handleApprove = (consignmentId) => {
+  //   navigate(`/consignment`, { state: { consignmentId } });
+  // };
 
   const handleReject = async (consignmentId) => {
     try {
@@ -148,13 +148,13 @@ const ConsignmentManagement = () => {
                   <Pencil size={16} />
                 </Button>
 
-                <Button
+                {/* <Button
                   variant="success"
                   size="sm"
                   onClick={() => handleApprove(consignment.id)}
                 >
                   Approve
-                </Button>
+                </Button> */}
 
                 <Button
                   variant="danger"

@@ -6,7 +6,7 @@ import { Table, Container, Button } from "react-bootstrap";
 
 const Cart = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // Sử dụng navigate để điều hướng
+  const navigate = useNavigate();
   const { cartId } = location.state || {};
   const [orders, setOrders] = useState([]);
   const [accountDetails, setAccountDetails] = useState({});

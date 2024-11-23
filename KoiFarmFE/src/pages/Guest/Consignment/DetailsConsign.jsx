@@ -110,7 +110,7 @@ const DetailsConsign = ({ consignmentId, show, onHide }) => {
                     alt={`Consignment ${consignment.name}`}
                     className="img-fluid rounded"
                     style={{
-                      maxHeight: "300px",
+                      maxHeight: "400px",
                       objectFit: "contain",
                     }}
                   />
