@@ -1,5 +1,5 @@
 .homepage-container {
-    background-color: rgb(236,231,224);
+    background-color: rgb(236, 231, 224);
     width: 100%;
     margin: 0;
 }
@@ -12,7 +12,7 @@
     height: 480px;
     min-height: 240px;
     max-height: 480px;
-    color: rgb(192,87,70);
+    color: rgb(192, 87, 70);
     background-color: black;
     background-repeat: no-repeat;
     background-size: 80% 480px;
@@ -21,7 +21,8 @@
     background-image: url(./koi_banner.jpg);
 }
 
-.hero p, h2 {
+.hero p,
+h2 {
     text-align: left;
 }
 
@@ -36,4 +37,32 @@
     .hero {
         height: 240px;
     }
-  }
+}
+
+.feedback-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-card .card-title {
+    font-weight: bold;
+}
+
+.feedback-card p {
+    margin: 5px 0;
+}
+
+.feedback-card .text-muted {
+    font-size: 0.85em;
+}
+
+.feedback-card .card-body {
+    position: relative;
+}
+
+.feedback-card .card-body .text-muted {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}

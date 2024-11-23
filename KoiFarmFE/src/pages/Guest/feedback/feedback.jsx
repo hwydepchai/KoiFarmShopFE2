@@ -15,7 +15,19 @@ const FeedbackPage = () => {
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [accountNames, setAccountNames] = useState({}); // Map of accountId to name
   const itemsPerPage = 5;
+
+  const fetchAccountName = async (accountId) => {
+    if (accountNames[accountId]) return; // Skip if already fetched
+    try {
+      const response = await fetch(`https://localhost:7229/api/Accounts/${accountId}`);
+      const data = await response.json();
+      setAccountNames((prev) => ({ ...prev, [accountId]: data.name }));
+    } catch (err) {
+      console.error(`Failed to fetch account name for ID: ${accountId}`);
+    }
+  };
 
   const fetchFeedbacks = async () => {
     try {
@@ -25,6 +37,10 @@ const FeedbackPage = () => {
         (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
       );
       setFeedbacks(sortedFeedbacks);
+
+      // Fetch account names for unique account IDs
+      const uniqueAccountIds = [...new Set(sortedFeedbacks.map((f) => f.accountId))];
+      uniqueAccountIds.forEach(fetchAccountName);
     } catch (err) {
       console.error("Failed to load feedbacks");
     }
@@ -202,7 +218,8 @@ const FeedbackPage = () => {
         {currentFeedbacks.map((feedback) => (
           <Card key={feedback.id} className="mb-3">
             <Card.Body>
-              <div className="d-flex justify-content-between align-items-start">
+              <div className="justify-content-between align-items-start">
+                <div className="">{accountNames[feedback.accountId] || "Loading..."}</div>
                 <StarRating rating={feedback.rating} />
                 <small className="text-muted">
                   {new Date(feedback.createdDate).toLocaleDateString()}
